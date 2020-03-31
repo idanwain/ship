@@ -33,12 +33,13 @@ int Port::remove_container(const Container& container, std::string command) {
 void Port::print_containers() {
 
 	std::cout << "Containters to unload from port " << this->name << ":" << std::endl;
-	for (auto it = unload.begin(); it != unload.end(); ++it) {
+	std::list<Container>::iterator it;
+	for (it = unload.begin(); it != unload.end(); ++it) {
 		std::cout << &it;
 	};
 
 	std::cout << "Containters to load from port " << this->name << ":" << std::endl;
-	for (auto it = load.begin(); it != load.end(); ++it) {
+	for (it = load.begin(); it != load.end(); ++it) {
 		std::cout << &it;
 	};
 }
