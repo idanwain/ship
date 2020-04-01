@@ -57,7 +57,6 @@ std::list<Container> Port::get_containers() {
 		lst.emplace_back(*it);
 	};
 
-	std::cout << "Containters to load from port " << this->name << ":" << std::endl;
 	for (it = load.begin(); it != load.end(); ++it) {
 		lst.emplace_back(*it);
 	};
