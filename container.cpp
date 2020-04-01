@@ -30,3 +30,10 @@ std::ostream& Container::operator<<(std::ostream& os)
 		std::endl;
 	return os;
 }
+
+bool Container::operator ==(const Container& c) {
+	if (this->get_id() == c.id) {
+		return true;
+	}
+	return false;
+}

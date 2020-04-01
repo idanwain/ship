@@ -23,6 +23,11 @@
 *
 */
 
+#ifndef CONTAINER_HEADER
+#define CONTAINER_HEADER
+
+
+
 
 #include <iostream>
 #include <cstring>
@@ -54,6 +59,8 @@ public:
 	std::string const get_id();
 	Port* const get_source();
 	Port* const get_dest();
-	std::ostream& operator<<(std::ostream& os); 
-
+	std::ostream& operator<<(std::ostream& os);
+	bool operator==(const Container& c);
 };
+
+#endif // !1

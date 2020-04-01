@@ -19,7 +19,8 @@
 * get_containers - retruns a list of all the containers assigned to a port
 *
 */
-
+#ifndef PORT_HEADER
+#define PORT_HEADER
 
 
 #include <iostream>
@@ -41,13 +42,14 @@ class Port {
 public:
 
 	/*C'tor*/
-	Port(const std::string& name, std::list<Container>& load, std::list<Container>& unload) : name(name), load(load), unload(unload) {}
+	Port(const std::string& name) : name(name), instructions(0){}
 	
 	int add_container(const Container& container, std::string command);
-	int remove_container(const Container& container, std::string command);
+	int remove_container(Container& container, std::string command);
 	void print_containers();
 	void add_instruction();
 	std::string const get_name();
 	std::list<Container> get_containers();
 };
 	
+#endif
