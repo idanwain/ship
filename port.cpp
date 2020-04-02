@@ -107,3 +107,9 @@ void Port::import_container(Ship* ship, Container& container)
 	}
 }
 
+void Port::load_to_ship(std::stack<Container>& stack, Ship* ship)
+{
+	ship->add_container(stack.top(), this);
+	stack.pop();
+}
+

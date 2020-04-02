@@ -28,6 +28,7 @@
 #include <string>
 #include <iterator> 
 #include <vector>
+#include<stack>
 
 
 #define UNLOAD "unload"
@@ -54,5 +55,7 @@ public:
 	std::vector<Container> get_containers_to(std::string command);
 	bool operator==(const Port& p);
 	void import_container(Ship* ship, Container& container);
+	void load_to_ship(std::stack<Container>& stack, Ship* ship); //need to implement
+
 };
 #endif
