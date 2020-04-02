@@ -36,30 +36,39 @@
 #include <iterator>
 #include "port.h"
 
-enum State { error, success , on_ship , pending };
+
 class Port;
 
 class Container {
+	struct Position {
+		int on_board;
+		Port* port;
+	};
 	std::string id;
 	int weight;
 	Port* source;
 	Port* destination;
-	State status;
+	Position status;
+
+	
 	
 public:
-	Container(const std::string& id, int weight, Port* const source, Port* const dest):
+	Container(const std::string& id, int weight, Port* const source, Port* const dest) :
 		id(id),
 		weight(weight),
 		source(source),
-		destination(dest),
-		status(pending) {}
+		destination(dest)
+		{
+		status.on_board = 0;
+		status.port = source;
+		}
 
-	void change_status(State status);
+	int change_status(std::string command, Port* port);
 	int get_weight();
 	std::string const get_id();
 	Port* const get_source();
 	Port* const get_dest();
-	std::ostream& operator<<(std::ostream& os);
+	friend std::ostream& operator<<(std::ostream& os, const Container& c);
 	bool operator==(const Container& c);
 };
 

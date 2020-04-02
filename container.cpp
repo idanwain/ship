@@ -1,8 +1,19 @@
 #include "port.h"
 #include "container.h"
 
-void Container::change_status(State status) {
-	this->status = status;
+int Container::change_status(std::string command, Port* port) {
+	if (command != UNLOAD || command != LOAD) {
+		return 0;
+	}
+	if (command == LOAD) {
+		this->status.on_board = 1;
+		this->status.port = nullptr;
+	}
+	else {
+		this->status.on_board = 0;
+		this->status.port = port;
+	}
+	return 1;
 };
 
 int Container::get_weight() {
@@ -21,12 +32,12 @@ Port* const Container::get_dest() {
 	return destination;
 }
 
-std::ostream& Container::operator<<(std::ostream& os)
+std::ostream& operator<<(std::ostream& os, const Container& c)
 {
-	os << "id: " << id <<
-		", weight: " << weight <<
-		", source: " << source->get_name() <<
-		", destination: " << destination->get_name() <<
+	os << "id: " << c.id <<
+		", weight: " << c.weight <<
+		", source: " << c.source->get_name() <<
+		", destination: " << c.destination->get_name() <<
 		std::endl;
 	return os;
 }

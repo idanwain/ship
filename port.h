@@ -28,6 +28,7 @@
 #include <string>
 #include <list> 
 #include <iterator> 
+#include <vector>
 
 class Container;
 
@@ -36,8 +37,8 @@ class Container;
 
 class Port {
 	std::string name;
-	std::list<Container> load;
-	std::list<Container> unload;
+	std::vector<Container> load;
+	std::vector<Container> unload;
 	int instructions;
 public:
 
@@ -45,11 +46,10 @@ public:
 	Port(const std::string& name) : name(name), instructions(0){}
 	
 	int add_container(const Container& container, std::string command);
-	int remove_container(Container& container, std::string command);
+	int remove_container(const Container& container, std::string command);
 	void print_containers();
 	void add_instruction();
 	std::string const get_name();
-	std::list<Container> get_containers();
+	std::vector<Container> get_containers();
 };
-	
 #endif

@@ -6,6 +6,11 @@
 #include <map>
 #include "port.h"
 
+#ifndef SHIP_HEADER
+#define SHIP_HEADER
+
+
+
 class Container; class Port;
 
 
@@ -15,24 +20,18 @@ class Container; class Port;
 
 
 class Ship {
-	int*** ship_plan; //temp
-	std::map<Port, std::list<Container>> containers;
-	std::list<Port> route;
-
+	std::vector<std::vector<std::vector<Container>>> shipMap;
+	std::vector<Port> route;
 
 	/*given a route of ports, the C'tor parses the containers of any port to a map*/
-	Ship(int width, int height, int depth, std::list<Port> route): route(route) {
-		//init ship plan
+	Ship(int x, int y, int z, std::vector<Port> route): route(route) {
+		//init blank ship plan
 		//**********
 		//init containers by port
-		std::list<Port>::iterator it;
-		for (it = route.begin(); it != route.end(); ++it) {
-			if (containers.find(*it) != containers.end()) {
-				std::list<Container> cp = it->get_containers();
-				containers.insert(std::pair<Port, std::list<Container>>(*it, cp));
-			}
-		}
 	}
 
+public:
 
 };
+
+#endif // !SHIP_HEADER
