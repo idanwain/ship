@@ -62,6 +62,7 @@ public:
 		status.on_board = 0;
 		status.port = source;
 		}
+		Container(){};
 
 	int change_status(std::string command, Port* port);
 	int get_weight();
