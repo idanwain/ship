@@ -33,14 +33,12 @@ void getTravelRoute(std::vector<Port*> &vec, string& str){
     while(input != NULL){
         string* s = new string(input);
 
-        if(portAlreadyExist(vec,*s)){
-            //Do not create new port rather refer to the same pointer of the prev port
-        }
-        else{
-            Port p1(*s);
-            vec.emplace_back(&p1);
+        if(!portAlreadyExist(vec,*s)){
+            Port* p1 = new Port(*s);//TODO needs to make sure d'tor of Ship destroys them.
+            vec.emplace_back(p1);
         }
         input = strtok(NULL,delim);
+        delete s;
     }
 }
 
@@ -70,8 +68,12 @@ int main(int argc, char** argv) {
     std::array<int,3> dimensions{};
     std::vector<Port*> travelRoute;
     exctractArgsForShip(travelRoute,dimensions,inFile);
+    Ship* mainShip = new Ship(dimensions[0],dimensions[1],dimensions[2],travelRoute);
 
-
+    //TODO delete --> Debugging Purpose
+    for(const auto& element : travelRoute){
+        cout << element << endl;
+    }
     //get line by line from file
     while(getline(inFile,line)){
             char* input = strtok(line.data(),delim);
