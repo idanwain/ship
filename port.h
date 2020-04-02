@@ -26,14 +26,15 @@
 #include <iostream>
 #include <cstring>
 #include <string>
-#include <list> 
 #include <iterator> 
 #include <vector>
 
-class Container;
 
 #define UNLOAD "unload"
 #define LOAD "load"
+
+class Container;
+class Ship;
 
 class Port {
 	std::string name;
@@ -50,6 +51,8 @@ public:
 	void print_containers();
 	void add_instruction();
 	std::string const get_name();
-	std::vector<Container> get_containers();
+	std::vector<Container> get_containers_to(std::string command);
+	bool operator==(const Port& p);
+	void import_container(Ship* ship, Container& container);
 };
 #endif
