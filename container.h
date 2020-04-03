@@ -57,12 +57,17 @@ public:
 		id(id),
 		weight(weight),
 		source(source),
-		destination(dest)
-		{
-		status.on_board = 0;
-		status.port = source;
-		}
-		Container(){};
+		destination(dest) {
+        status.on_board = 0;
+        status.port = source;
+    }
+
+    Container(): id("empty"){};
+
+	Container(const std::string& id1): id(id1), weight(-1), source(nullptr), destination(nullptr){
+	        status.on_board = -1;
+	        status.port = nullptr;
+	}
 
 	int change_status(std::string command, Port* port);
 	int get_weight();
@@ -73,6 +78,11 @@ public:
 	friend std::ostream& operator<<(std::ostream& os, const Container& c);
 	bool operator==(const Container& c);
 	bool operator!=(const Container& c);
+};
+
+class Block : public Container{
+public:
+    explicit Block(const std::string &id1 = "block") : Container(id1){}
 };
 
 #endif // !1
