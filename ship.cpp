@@ -30,3 +30,19 @@ void Ship::add_container(const Container& container, Port* port)
 {
 }
 
+std::vector<std::vector<std::vector<Container>>>* Ship::get_map() {
+    return &shipMap;
+}
+
+Port* Ship::getPortByName(const std::string &name){
+    for(auto port : this->route){
+        if(port->get_name() == name){
+            return port;
+        }
+    }
+    /*
+     * TODO need to deal if no such port exist in the list--> might be if we load a cargo to drop at port but
+     * the certain port doesn't exist in the route because we are not stopping at.
+     */
+}
+

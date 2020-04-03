@@ -33,7 +33,7 @@ public:
         std::vector<matrix_container> collection;
         collection.reserve(z);
         collection.resize(z,matrix_container(x,std::vector<Container>(y)));
-        shipMap = collection;
+        this->shipMap = collection;
 
 //        std::vector<std::vector<std::vector<Container>>> s(x,std::vector<std::vector<Container>>(y,std::vector<Container>(z)));
 //        shipMap = s;
@@ -41,9 +41,11 @@ public:
     std::tuple<int, int, int> get_coordinate(const Container& container); //need to implement
     std::vector<Container> get_column_at(std::tuple<int, int, int> position); //need to implement
     std::vector<Port*> get_route();
+    std::vector<std::vector<std::vector<Container>>>* get_map();
     bool has_space(); //need to implement
     bool has_weight_prob(); //need to implement
     void add_container(const Container& container, Port* port); //need to impelment
+    Port* getPortByName(const std::string &name);
 
 };
 
