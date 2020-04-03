@@ -32,6 +32,10 @@ Port* const Container::get_dest() {
 	return destination;
 }
 
+int Container::is_on_board() {
+	return status.on_board;
+}
+
 std::ostream& operator<<(std::ostream& os, const Container& c)
 {
 	os << "id: " << c.id <<
@@ -47,4 +51,9 @@ bool Container::operator ==(const Container& c) {
 		return true;
 	}
 	return false;
+}
+
+bool Container::operator!=(const Container& c)
+{
+	return *this == c;
 }

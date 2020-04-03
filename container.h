@@ -69,8 +69,10 @@ public:
 	std::string const get_id();
 	Port* const get_source();
 	Port* const get_dest();
+	int is_on_board();
 	friend std::ostream& operator<<(std::ostream& os, const Container& c);
 	bool operator==(const Container& c);
+	bool operator!=(const Container& c);
 };
 
 #endif // !1

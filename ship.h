@@ -21,20 +21,16 @@ class Container; class Port;
 
 class Ship {
 	std::vector<std::vector<std::vector<Container>>> shipMap;
-	std::vector<Port*> route;
+	std::vector<Port> route;
+
+	/*given a route of ports, the C'tor parses the containers of any port to a map*/
+	Ship(int x, int y, int z, std::vector<Port> route): route(route) {
+		//init blank ship plan
+		//**********
+		//init containers by port
+	}
 
 public:
-    /*given a route of ports, the C'tor parses the containers of any port to a map*/
-    Ship(int x, int y, int z, std::vector<Port*> route): route(route) {
-        typedef std::vector<std::vector<Container>> matrix_container;
-        std::vector<matrix_container> collection;
-        collection.reserve(z);
-        collection.resize(z,matrix_container(x,std::vector<Container>(y)));
-        shipMap = collection;
-
-//        std::vector<std::vector<std::vector<Container>>> s(x,std::vector<std::vector<Container>>(y,std::vector<Container>(z)));
-//        shipMap = s;
-    }
 
 };
 

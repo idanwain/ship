@@ -26,35 +26,30 @@
 #include <iostream>
 #include <cstring>
 #include <string>
-#include <iterator>
+#include <list> 
+#include <iterator> 
 #include <vector>
-#include "container.h"
+
+class Container;
 
 #define UNLOAD "unload"
 #define LOAD "load"
 
-class Container;
-class Ship;
-
 class Port {
-    std::string name;
-    std::vector<Container> load;
-    std::vector<Container> unload;
-    int instructions;
+	std::string name;
+	std::vector<Container> load;
+	std::vector<Container> unload;
+	int instructions;
 public:
 
-    /*C'tor*/
-    Port(const std::string& name) : name(name), instructions(0){}
-
-    int add_container(const Container& container, std::string command);
-    int remove_container(const Container& container, std::string command);
-    void print_containers();
-    void add_instruction();
-    std::string const get_name();
-    std::vector<Container> get_containers_to(std::string command);
-    bool operator==(const Port& p);
-    void import_container(Ship* ship, Container& container);
-    friend std::ostream& operator<<(std::ostream& os, const Port& p);
-
+	/*C'tor*/
+	Port(const std::string& name) : name(name), instructions(0){}
+	
+	int add_container(const Container& container, std::string command);
+	int remove_container(const Container& container, std::string command);
+	void print_containers();
+	void add_instruction();
+	std::string const get_name();
+	std::vector<Container> get_containers();
 };
 #endif
