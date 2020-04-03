@@ -4,7 +4,7 @@
 #include <algorithm>
 
 int Port::add_container(const Container& container, std::string command) {
-    if (command != UNLOAD || command != LOAD) {
+    if (command != UNLOAD && command != LOAD) {
         return 0;
     }
     if (command == LOAD) {
