@@ -3,6 +3,7 @@
 #include <string>
 #include <cstring>
 #include <array>
+#include <filesystem>
 #include "ship.h"
 
 #define lineSeparatorNum 3
@@ -194,7 +195,7 @@ int main(int argc, char** argv) {
         cout << "Error Opening file, closing program" << endl;
         exit(1);
     }
-
+// init alg list
     /*This block of code builds the route and the ship map including getting the storage constraints*/
     std::array<int,3> dimensions{};
     std::vector<Port*> travelRoute;
@@ -212,5 +213,9 @@ int main(int argc, char** argv) {
     for(const auto& element : travelRoute){
         cout << element << endl;
     }
+
+    //reluts and erros output
+
+    //delete
 
 }

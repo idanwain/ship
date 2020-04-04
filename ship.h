@@ -1,3 +1,6 @@
+#ifndef SHIP_HEADER
+#define SHIP_HEADER
+
 #include <iostream>
 #include <cstring>
 #include <string>
@@ -9,18 +12,11 @@
 #include <stack>
 
 #define ON_BOARD 1
-#ifndef SHIP_HEADER
-#define SHIP_HEADER
-
-
-
-class Container; class Port;
-
-
 #define WIDTH
 #define HEIGHT
 #define DEPTH
 
+class Container; class Port;
 
 class Ship {
     std::vector<std::vector<std::vector<Container>>> shipMap;
