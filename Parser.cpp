@@ -1,6 +1,11 @@
 #include "Parser.h"
 
 
+/**
+ * This function gets the number from the <port_symbol>_<num>.<filetype> decleration
+ * @param file_name
+ * @return the number
+ */
 int getPortNumFile(const string& file_name){
     if(file_name.size() < 6) return 0;
     int dot = file_name.find(".");
@@ -68,6 +73,7 @@ void initListDirectories(string &path,std::vector<std::vector<fs::path>> &vecOfP
         }
     }
     vecOfPaths = orderListOfDir(unOrderedList);
+    validateSequenceDirectories(vecOfPaths);
 }
 
 /**

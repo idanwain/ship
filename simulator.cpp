@@ -250,17 +250,16 @@ int main(int argc, char** argv) {
     std::tuple<Ship*,bool> tup;
     Ship* mainShip;
 
-
     initListDirectories(path,directories);
-    validateSequenceDirectories(directories);
 
     //Cartesian simulator --> Travels X Algorithms
     for(int i = 0; i < directories.size(); i++) {
         extractArgsForShip(directories[i], tup);
         if (!std::get<1>(tup)) continue; //an error occurred while parsing the ship args --> try next folder
             mainShip = std::get<0>(tup);
+            printWhereBlocks(mainShip);
             initAlgorithmList(algVec, mainShip);
-            //printWhereBlocks(mainShip);
+
 
     //        for(each algorithm in algVec){
     //            for(each file in directories[i]){
