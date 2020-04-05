@@ -46,3 +46,15 @@ Port* Ship::getPortByName(const std::string &name){
      */
 }
 
+void Ship::setRoute(std::vector<Port *> &route) {
+    this->route = route;
+}
+
+int Ship::getAxis(const std::string &str) {
+    if(str == "x") return this->x;
+    else if(str == "y") return this->y;
+    else if(str == "z") return this->z;
+    else return -1;
+
+}
+

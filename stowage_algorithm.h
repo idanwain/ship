@@ -31,7 +31,7 @@ public:
     void parse_data_to_port(const std::string& input_full_path_and_file_name);
     static std::vector<std::string> string_split(std::string s, const char* delimiter);
     void extract_containers_data(const std::string& line, std::string &id, int &weight, Port* dest);
-    virtual void get_instructions_for_craine(std::ofstream& outfile);
+    virtual void get_instructions_for_craine(std::ofstream& outfile) = 0;
 };
 
 #endif //SHIP1_STOWAGE_ALGORITHM_H

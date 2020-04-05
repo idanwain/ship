@@ -14,7 +14,7 @@ int Container::change_status(std::string command, Port* port) {
 		this->status.port = port;
 	}
 	return 1;
-};
+}
 
 int Container::get_weight() {
 	return weight;
