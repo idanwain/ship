@@ -15,7 +15,7 @@
 class Lifo_algorithm: public Algorithm {
 public:
     explicit Lifo_algorithm(Ship* ship): Algorithm(ship){}
-    void get_instructions_for_craine(std::ofstream &outfile) override;
+    void get_instructions_for_crane(std::ofstream &outfile) override;
 };
 
 

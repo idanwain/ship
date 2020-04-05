@@ -14,21 +14,21 @@ int Container::change_status(std::string command, Port* port) {
 		this->status.port = port;
 	}
 	return 1;
-};
+}
 
 int Container::get_weight() {
 	return weight;
 }
 
-std::string const Container::get_id() {
+std::string Container::get_id() {
 	return id;
 }
 
-Port* const Container::get_source() {
+Port* Container::get_source() {
 	return source;
 }
 
-Port* const Container::get_dest() {
+Port*  Container::get_dest() {
 	return destination;
 }
 

@@ -1,4 +1,4 @@
-/*
+/**
 * This module represents a container.
 * each container has a:
 * -id:
@@ -42,13 +42,13 @@ class Port;
 class Container {
 	struct Position {
 		int on_board;
-		Port* port;
+		Port* port = nullptr;
 	};
 	std::string id;
-	int weight;
-	Port* source;
-	Port* destination;
-	Position status;
+	int weight{};
+	Port* source{};
+	Port* destination{};
+	Position status{};
 
 	
 	
@@ -71,9 +71,9 @@ public:
 
 	int change_status(std::string command, Port* port);
 	int get_weight();
-	std::string const get_id();
-	Port* const get_source();
-	Port* const get_dest();
+	std::string get_id();
+	Port* get_source();
+	Port* get_dest();
 	int is_on_board();
 	friend std::ostream& operator<<(std::ostream& os, const Container& c);
 	bool operator==(const Container& c);

@@ -16,21 +16,24 @@ bool Algorithm::operator()(const std::string& input_full_path_and_file_name,
     this->port = ship->get_route().at(portNum);
 
     //parse the input data into
-    parse_data_to_port(input_full_path_and_file_name);
+    if(!parse_data_to_port(input_full_path_and_file_name)){
+        std::cout << CONTAINER_FILE_ERROR << std::endl;
+        return false;
+    };
 
     //creating an output file
-    std::ofstream output (output_full_path_and_file_name);
-    get_instructions_for_craine(output);
+    std::ofstream output(output_full_path_and_file_name);
+    get_instructions_for_crane(output);
     output.close();
     ++Algorithm::portNum;
-    return 1;
+    return true;
 }
 
  /**
   * Parses the containers data and connecting it to the "load" list of the port
   * @param input_full_path_and_file_name
   */
-void  Algorithm::parse_data_to_port(const std::string& input_full_path_and_file_name){
+bool  Algorithm::parse_data_to_port(const std::string& input_full_path_and_file_name){
     std::string line;
     std::ifstream input;
     input.open(input_full_path_and_file_name);
@@ -40,11 +43,15 @@ void  Algorithm::parse_data_to_port(const std::string& input_full_path_and_file_
     }
     while(getline(input,line)){
         std::string id; int weight; Port *dest = nullptr;
-        extract_containers_data(line, id, weight, dest);
+        if(!validate_container_data(line)){
+            return false;
+        }
+        extract_containers_data(line, id, weight, &dest);
         const Container* con = new Container(id, weight, this->port, dest);
         this->port->add_container(*con, LOAD);
     }
     input.close();
+    return true;
 }
 
 /**
@@ -80,10 +87,10 @@ std::vector<std::string>  Algorithm::string_split(std::string s, const char* del
  * @param weight - container's weight
  * @param dest - container's destination
  */
-void  Algorithm::extract_containers_data(const std::string& line, std::string &id, int &weight, Port* dest) {
+void  Algorithm::extract_containers_data(const std::string& line, std::string &id, int &weight, Port** dest) {
     int i=0;
     auto data = string_split(line, delim);
-    for(std::string item : data){
+    for(const std::string& item : data){
         switch(i){
             case 0:
                 id = item;
@@ -94,8 +101,47 @@ void  Algorithm::extract_containers_data(const std::string& line, std::string &i
                 ++i;
                 break;
             case 2:
-                dest = ship->getPortByName(item);
+                *dest = ship->getPortByName(item);
                 break;
         }
     }
+}
+
+bool is_number(const std::string& s)
+{
+    return !s.empty() && std::find_if(s.begin(),
+                     s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
+}
+
+bool Algorithm::validate_container_data(const std::string& line) {
+    int i=0;
+    auto data = string_split(line, delim);
+    for(const std::string& item : data){
+        switch(i){
+            case 0:
+//                bool id = validate_id(item); //TODO validate id
+//                if(!id){
+//                    return false;
+//                }
+//                ++i;
+//                break;
+            case 1: {
+                bool weight = is_number(item);
+                if(!weight){
+                    return false;
+                }
+                ++i;
+                break;
+            }
+            case 2:
+//                bool dest = validate_port_name(ship->getPortByName(item)); //TODO validate port name
+//                if(!dest) {
+//                    return false;
+//                }
+//                break;
+            default:
+                return true;
+        }
+    }
+    return true;
 }

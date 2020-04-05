@@ -186,7 +186,9 @@ void extractLoadContainers(Ship& ship, std::istream &inFile){
 
 
 int main(int argc, char** argv) {
-
+    if(argc < 0){ //dummy UNUSED
+        exit(0);
+    }
     std::string line;
     std::ifstream inFile;
     inFile.open(argv[1]);
