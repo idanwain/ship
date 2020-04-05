@@ -96,3 +96,15 @@ int Ship::get_top_floor(int x, int y) {
     return shipMap[x][y].size() ;
 }
 
+void Ship::setRoute(std::vector<Port *> &route) {
+    this->route = route;
+}
+
+int Ship::getAxis(const std::string &str) {
+    if(str == "x") return this->x;
+    else if(str == "y") return this->y;
+    else if(str == "z") return this->z;
+    else return -1;
+
+}
+
