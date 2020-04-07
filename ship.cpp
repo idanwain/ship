@@ -87,13 +87,8 @@ int Ship::getAxis(const std::string &str) {
 
 }
 
-void Ship::get_containers_to_unload(std::vector<Container>& vector, Port *pPort) {
-    if(this->containersByPort.find(pPort) != containersByPort.end()){
-        auto port_containers = containersByPort[pPort];
-        for(auto& con : port_containers){
-            vector.emplace_back(*con);
-        }
-    }
+std::vector<Container*>& Ship::get_containers_to_unload(Port *pPort) {
+    return this->containersByPort[pPort];
 }
 
 void Ship::add_container_to_map(Container &container) {

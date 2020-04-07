@@ -53,7 +53,7 @@ public:
     Port* getPortByName(const std::string &name, bool& is_in_route);
     void setRoute(std::vector<Port*> &route);
     int getAxis(const std::string& str);
-    void get_containers_to_unload(std::vector<Container>& vector, Port* port);
+    std::vector<Container*>& get_containers_to_unload(Port* port);
     void add_container_to_map(Container &container);
     void initContainersByPort(std::vector<Port *> &vector);
     void update_free_space(int num);
