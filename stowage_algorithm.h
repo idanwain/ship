@@ -34,6 +34,7 @@ public:
     void extract_containers_data(const std::string& line, std::string &id, int &weight, Port** dest);
     virtual void get_instructions_for_crane(std::ofstream& outfile) = 0;
     static bool validate_container_data(const std::string& line);
+    virtual const std::string getTypeName() const = 0;
 };
 
 #endif //SHIP1_STOWAGE_ALGORITHM_H
