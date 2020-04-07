@@ -153,3 +153,7 @@ std::tuple<int,int> Ship::find_min_floor(){
 //    }
 //    return std::tuple<int,int>(x,y); //dummy return
 //}
+void Ship::update_free_space(int num){
+    this->freeSpace += num;
+}
+

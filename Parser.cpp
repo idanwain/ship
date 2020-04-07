@@ -82,18 +82,64 @@ void initListDirectories(string &path,std::vector<std::vector<fs::path>> &vecOfP
  */
 void validateSequenceDirectories(std::vector<std::vector<fs::path>> &direct) {
     string msg;
+    setActualSize(direct);
     for (int i = 0; i < direct.size(); i++) {
         for (int j = 0; j < direct[i].size(); j++) {
             if (direct[i][j].empty()) {
+                msg.clear();
                 if (j == 0) msg = "ship_plan";
                 else if (j == 1) msg = "ship_route";
-                else msg.append("port num " + std::to_string(j+1));
-                std::cout << "Folder Travel " << ++i << " lack of " << msg
+                else msg.append("port num " + std::to_string(j-1));
+                std::cout << "Folder Travel " << direct[i][j].filename().string() << " lack of " << msg
                           << " file, this travel folder isn't going to be tested" << std::endl;
-                direct.erase(direct.begin()+i); //Erase the i'th element from the vector
+                direct[i].clear();
+                break;
             }
         }
     }
+}
+
+/**
+ * This function sets each sub folder to it's actual size vector
+ * @post vec[i][vec[i].size()-1] != empty for every i=0..direct.size()-1
+ * @param direct
+ */
+void setActualSize(std::vector<std::vector<fs::path>> &direct){
+    for(int i = 0; i < direct.size(); i++){
+        for(int j = direct[i].size()-1; j > 0; j--){
+            if(!direct[i][j].empty()){
+                direct[i].resize(j+1);
+                break;
+            }
+        }
+    }
+}
+
+/**
+ * This function creates the outPutDirectories from list of paths.
+ * @param paths
+ * @param mainDirectory
+ */
+void createOutputDirectories(std::vector<std::vector<fs::path>> &paths,char* mainDirectory){
+    string outputDir(mainDirectory);
+    outputDir.append(OP_MAIN_DIRECTORY);
+    fs::path dir(outputDir);
+    fs::path root_path(mainDirectory);
+    if(!fs::exists(dir) && !fs::create_directory(dir,root_path)){//Case we failed to create output directory.
+        std::cout << "Failed to create output directory, exists program" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    for(auto const &list : paths){
+        if(!list.empty()){
+            string currOutputDir = outputDir + "\\" + list[0].parent_path().filename().string() +"Out";
+            fs::path dir(currOutputDir);
+            fs::path root_path(outputDir);
+            if(!fs::exists(dir)){
+                fs::create_directory(currOutputDir,outputDir);
+            }
+        }
+    }
+
 }
 
 

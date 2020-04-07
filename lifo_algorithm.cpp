@@ -52,3 +52,7 @@ void  Lifo_algorithm::get_instructions_for_crane(std::ofstream& output)  {
     }
 
 }
+
+const std::string Lifo_algorithm::getTypeName() const {
+    return this->name;
+}

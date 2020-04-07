@@ -13,9 +13,11 @@
 
 
 class Lifo_algorithm: public Algorithm {
+    const std::string name = "Lifo_algorithm";
 public:
     explicit Lifo_algorithm(Ship* ship): Algorithm(ship){}
     void get_instructions_for_crane(std::ofstream &outfile) override;
+    const std::string getTypeName() const override;
 };
 
 
