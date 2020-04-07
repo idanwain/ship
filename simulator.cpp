@@ -179,11 +179,12 @@ void getTravelRoute(Ship* &ship, std::istream &inFile) {
         string line;
         Port *dst;
         Port *src;
+        bool temp = true; // TODO handle port is not in route case
         while (getline(inFile, line) && !isTripleHashTag(line)) {
             std::tuple<string, int, string, string> tup;
             getContainerInformation(tup, line);
-            dst = ship.getPortByName(std::get<2>(tup));
-            src = ship.getPortByName((std::get<3>(tup)));
+            dst = ship.getPortByName(std::get<2>(tup), temp);
+            src = ship.getPortByName((std::get<3>(tup)), temp);
             Container *c = new Container(std::get<0>(tup), std::get<1>(tup), src, dst);
             /* TODO need to discuss the correctness of this , we might need change the data structures, it's better to pass the pointer*/
             dst->add_container(*c, "unload"); //This is not good as this are 2 different containers
@@ -258,6 +259,10 @@ int main(int argc, char** argv) {
         if (!std::get<1>(tup)) continue; //an error occurred while parsing the ship args --> try next folder
             mainShip = std::get<0>(tup);
             printWhereBlocks(mainShip);
+            Algorithm* alg = new Lifo_algorithm(mainShip);
+            std::string input = R"(C:\Users\idanw\CLionProjects\ship1\directoryTest\Travel1\AC BBC_2.txt)";
+            std::string output = R"(C:\Users\idanw\CLionProjects\ship1\directoryTest\Travel1\AC BBC_2-OUTPUT.txt)";
+            (*alg)(input, output);
             initAlgorithmList(algVec, mainShip);
 
 

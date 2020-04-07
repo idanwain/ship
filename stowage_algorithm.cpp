@@ -1,4 +1,5 @@
 #include "stowage_algorithm.h"
+#include "Parser.h"
 
 /**
  *
@@ -33,23 +34,32 @@ bool Algorithm::operator()(const std::string& input_full_path_and_file_name,
   * Parses the containers data and connecting it to the "load" list of the port
   * @param input_full_path_and_file_name
   */
-bool  Algorithm::parse_data_to_port(const std::string& input_full_path_and_file_name){
+bool  Algorithm::parse_data_to_port(const std::string& input_full_path_and_file_name) {
     std::string line;
     std::ifstream input;
+
     input.open(input_full_path_and_file_name);
+
     if(input.fail()){
         std::cout << "Error Opening file, closing program" << std::endl;
         exit(1);
     }
+
     while(getline(input,line)){
         std::string id; int weight; Port *dest = nullptr;
         if(!validate_container_data(line)){
             return false;
         }
         extract_containers_data(line, id, weight, &dest);
-        const Container* con = new Container(id, weight, this->port, dest);
-        this->port->add_container(*con, LOAD);
+        if(dest == nullptr) {
+            std::cout << id << ": "<< CONTAINER_NOT_IN_ROUTE << std::endl;
+        }
+        else {
+            const Container* con = new Container(id, weight, this->port, dest);
+            this->port->add_container(*con, "L");
+        }
     }
+
     input.close();
     return true;
 }
@@ -90,6 +100,7 @@ std::vector<std::string>  Algorithm::string_split(std::string s, const char* del
 void  Algorithm::extract_containers_data(const std::string& line, std::string &id, int &weight, Port** dest) {
     int i=0;
     auto data = string_split(line, delim);
+    std::string port_name;
     for(const std::string& item : data){
         switch(i){
             case 0:
@@ -101,47 +112,82 @@ void  Algorithm::extract_containers_data(const std::string& line, std::string &i
                 ++i;
                 break;
             case 2:
-                *dest = ship->getPortByName(item);
+                port_name = item;
+                ++i;
                 break;
+            case 3:
+                port_name += " " + item;
         }
+    }
+    bool is_in_route = true;
+    auto dest_temp = ship->getPortByName(port_name, is_in_route);
+    if(is_in_route){
+        *dest = dest_temp;
     }
 }
 
-bool is_number(const std::string& s)
-{
+bool validate_id(const std::string& str) {
+    int i = 0;
+    if (str.length() != 11)
+        return false;
+    for(auto letter : str){
+        if(i < 3){ // owner code
+            if(!isupper(letter)){
+                return false;
+            }
+        }
+        else if(i == 3){ // category identifier
+            if (letter != 'U' && letter != 'J' && letter != 'Z'){
+                return false;
+            }
+        }
+        else { // serial number & check digit
+            if(!isdigit(letter)){
+                return false;
+            }
+        }
+        ++i;
+    }
+    return true;
+}
+
+bool is_number(const std::string& s) {
     return !s.empty() && std::find_if(s.begin(),
                      s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
 }
 
 bool Algorithm::validate_container_data(const std::string& line) {
-    int i=0;
+    int i=-1;
     auto data = string_split(line, delim);
+
+    if(data.size() != 4)
+        return false;
+
+    std::string port_name;
+
     for(const std::string& item : data){
-        switch(i){
-            case 0:
-//                bool id = validate_id(item); //TODO validate id
-//                if(!id){
-//                    return false;
-//                }
-//                ++i;
-//                break;
-            case 1: {
-                bool weight = is_number(item);
-                if(!weight){
-                    return false;
-                }
-                ++i;
-                break;
+        ++i;
+        if (i == 0) {
+            bool id = validate_id(item);
+            if(!id){
+                return false;
             }
-            case 2:
-//                bool dest = validate_port_name(ship->getPortByName(item)); //TODO validate port name
-//                if(!dest) {
-//                    return false;
-//                }
-//                break;
-            default:
-                return true;
+        }
+        else if(i == 1) {
+            bool weight = is_number(item);
+            if(!weight){
+                return false;
+            }
+        }
+        else if (i == 2) {
+            port_name = item;
+        }
+        else if(i == 3){
+            port_name += " " + item;
         }
     }
-    return true;
+
+    bool dest = isValidPortName(port_name);
+    return dest;
 }
+

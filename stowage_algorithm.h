@@ -13,6 +13,7 @@
 #include <iostream>
 #include <fstream>
 #define CONTAINER_FILE_ERROR "The data in this file is not valid!"
+#define CONTAINER_NOT_IN_ROUTE "This container's destination is not in the ship's route"
 const char delim[] = {',','\t','\r',' '};
 
 

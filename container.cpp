@@ -1,11 +1,12 @@
 #include "port.h"
 #include "container.h"
+#include "Parser.h"
 
-int Container::change_status(std::string command, Port* port) {
-	if (command != UNLOAD || command != LOAD) {
+int Container::change_status(std::string& command, Port* port) {
+	if (command != "U" || command != "L") {
 		return 0;
 	}
-	if (command == LOAD) {
+	if (command == "L") {
 		this->status.on_board = 1;
 		this->status.port = nullptr;
 	}
@@ -47,13 +48,9 @@ std::ostream& operator<<(std::ostream& os, const Container& c)
 }
 
 bool Container::operator ==(const Container& c) {
-	if (this->get_id() == c.id) {
-		return true;
-	}
-	return false;
+    return this->get_id() == c.id;
 }
 
-bool Container::operator!=(const Container& c)
-{
+bool Container::operator!=(const Container& c) {
 	return *this == c;
 }

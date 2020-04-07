@@ -1,14 +1,15 @@
 #include "port.h"
 #include "container.h"
 #include "ship.h"
+#include "Parser.h"
 #include <algorithm>
 #include <fstream>
 
 int Port::add_container(const Container& container, const std::string& command) {
-    if (command != UNLOAD && command != LOAD) {
+    if (command != "U" && command != "L") {
         return 0;
     }
-    if (command == LOAD) {
+    if (command == "L") {
         load.emplace_back(container);
     }
     else {
@@ -18,10 +19,10 @@ int Port::add_container(const Container& container, const std::string& command) 
 }
 
 int Port::remove_container(const Container& container, const std::string& command) {
-    if (command != UNLOAD || command != LOAD) {
+    if (command != "U" || command != "L") {
         return 0;
     }
-    if (command == LOAD) {
+    if (command == "L") {
         auto it = std::find(load.begin(), load.end(), container);
         if (it != load.end()) {
             load.erase(it);
@@ -58,25 +59,33 @@ const std::string&  Port::get_name() {
     return name;
 }
 
-
-std::vector<Container> Port::get_containers_to(const std::string& command){
-    std::vector<Container> vec;
-    if (command != UNLOAD || command != LOAD) {
-        return vec;
-    }
-    if (command == LOAD) {
-        for (auto & it : load) {
-            vec.emplace_back(it);
-        };
-    }
-    else {
-        for (auto & it : unload) {
-            vec.emplace_back(it);
-        };
-    }
-
-    return vec;
+void Port::get_containers_to_load(std::vector<Container>& vec){
+    for (auto & it : load) {
+        vec.emplace_back(it);
+    };
 }
+
+//void Port::get_containers_to_unload(std::vector<Container>& vec){
+//    for (auto & it : unload) {
+//        vec.emplace_back(it);
+//    };
+//}
+
+//void Port::get_containers_to(const std::string& command, std::vector<Container>& vec) {
+//    if (command != "U" || command != "L") {
+//        return;
+//    }
+//    if (command == "L") {
+//        for (auto & it : load) {
+//            vec.emplace_back(it);
+//        };
+//    }
+//    else {
+//        for (auto & it : unload) {
+//            vec.emplace_back(it);
+//        };
+//    }
+//}
 
 bool Port::operator==(const Port& p)
 {
@@ -107,21 +116,21 @@ void Port::import_container(Ship* ship, Container& container, std::ofstream& out
         }
 
         column.pop_back();
-        write_instruction_to_file(output, UNLOAD, it->get_id(), pos);
+        write_instruction_to_file(output, "U", it->get_id(), pos);
         --it;
 
         if (*it == container) {
-            write_instruction_to_file(output, UNLOAD, it->get_id(), pos);
+            write_instruction_to_file(output, "U", it->get_id(), pos);
             it = column.erase(it);
         }
 
-        this->remove_container(*it, UNLOAD); // stowage algorithm ambiguity
+        this->remove_container(*it, "U"); // stowage algorithm ambiguity
     }
 }
 
-void Port::load_to_ship(std::stack<Container>& stack, Ship* ship)
+void Port::load_to_ship(Container& container, Ship* ship)
 {
-    std::tuple<int,int> coordinate = ship->find_first_free_spot();
-    ship->add_container(stack.top(), coordinate);
-    stack.pop();
+    std::tuple<int,int> coordinate = ship->find_min_floor();
+    ship->add_container(container, coordinate);
+    instructions++;
 }

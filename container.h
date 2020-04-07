@@ -26,16 +26,12 @@
 #ifndef CONTAINER_HEADER
 #define CONTAINER_HEADER
 
-
-
-
 #include <iostream>
 #include <cstring>
 #include <string>
 #include <list> 
 #include <iterator>
 #include "port.h"
-
 
 class Port;
 
@@ -50,8 +46,6 @@ class Container {
 	Port* destination{};
 	Position status{};
 
-	
-	
 public:
 	Container(const std::string& id, int weight, Port* const source, Port* const dest) :
 		id(id),
@@ -69,7 +63,7 @@ public:
 	        status.port = nullptr;
 	}
 
-	int change_status(std::string command, Port* port);
+	int change_status(std::string& command , Port* port);
 	int get_weight();
 	std::string get_id();
 	Port* get_source();

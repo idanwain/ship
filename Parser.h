@@ -13,7 +13,6 @@ using std::endl;
 using std::string;
 namespace fs = std::filesystem;
 
-
 int getPortNumFile(const string& file_name);
 bool isValidPortExpressionFile(const string& file_name);
 std::vector<std::vector<fs::path>> orderListOfDir(std::list<std::list<fs::path>> &unOrdered);

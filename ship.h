@@ -19,7 +19,8 @@
 class Container; class Port;
 
 class Ship {
-    std::vector<std::vector<std::vector<Container>>> shipMap;
+    std::vector<std::vector<std::vector<Container>>> shipMap; //TODO make empty slots empty, use reserve
+    std::map<Port*, std::vector<Container*>> containersByPort;
     std::vector<Port*> route;
     int freeSpace;
     int x;
@@ -47,15 +48,18 @@ public:
     std::vector<Container>& get_column_at(std::tuple<int, int, int> position);
     std::vector<Port*> get_route();
     std::vector<std::vector<std::vector<Container>>>* get_map();
-    bool has_space(); //TODO check space in ship, maybe need to maintaine number of free spots for containers on ship
+    bool has_space(); //TODO check space in ship, maybe need to maintain number of free spots for containers on ship
     bool has_weight_prob(); //TODO change name of function according to instructions and implement weight problems check
-    void add_container(const Container& container, std::tuple<int,int> coordinate); //TODO add container on board
-    Port* getPortByName(const std::string &name);
+    void add_container(Container& container, std::tuple<int,int> coordinate); //TODO add container on board
+    Port* getPortByName(const std::string &name, bool& is_in_route);
     void setRoute(std::vector<Port*> &route);
     int getAxis(const std::string& str);
-    int get_top_floor(int x, int y);
-    std::tuple<int, int> find_first_free_spot();
-
+    void get_containers_to_unload(std::vector<Container>& vector, Port* port);
+    void add_container_to_map(Container &container);
+    void initContainersByPort(std::vector<Port *> &vector);
+    std::tuple<int, int> find_min_floor();
+    //int get_top_floor(int x, int y);
+    //std::tuple<int, int> find_first_free_spot();
 };
 
 #endif // !SHIP_HEADER

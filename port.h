@@ -28,16 +28,13 @@
 #include <string>
 #include <iterator>
 #include <vector>
-#include<stack>
-#include "container.h"
+#include <stack>
 
-#define REJECT "R"
-#define UNLOAD "U"
-#define LOAD "L"
 #define MOVE "M"
 
 class Container;
 class Ship;
+
 
 class Port {
     std::string name;
@@ -54,11 +51,12 @@ public:
     void print_containers();
     void add_instruction();
     const std::string & get_name();
-    std::vector<Container> get_containers_to(const std::string& command);
+    //void get_containers_to(const std::string& command, std::vector<Container>& vec);
     bool operator==(const Port& p);
     void import_container(Ship* ship, Container& container, std::ofstream& output, std::vector<Container>& priority_to_load);
-    static void load_to_ship(std::stack<Container>& stack, Ship* ship); //TODO crane management
+    void load_to_ship(Container& container, Ship* ship); //TODO crane management
     static void write_instruction_to_file(std::ofstream& output , const std::string& command, const std::string& id, const std::tuple<int,int,int>& pos);
-
-    };
+    //void get_containers_to_unload(std::vector<Container> &vec);
+    void get_containers_to_load(std::vector<Container> &vec);
+};
 #endif

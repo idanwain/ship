@@ -5,8 +5,7 @@
  * X - x coordinate ,  Y - y coordinate. ,  Z - floor number
  * given a container that is certainly on the ship, returns a tuple of the container's position at the ship
  */
-std::tuple<int, int, int> Ship::get_coordinate(const Container& container)
-{
+std::tuple<int, int, int> Ship::get_coordinate(const Container& container) {
     int x = -1; int y = -1; int z = -1;
     for(auto & it_x : shipMap){
         ++x;
@@ -19,7 +18,9 @@ std::tuple<int, int, int> Ship::get_coordinate(const Container& container)
                     return std::tuple<int,int,int>(x,y,z);
                 }
             }
+            z = -1;
         }
+        y = -1;
     }
 	return std::tuple<int, int, int>();
 }
@@ -27,8 +28,7 @@ std::tuple<int, int, int> Ship::get_coordinate(const Container& container)
 /**
  * given a position, returns a vector of the column of the position
  */
-std::vector<Container>& Ship::get_column_at(std::tuple<int, int, int> position)
-{
+std::vector<Container>& Ship::get_column_at(std::tuple<int, int, int> position) {
 	return shipMap[std::get<0>(position)][std::get<1>(position)];
 }
 
@@ -36,36 +36,35 @@ std::vector<Port*> Ship::get_route() {
 	return this->route;
 }
 
-bool Ship::has_space()
-{
-    //return freeSpots > 0;
-    return true;
+bool Ship::has_space() {
+    return freeSpace > 0;
 }
 
-bool Ship::has_weight_prob()
-{
+bool Ship::has_weight_prob() {
 	return false;
 }
 
-bool full_column(const std::vector<Container>& col){
+bool is_full_column(const std::vector<Container>& col) {
     return col.size() < col.capacity();
 }
 
-void Ship::add_container(const Container& container, std::tuple<int,int> coordinate)
-{
+void Ship::add_container(Container& container, std::tuple<int,int> coordinate) {
+    this->add_container_to_map(container);
     shipMap[std::get<0>(coordinate)][std::get<1>(coordinate)].emplace_back(container);
+    freeSpace--;
 }
 
 std::vector<std::vector<std::vector<Container>>>* Ship::get_map() {
     return &shipMap;
 }
 
-Port* Ship::getPortByName(const std::string &name){
-    for(auto port : this->route){
-        if(port->get_name() == name){
+Port* Ship::getPortByName(const std::string &name, bool& is_in_route) {
+    for(auto port : this->route) {
+        if(port->get_name() == name) {
             return port;
         }
     }
+    is_in_route = false;
     /*
      * TODO need to deal if no such port exist in the list--> might be if we load a cargo to drop at port but
      * the certain port doesn't exist in the route because we are not stopping at.
@@ -74,30 +73,10 @@ Port* Ship::getPortByName(const std::string &name){
     return dummy;
 }
 
-std::tuple<int, int> Ship::find_first_free_spot() {
-    int x=-1; int y=-1;
-    for(auto& it_x : shipMap){
-        ++x;
-        for(auto& it_y : it_x){
-            if(!it_y.empty()){} // UNUSED
-            ++y;
-            if(shipMap[x][y].size() >= shipMap[x][y].capacity()){
-                return std::tuple<int,int>(x,y);
-            }
-        }
-    }
-    return std::tuple<int,int>(x,y); //dummy return
-}
-
-/**
- * returns the highest free floor at (x,y) coordinate
- */
-int Ship::get_top_floor(int x, int y) {
-    return shipMap[x][y].size() ;
-}
-
 void Ship::setRoute(std::vector<Port *> &route) {
     this->route = route;
+    //init map of containers by port according to routes
+    this->initContainersByPort(route);
 }
 
 int Ship::getAxis(const std::string &str) {
@@ -108,3 +87,69 @@ int Ship::getAxis(const std::string &str) {
 
 }
 
+void Ship::get_containers_to_unload(std::vector<Container>& vector, Port *pPort) {
+    if(this->containersByPort.find(pPort) != containersByPort.end()){
+        auto port_containers = containersByPort[pPort];
+        for(auto& con : port_containers){
+            vector.emplace_back(*con);
+        }
+    }
+}
+
+void Ship::add_container_to_map(Container &container) {
+    if(this->containersByPort.find(container.get_dest()) == containersByPort.end()){
+        this->containersByPort.insert({container.get_dest(), std::vector<Container*>{&container}});
+    } else {
+        this->containersByPort[container.get_dest()].emplace_back(&container);
+    }
+}
+
+void Ship::initContainersByPort(std::vector<Port *> &vector) {
+    for(auto pPort : vector){
+        std::vector<Container*> pCon;
+        this->containersByPort.insert({pPort, pCon});
+    }
+}
+
+std::tuple<int,int> Ship::find_min_floor(){
+    std::tuple<int, int> min_floor_coor;
+    int min = INT_MAX;
+    int x=-1; int y=-1;
+    for(auto& it_x : this->shipMap){
+        ++x;
+        for(auto& it_y : it_x){
+            ++y;
+            if(it_y.empty()){} //UNUSED it_y
+            if(shipMap[x][y].size() < min){
+                min = shipMap[x][y].size();
+                min_floor_coor = std::make_tuple(x,y);
+            }
+        }
+        y = -1;
+    }
+    return min_floor_coor;
+}
+
+
+//*
+// * returns the highest free floor at (x,y) coordinate
+// */
+//int Ship::get_top_floor(int x, int y) {
+//    return shipMap[x][y].size() ;
+//}
+
+//
+//std::tuple<int, int> Ship::find_first_free_spot() {
+//    int x=-1; int y=-1;
+//    for(auto& it_x : shipMap){
+//        ++x;
+//        for(auto& it_y : it_x){
+//            if(!it_y.empty()){} // UNUSED
+//            ++y;
+//            if(shipMap[x][y].size() >= shipMap[x][y].capacity()){
+//                return std::tuple<int,int>(x,y);
+//            }
+//        }
+//    }
+//    return std::tuple<int,int>(x,y); //dummy return
+//}
