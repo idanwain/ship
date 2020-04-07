@@ -134,3 +134,5 @@ void Port::load_to_ship(Container& container, Ship* ship)
     ship->add_container(container, coordinate);
     instructions++;
 }
+
+Port::~Port(){}

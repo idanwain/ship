@@ -54,3 +54,5 @@ bool Container::operator ==(const Container& c) {
 bool Container::operator!=(const Container& c) {
 	return *this == c;
 }
+
+Container::~Container(){}

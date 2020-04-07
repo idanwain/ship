@@ -45,7 +45,7 @@ public:
 
     /*C'tor*/
     Port(const std::string& name) : name(name), instructions(0){}
-
+    ~Port();
     int add_container(const Container& container, const std::string& command);
     int remove_container(const Container& container, const std::string& command);
     void print_containers();

@@ -27,7 +27,7 @@ protected:
 public:
 
     explicit Algorithm(Ship* ship): ship(ship) {}
-
+    ~Algorithm();
     bool operator()(const std::string& input_full_path_and_file_name,
                     const std::string& output_full_path_and_file_name);
     bool parse_data_to_port(const std::string& input_full_path_and_file_name);
