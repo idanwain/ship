@@ -99,7 +99,7 @@ void extractArgsForBlocks(Ship* &ship, std::istream &inFile) {
     }
 }
 
-void extractArgsForShip(std::vector<fs::path> &pathArgs, std::tuple<Ship *, bool> &tup) {
+void extractArgsForShip(std::vector<fs::path> &pathArgs, std::tuple<Ship*, bool> &tup) {
     std::ifstream inFile;
     string line, file_path;
     std::array<int, 3> dimensions{};
@@ -158,8 +158,9 @@ void printWhereBlocks(Ship* &ship){
  * @param root_path
  * @return
  */
- string getFullOutPutPath(fs::path &path, string &root_path){
-    return root_path + OP_MAIN_DIRECTORY + "\\" + path.parent_path().filename().string() + "Out\\" + path.filename().string();
+ string getFullOutPutPath(fs::path &path, string &root_path, const string &algName){
+    return root_path + OP_MAIN_DIRECTORY + "\\" + path.parent_path().filename().string() + "Out\\" +
+    algName + "- " + path.filename().string();
 
 }
 
@@ -168,20 +169,18 @@ int main(int argc, char** argv) {
     string path = argv[argc - 1];
     std::vector<std::vector<fs::path>> directories;
     std::vector<Algorithm *> algVec;
-    std::tuple<Ship *, bool> tup;
-    Ship *mainShip;
-    bool createdFolders = false;
     initListDirectories(path, directories);
     createOutputDirectories(directories, argv[1]);
 
     for (auto &folder : directories) {
+        std::tuple<Ship*, bool> tup;
         extractArgsForShip(folder, tup);
         if (!std::get<1>(tup)) continue;
-        mainShip = std::get<0>(tup);
+        Ship* mainShip = std::get<0>(tup);
         initAlgorithmList(algVec, mainShip);
         for (auto &alg : algVec) {
             for (int j = 2; j < folder.size(); j++) {
-                string outputPath = getFullOutPutPath(folder.at(j), path);
+                string outputPath = getFullOutPutPath(folder.at(j), path,alg->getTypeName());
                 alg->operator()(folder.at(j).string(), outputPath);
             }
         }
