@@ -157,3 +157,22 @@ void Ship::update_free_space(int num){
     this->freeSpace += num;
 }
 
+Ship::~Ship() {
+    for (std::vector<std::vector<Container>> &mat : this->shipMap) {
+        for (std::vector<Container> &vec : mat) {
+            vec.clear();
+        }
+        mat.clear();
+    }
+
+    for (int i = route.size() - 1; i >= 0; i--) {
+        delete route[i];
+    }
+
+    for (std::map<Port *, std::vector<Container *>>::iterator iter = containersByPort.begin();
+         iter != containersByPort.end(); ++iter) {
+        Port *port = iter->first;
+        delete port;
+    }
+
+}

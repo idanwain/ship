@@ -163,6 +163,12 @@ void printWhereBlocks(Ship* &ship){
     algName + "- " + path.filename().string();
 
 }
+void destroyAlgVec(std::vector<Algorithm*> &algVec){
+    for(auto &alg : algVec){
+        delete alg;
+    }
+    algVec.clear();
+}
 
 int main(int argc, char** argv) {
 
@@ -181,8 +187,11 @@ int main(int argc, char** argv) {
         for (auto &alg : algVec) {
             for (int j = 2; j < folder.size(); j++) {
                 string outputPath = getFullOutPutPath(folder.at(j), path,alg->getTypeName());
-                alg->operator()(folder.at(j).string(), outputPath);
+                string input = folder[j].string();
+                alg->operator()(input, outputPath);
             }
         }
+        delete mainShip;
+        destroyAlgVec(algVec);
     }
  }

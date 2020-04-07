@@ -43,6 +43,7 @@ public:
         this->z = z;
         freeSpace = x*y*z;
     }
+    ~Ship();
     std::tuple<int, int, int> get_coordinate(const Container& container);
     std::vector<Container>& get_column_at(std::tuple<int, int, int> position);
     std::vector<Port*> get_route();

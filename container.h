@@ -62,7 +62,7 @@ public:
 	        status.on_board = -1;
 	        status.port = nullptr;
 	}
-
+    ~Container();
 	int change_status(std::string& command , Port* port);
 	int get_weight();
 	std::string get_id();

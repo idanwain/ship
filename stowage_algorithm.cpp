@@ -191,3 +191,6 @@ bool Algorithm::validate_container_data(const std::string& line) {
     return dest;
 }
 
+Algorithm::~Algorithm(){
+    this->portNum = 0;
+}
