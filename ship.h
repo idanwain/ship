@@ -28,16 +28,15 @@ class Ship {
 public:
     /*given a route of ports, the C'tor parses the containers of any port to a map*/
     Ship(int x, int y, int z) {
-        typedef std::vector<std::vector<Container>> matrix_container;
-        std::vector<matrix_container> collection;
-        collection.resize(z,matrix_container(x,std::vector<Container>(y)));
-//        for(int i = 0; i < x; i++){
-//            collection[i].reserve(y*z);
-//            for(int j = 0; j < y; j++){
-//                collection[i][j].reserve(z);
-//            }
-//        }
-        this->shipMap = collection;
+        std::vector<std::vector<std::vector<Container>>> map;
+        map.resize(x);
+        for(int i = 0; i < x; i++){
+            map[i].resize(y);
+            for(int j = 0; j < y; j++){
+                map[i][j].reserve(z);
+            }
+        }
+        this->shipMap = map;
         this->x = x;
         this->y = y;
         this->z = z;
@@ -55,6 +54,7 @@ public:
     int getAxis(const std::string& str);
     int get_top_floor(int x, int y);
     std::tuple<int, int> find_first_free_spot();
+    void update_free_space(int num);
 
 };
 

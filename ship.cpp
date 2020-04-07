@@ -108,3 +108,7 @@ int Ship::getAxis(const std::string &str) {
 
 }
 
+void Ship::update_free_space(int num){
+    this->freeSpace += num;
+}
+
