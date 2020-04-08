@@ -16,6 +16,7 @@
 #define HEIGHT
 #define DEPTH
 
+const char delim[] = {',','\t','\r',' '};
 class Container; class Port;
 
 class Ship {
@@ -43,6 +44,35 @@ public:
         this->z = z;
         freeSpace = x*y*z;
     }
+    /*Copy c'tor*/
+    Ship(const Ship* shipToCopy){
+        x = shipToCopy->getAxis("x");
+        y = shipToCopy->getAxis("y");
+        z = shipToCopy->getAxis("z");
+        freeSpace = x*y*z;
+        this->shipMap.resize(x);
+        for(int i = 0; i < x; i++){
+            this->shipMap[i].resize(y);
+            for(int j = 0; j < y; j++){
+                //Note that this c'tor only for copying the blocks
+                this->shipMap[i][j] = shipToCopy->shipMap[i][j];
+            }
+        }
+        bool found = false;
+        for(Port* p_out : shipToCopy->route){
+            for(Port* p_this : this->route){
+                if(p_out->get_name() == p_this->get_name()){
+                    this->route.emplace_back(p_this);
+                    found = true;
+                    break;
+                }
+            }
+            if(!found){//Case we didn't found a port that already exist...need to insert this one.
+                this->route.emplace_back(new Port(p_out->get_name()));
+            }
+            found = false;
+        }
+    }
     ~Ship();
     std::tuple<int, int, int> get_coordinate(const Container& container);
     std::vector<Container>& get_column_at(std::tuple<int, int, int> position);
@@ -53,7 +83,7 @@ public:
     void add_container(Container& container, std::tuple<int,int> coordinate); //TODO add container on board
     Port* getPortByName(const std::string &name, bool& is_in_route);
     void setRoute(std::vector<Port*> &route);
-    int getAxis(const std::string& str);
+    int getAxis(const std::string& str) const;
     void get_containers_to_unload(Port* port, std::vector<Container>& unload);
     void add_container_to_map(Container &container);
     void initContainersByPort(std::vector<Port *> &vector);

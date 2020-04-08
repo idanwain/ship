@@ -140,4 +140,8 @@ void Port::load_to_ship(Container& container, Ship* ship)
     instructions++;
 }
 
-Port::~Port(){}
+Port::~Port(){
+    unload.clear();
+    load.clear();
+    arrived.clear();
+}

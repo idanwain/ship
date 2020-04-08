@@ -59,15 +59,24 @@ public:
         status->on_board = 0;
         status->port = source;
     }
-
-    Container(): id("empty"){};
+    /*Container copy c'tor*/
+    Container(const Container* contToCopy){
+	    this->id = contToCopy->id;
+	    this->weight = contToCopy->weight;
+	    this->source = contToCopy->source;
+	    this->destination = contToCopy->destination;
+	    this->status = new Position();
+	    this->status->on_board = contToCopy->status->on_board;
+	    this->status->port = contToCopy->status->port;
+	    std::cout << "in container c'tor" + this->id << std::endl;
+	}
 
 	Container(const std::string& id1): id(id1), weight(-1), source(nullptr), destination(nullptr){
 	        status = new Position();
 	        status->on_board = 0;
 	        status->port = nullptr;
 	}
-    //~Container();
+    ~Container();
 	int change_status(const std::string& command , Port* port);
 	int get_weight();
 	std::string get_id();

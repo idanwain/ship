@@ -16,6 +16,7 @@ class Lifo_algorithm: public Algorithm {
     const std::string name = "Lifo_algorithm";
 public:
     explicit Lifo_algorithm(Ship* ship): Algorithm(ship){}
+    ~Lifo_algorithm() = default;
     void get_instructions_for_crane(std::ofstream &outfile) override;
     void unloadContainers(std::ofstream& output, std::vector<Container>& priority_to_load) override;
     void loadContainers(std::ofstream& output) override;
