@@ -79,7 +79,7 @@ void Ship::setRoute(std::vector<Port *> &route) {
     this->initContainersByPort(route);
 }
 
-int Ship::getAxis(const std::string &str) {
+int Ship::getAxis(const std::string &str) const {
     if(str == "x") return this->x;
     else if(str == "y") return this->y;
     else if(str == "z") return this->z;
@@ -153,21 +153,17 @@ void Ship::update_free_space(int num){
 }
 
 Ship::~Ship() {
-    for (std::vector<std::vector<Container>> &mat : this->shipMap) {
+    for(std::vector<std::vector<Container>> &mat : this->shipMap) {
         for (std::vector<Container> &vec : mat) {
             vec.clear();
         }
         mat.clear();
     }
 
-    for (int i = route.size() - 1; i >= 0; i--) {
-        delete route[i];
-    }
-
-    for (std::map<Port *, std::vector<Container >>::iterator iter = containersByPort.begin();
+    for(std::map<Port *, std::vector<Container >>::iterator iter = containersByPort.begin();
          iter != containersByPort.end(); ++iter) {
         Port *port = iter->first;
         delete port;
     }
-
+    std::cout << "in ship's d'tor" << std::endl;
 }

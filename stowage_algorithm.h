@@ -14,7 +14,6 @@
 #include <fstream>
 #define CONTAINER_FILE_ERROR "The data in this file is not valid!"
 #define CONTAINER_NOT_IN_ROUTE "This container's destination is not in the ship's route"
-const char delim[] = {',','\t','\r',' '};
 
 
 class Algorithm {
@@ -27,7 +26,10 @@ protected:
 public:
 
     explicit Algorithm(Ship* ship): ship(ship) {}
-    ~Algorithm();
+    virtual ~Algorithm(){
+      portNum = 0;
+      delete ship;
+    };
     bool operator()(const std::string& input_full_path_and_file_name,
                     const std::string& output_full_path_and_file_name);
     bool parse_data_to_port(const std::string& input_full_path_and_file_name);
