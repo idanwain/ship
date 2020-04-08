@@ -20,7 +20,7 @@ class Container; class Port;
 
 class Ship {
     std::vector<std::vector<std::vector<Container>>> shipMap; //TODO make empty slots empty, use reserve
-    std::map<Port*, std::vector<Container*>> containersByPort;
+    std::map<Port*, std::vector<Container>> containersByPort;
     std::vector<Port*> route;
     int freeSpace;
     int x;
@@ -54,7 +54,7 @@ public:
     Port* getPortByName(const std::string &name, bool& is_in_route);
     void setRoute(std::vector<Port*> &route);
     int getAxis(const std::string& str);
-    std::vector<Container*>& get_containers_to_unload(Port* port);
+    void get_containers_to_unload(Port* port, std::vector<Container>& unload);
     void add_container_to_map(Container &container);
     void initContainersByPort(std::vector<Port *> &vector);
     void update_free_space(int num);

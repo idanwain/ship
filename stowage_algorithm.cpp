@@ -55,8 +55,9 @@ bool  Algorithm::parse_data_to_port(const std::string& input_full_path_and_file_
             std::cout << id << ": "<< CONTAINER_NOT_IN_ROUTE << std::endl;
         }
         else {
-            const Container* con = new Container(id, weight, this->port, dest);
+            Container* con = new Container(id, weight, this->port, dest);
             this->port->add_container(*con, "L");
+            con->getOffBoard();
         }
     }
 

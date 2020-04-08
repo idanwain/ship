@@ -2,17 +2,17 @@
 #include "container.h"
 #include "Parser.h"
 
-int Container::change_status(std::string& command, Port* port) {
+int Container::change_status(const std::string& command, Port* port) {
 	if (command != "U" || command != "L") {
 		return 0;
 	}
 	if (command == "L") {
-		this->status.on_board = 1;
-		this->status.port = nullptr;
+		this->status->on_board = 1;
+		this->status->port = nullptr;
 	}
 	else {
-		this->status.on_board = 0;
-		this->status.port = port;
+		this->status->on_board = 0;
+		this->status->port = port;
 	}
 	return 1;
 }
@@ -33,9 +33,18 @@ Port*  Container::get_dest() {
 	return destination;
 }
 
-int Container::is_on_board() {
-	return status.on_board;
+bool Container::is_on_board() {
+    return this->onBoard == 1;
 }
+
+void Container::getOnBoard(){
+    this->onBoard = 1;
+}
+
+void Container::getOffBoard(){
+    this->onBoard = 0;
+}
+
 
 std::ostream& operator<<(std::ostream& os, const Container& c)
 {
@@ -55,4 +64,4 @@ bool Container::operator!=(const Container& c) {
 	return *this == c;
 }
 
-Container::~Container(){}
+//Container::~Container(){}

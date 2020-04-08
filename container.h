@@ -37,39 +37,46 @@ class Port;
 
 class Container {
 	struct Position {
-		int on_board;
+		int on_board = 0;
 		Port* port = nullptr;
 	};
-	std::string id;
-	int weight{};
-	Port* source{};
-	Port* destination{};
-	Position status{};
+    int onBoard;
+    std::string id;
+	int weight;
+	Port* source = nullptr;
+	Port* destination = nullptr;
+	Position* status;
 
 public:
 	Container(const std::string& id, int weight, Port* const source, Port* const dest) :
+        onBoard(0),
 		id(id),
 		weight(weight),
 		source(source),
-		destination(dest) {
-        status.on_board = 0;
-        status.port = source;
+		destination(dest)
+		{
+        status = new Position();
+        status->on_board = 0;
+        status->port = source;
     }
 
     Container(): id("empty"){};
 
 	Container(const std::string& id1): id(id1), weight(-1), source(nullptr), destination(nullptr){
-	        status.on_board = -1;
-	        status.port = nullptr;
+	        status = new Position();
+	        status->on_board = 0;
+	        status->port = nullptr;
 	}
-    ~Container();
-	int change_status(std::string& command , Port* port);
+    //~Container();
+	int change_status(const std::string& command , Port* port);
 	int get_weight();
 	std::string get_id();
 	Port* get_source();
 	Port* get_dest();
-	int is_on_board();
-	friend std::ostream& operator<<(std::ostream& os, const Container& c);
+	bool is_on_board();
+	void getOnBoard();
+    void getOffBoard();
+    friend std::ostream& operator<<(std::ostream& os, const Container& c);
 	bool operator==(const Container& c);
 	bool operator!=(const Container& c);
 };

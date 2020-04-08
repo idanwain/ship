@@ -87,22 +87,22 @@ int Ship::getAxis(const std::string &str) {
 
 }
 
-std::vector<Container*>& Ship::get_containers_to_unload(Port *pPort) {
-    return this->containersByPort[pPort];
+void Ship::get_containers_to_unload(Port *pPort, std::vector<Container>& unload) {
+    unload =  this->containersByPort[pPort];
 }
 
 void Ship::add_container_to_map(Container &container) {
     if(this->containersByPort.find(container.get_dest()) == containersByPort.end()){
-        this->containersByPort.insert({container.get_dest(), std::vector<Container*>{&container}});
+        this->containersByPort.insert({container.get_dest(), std::vector<Container>{container}});
     } else {
-        this->containersByPort[container.get_dest()].emplace_back(&container);
+        this->containersByPort[container.get_dest()].emplace_back(container);
     }
 }
 
 void Ship::initContainersByPort(std::vector<Port *> &vector) {
     for(auto pPort : vector){
-        std::vector<Container*> pCon;
-        this->containersByPort.insert({pPort, pCon});
+        std::vector<Container> con;
+        this->containersByPort.insert({pPort, con});
     }
 }
 
@@ -164,7 +164,7 @@ Ship::~Ship() {
         delete route[i];
     }
 
-    for (std::map<Port *, std::vector<Container *>>::iterator iter = containersByPort.begin();
+    for (std::map<Port *, std::vector<Container >>::iterator iter = containersByPort.begin();
          iter != containersByPort.end(); ++iter) {
         Port *port = iter->first;
         delete port;

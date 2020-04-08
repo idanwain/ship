@@ -6,14 +6,17 @@
 #include <fstream>
 
 int Port::add_container(const Container& container, const std::string& command) {
-    if (command != "U" && command != "L") {
+    if (command != "U" && command != "L" && command != "A") {
         return 0;
     }
     if (command == "L") {
         load.emplace_back(container);
     }
-    else {
+    else if(command == "U") {
         unload.emplace_back(container);
+    }
+    else {
+        arrived.emplace_back(container);
     }
     return 1;
 }
@@ -60,9 +63,10 @@ const std::string&  Port::get_name() {
 }
 
 void Port::get_containers_to_load(std::vector<Container>& vec){
-    for (auto & it : load) {
-        vec.emplace_back(it);
-    };
+    vec = load;
+//    for (auto & it : load) {
+//        vec.emplace_back(it);
+//    };
 }
 
 //void Port::get_containers_to_unload(std::vector<Container>& vec){
@@ -132,6 +136,7 @@ void Port::load_to_ship(Container& container, Ship* ship)
 {
     std::tuple<int,int> coordinate = ship->find_min_floor();
     ship->add_container(container, coordinate);
+    container.getOnBoard();
     instructions++;
 }
 

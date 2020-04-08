@@ -40,6 +40,7 @@ class Port {
     std::string name;
     std::vector<Container> load;
     std::vector<Container> unload;
+    std::vector<Container> arrived;
     int instructions;
 public:
 
