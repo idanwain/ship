@@ -77,7 +77,7 @@ public:
 	        status->port = nullptr;
 	}
     ~Container();
-	int change_status(const std::string& command , Port* port);
+	//int change_status(const std::string& command , Port* port);
 	int get_weight();
 	std::string get_id();
 	Port* get_source();

@@ -20,7 +20,7 @@ const char delim[] = {',','\t','\r',' '};
 class Container; class Port;
 
 class Ship {
-    std::vector<std::vector<std::vector<Container>>> shipMap; //TODO make empty slots empty, use reserve
+    std::vector<std::vector<std::vector<Container>>> shipMap;
     std::map<Port*, std::vector<Container>> containersByPort;
     std::vector<Port*> route;
     int freeSpace;
@@ -81,7 +81,7 @@ public:
     bool has_space(); //TODO check space in ship, maybe need to maintain number of free spots for containers on ship
     bool has_weight_prob(); //TODO change name of function according to instructions and implement weight problems check
     void add_container(Container& container, std::tuple<int,int> coordinate); //TODO add container on board
-    Port* getPortByName(const std::string &name, bool& is_in_route);
+    Port* getPortByName(const std::string &name);
     void setRoute(std::vector<Port*> &route);
     int getAxis(const std::string& str) const;
     void get_containers_to_unload(Port* port, std::vector<Container>& unload);
@@ -89,8 +89,6 @@ public:
     void initContainersByPort(std::vector<Port *> &vector);
     void update_free_space(int num);
     std::tuple<int, int> find_min_floor();
-    //int get_top_floor(int x, int y);
-    //std::tuple<int, int> find_first_free_spot();
 };
 
 #endif // !SHIP_HEADER

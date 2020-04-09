@@ -1,6 +1,11 @@
 #include "lifo_algorithm.h"
 #include "port.h"
 
+
+/**
+ * this function manages the load / unload of containers and logs it into a file.
+ * @param output - output file to write instructions for crane
+ */
 void  Lifo_algorithm::get_instructions_for_crane(std::ofstream& output) {
     //unload containers from ship to port
     std::vector<Container> priority_to_load;
@@ -16,6 +21,17 @@ void  Lifo_algorithm::get_instructions_for_crane(std::ofstream& output) {
     loadContainers(output);
 }
 
+/**
+ * This function unloads all the containers that need to be unloaded to port by these scheme:
+ *      - get all containers to unload
+ *      - find the columns of those containers inside the ship
+ *      - unload containers that are in those columns to port
+ *      - stop unload when hits the port's container
+ *
+ * @param output - output file to write instructions for crane
+ * @param priority_to_load - a refernce to a vector that stores all containers
+ *                           that are non-relevant to this port and has been unloaded
+ */
 void Lifo_algorithm::unloadContainers(std::ofstream& output, std::vector<Container>& priority_to_load){
     std::vector<Container> unload;
     ship->get_containers_to_unload(port, unload); //containersByPort
@@ -50,6 +66,12 @@ void Lifo_algorithm::unloadContainers(std::ofstream& output, std::vector<Contain
     }
 }
 
+/**
+ * This function loads port's containers to ship by this scheme:
+ * for every port in route (in reverse order) load all containers
+ * to lowest free spot in the ship.
+ * @param output - output file to write instructions for crane
+ */
 void Lifo_algorithm::loadContainers(std::ofstream& output){
     std::vector<Container> load;
     port->get_containers_to_load(load);

@@ -8,6 +8,7 @@
 
 #include "ship.h"
 #include "container.h"
+#include "Parser.h"
 #include "port.h"
 #include <stack>
 #include <iostream>
@@ -32,14 +33,17 @@ public:
     };
     bool operator()(const std::string& input_full_path_and_file_name,
                     const std::string& output_full_path_and_file_name);
-    bool parse_data_to_port(const std::string& input_full_path_and_file_name);
-    static std::vector<std::string> string_split(std::string s, const char* delimiter);
     void extract_containers_data(const std::string& line, std::string &id, int &weight, Port** dest);
     virtual void get_instructions_for_crane(std::ofstream& outfile) = 0;
-    static bool validate_container_data(const std::string& line);
     virtual const std::string getTypeName() const = 0;
     virtual void loadContainers(std::ofstream& output) = 0;
     virtual void unloadContainers(std::ofstream& output, std::vector<Container>& priority_to_load) = 0;
+
+    /***********WANT TO MOVE TO PARSER*********/
+    bool parse_data_to_port(const std::string& input_full_path_and_file_name);
+    static bool validate_id(const std::string& str);
+    static std::vector<std::string> string_split(std::string s, const char* delimiter);
+    static bool validate_container_data(const std::string& line);
 };
 
 #endif //SHIP1_STOWAGE_ALGORITHM_H

@@ -83,8 +83,8 @@ void initListDirectories(string &path,std::vector<std::vector<fs::path>> &vecOfP
 void validateSequenceDirectories(std::vector<std::vector<fs::path>> &direct) {
     string msg;
     setActualSize(direct);
-    for (int i = 0; i < direct.size(); i++) {
-        for (int j = 0; j < direct[i].size(); j++) {
+    for (size_t i = 0; i < direct.size(); i++) {
+        for (size_t j = 0; j < direct[i].size(); j++) {
             if (direct[i][j].empty()) {
                 msg.clear();
                 if (j == 0) msg = "ship_plan";
@@ -105,8 +105,8 @@ void validateSequenceDirectories(std::vector<std::vector<fs::path>> &direct) {
  * @param direct
  */
 void setActualSize(std::vector<std::vector<fs::path>> &direct){
-    for(int i = 0; i < direct.size(); i++){
-        for(int j = direct[i].size()-1; j > 0; j--){
+    for(size_t i = 0; i < direct.size(); i++){
+        for(size_t j = direct[i].size()-1; j > 0; j--){
             if(!direct[i][j].empty()){
                 direct[i].resize(j+1);
                 break;
@@ -242,7 +242,7 @@ Ship* extractArgsForShip(std::vector<fs::path> &folder) {
     string line, file_path;
     std::array<int, 3> dimensions{};
     std::vector<Port *> travelRoute;
-    Ship* ship;
+    Ship* ship = nullptr;
     if(folder.empty()) return nullptr;
     for (int i = 0; i < 2; i++) {
         file_path = folder[i].string();
@@ -261,5 +261,3 @@ Ship* extractArgsForShip(std::vector<fs::path> &folder) {
     }
     return ship;
 }
-
-

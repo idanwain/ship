@@ -14,7 +14,6 @@ std::tuple<int, int, int> Ship::get_coordinate(const Container& container) {
             for(auto & it_z : it_y){
                 ++z;
                 if(it_z == container){
-                    //might be a problem with local temp returned object
                     return std::tuple<int,int,int>(x,y,z);
                 }
             }
@@ -58,19 +57,14 @@ std::vector<std::vector<std::vector<Container>>>* Ship::get_map() {
     return &shipMap;
 }
 
-Port* Ship::getPortByName(const std::string &name, bool& is_in_route) {
+Port* Ship::getPortByName(const std::string &name) {
+    Port* pPort = nullptr;
     for(auto port : this->route) {
         if(port->get_name() == name) {
-            return port;
+            pPort = port;
         }
     }
-    is_in_route = false;
-    /*
-     * TODO need to deal if no such port exist in the list--> might be if we load a cargo to drop at port but
-     * the certain port doesn't exist in the route because we are not stopping at.
-     */
-    Port* dummy = new Port("DUMMY");
-    return dummy;
+    return pPort;
 }
 
 void Ship::setRoute(std::vector<Port *> &route) {
@@ -108,7 +102,7 @@ void Ship::initContainersByPort(std::vector<Port *> &vector) {
 
 std::tuple<int,int> Ship::find_min_floor(){
     std::tuple<int, int> min_floor_coor;
-    int min = INT_MAX;
+    size_t min = INT_MAX;
     int x=-1; int y=-1;
     for(auto& it_x : this->shipMap){
         ++x;
@@ -125,29 +119,6 @@ std::tuple<int,int> Ship::find_min_floor(){
     return min_floor_coor;
 }
 
-
-//*
-// * returns the highest free floor at (x,y) coordinate
-// */
-//int Ship::get_top_floor(int x, int y) {
-//    return shipMap[x][y].size() ;
-//}
-
-//
-//std::tuple<int, int> Ship::find_first_free_spot() {
-//    int x=-1; int y=-1;
-//    for(auto& it_x : shipMap){
-//        ++x;
-//        for(auto& it_y : it_x){
-//            if(!it_y.empty()){} // UNUSED
-//            ++y;
-//            if(shipMap[x][y].size() >= shipMap[x][y].capacity()){
-//                return std::tuple<int,int>(x,y);
-//            }
-//        }
-//    }
-//    return std::tuple<int,int>(x,y); //dummy return
-//}
 void Ship::update_free_space(int num){
     this->freeSpace += num;
 }

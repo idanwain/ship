@@ -31,4 +31,5 @@ void getBlocksByLine(std::string &str,Ship* &ship);
 void getTravelRoute(Ship* &ship, std::istream &inFile);
 void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str);
 int portAlreadyExist(std::vector<Port*> &vec,string &str);
+
 #endif // !PARSER_HEADER

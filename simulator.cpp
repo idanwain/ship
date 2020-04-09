@@ -11,9 +11,9 @@
  */
 void printWhereBlocks(Ship* &ship){
         auto map = ship->get_map();
-        for(int i = 0; i < (*map).size(); i++){
-            for(int j = 0; j < (*map)[i].size(); j++){
-                for(int k = 0; k < (*map)[i][j].size(); k++){
+        for(size_t i = 0; i < (*map).size(); i++){
+            for(size_t j = 0; j < (*map)[i].size(); j++){
+                for(size_t k = 0; k < (*map)[i][j].size(); k++){
                     cout << "size is " << (*map)[i][j].size() << endl;
                     if((*map)[i][j][k].get_id() == "block"){
                         cout << "at " << i << "," << j << "," << k <<endl;
@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
         if(mainShip == nullptr) continue;
         initAlgorithmList(algVec, mainShip);
         for (auto &alg : algVec) {
-            for (int j = 2; j < folder.size(); j++) {
+            for (size_t j = 2; j < folder.size(); j++) {
                 string outputPath = getFullOutPutPath(folder.at(j), path,alg->getTypeName());
                 string inputPath = folder[j].string();
                 alg->operator()(inputPath, outputPath);

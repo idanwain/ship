@@ -1,5 +1,4 @@
 #include "stowage_algorithm.h"
-#include "Parser.h"
 
 /**
  *
@@ -120,14 +119,13 @@ void  Algorithm::extract_containers_data(const std::string& line, std::string &i
                 port_name += " " + item;
         }
     }
-    bool is_in_route = true;
-    auto dest_temp = ship->getPortByName(port_name, is_in_route);
-    if(is_in_route){
+    auto dest_temp = ship->getPortByName(port_name);
+    if(dest_temp != nullptr){
         *dest = dest_temp;
     }
 }
 
-bool validate_id(const std::string& str) {
+bool Algorithm::validate_id(const std::string& str) {
     int i = 0;
     if (str.length() != 11)
         return false;
