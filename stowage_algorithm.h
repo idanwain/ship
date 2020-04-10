@@ -11,6 +11,7 @@
 #include "Parser.h"
 #include "port.h"
 #include <stack>
+#include <set>
 #include <iostream>
 #include <fstream>
 #define CONTAINER_FILE_ERROR "The data in this file is not valid!"
@@ -19,6 +20,7 @@
 
 class Algorithm {
     inline static int portNum = 0;
+    inline static int instructions = 0;
     //std::map<std::string, Error> errors; //TODO create a map of containers ID and Error
 
 protected:
@@ -38,12 +40,17 @@ public:
     virtual const std::string getTypeName() const = 0;
     virtual void loadContainers(std::ofstream& output) = 0;
     virtual void unloadContainers(std::ofstream& output, std::vector<Container>& priority_to_load) = 0;
+    static void increase_instruction_counter(int instructionsAdded = 1);
 
     /***********WANT TO MOVE TO PARSER*********/
     bool parse_data_to_port(const std::string& input_full_path_and_file_name);
     static bool validate_id(const std::string& str);
     static std::vector<std::string> string_split(std::string s, const char* delimiter);
     static bool validate_container_data(const std::string& line);
+
+    static void write_to_output(std::ofstream &output, const string &command, const string &id,
+                    const std::tuple<int, int, int> &pos,
+                    const std::tuple<int,int,int>& moved_to);
 };
 
 #endif //SHIP1_STOWAGE_ALGORITHM_H

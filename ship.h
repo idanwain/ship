@@ -1,6 +1,8 @@
 #ifndef SHIP_HEADER
 #define SHIP_HEADER
 
+class WeightBalanceCalculator; class Container; class Port;
+
 #include <iostream>
 #include <cstring>
 #include <string>
@@ -10,6 +12,10 @@
 #include "port.h"
 #include "container.h"
 #include <stack>
+#include <set>
+#include "WeightBalanceCalculator.h"
+
+typedef std::tuple<int,int> coordinate;
 
 #define ON_BOARD 1
 #define WIDTH
@@ -17,12 +23,12 @@
 #define DEPTH
 
 const char delim[] = {',','\t','\r',' '};
-class Container; class Port;
 
 class Ship {
     std::vector<std::vector<std::vector<Container>>> shipMap;
     std::map<Port*, std::vector<Container>> containersByPort;
     std::vector<Port*> route;
+    WeightBalanceCalculator* calculator = nullptr;
     int freeSpace;
     int x;
     int y;
@@ -72,6 +78,7 @@ public:
             }
             found = false;
         }
+        calculator = shipToCopy->calculator;
     }
     ~Ship();
     std::tuple<int, int, int> get_coordinate(const Container& container);
@@ -89,6 +96,24 @@ public:
     void initContainersByPort(std::vector<Port *> &vector);
     void update_free_space(int num);
     std::tuple<int, int> find_min_floor();
+
+    void get_coordinates_to_handle(std::set<coordinate> &coordinates_to_handle, std::vector<Container>& containers_to_unload);
+
+    int get_lowest_floor_of_relevant_container(Port *pPort, coordinate coor);
+
+    void get_column(coordinate coor, std::vector<Container> &column);
+
+    void remove_from_containers_by_port(Container &container, Port *pPort);
+
+    WeightBalanceCalculator* getCalc();
+
+    void find_column_to_move_to(coordinate old_coor, coordinate& new_coor, bool &found, std::vector<Container>& containersToUnload, int weight);
+
+    void move_container(coordinate origin, coordinate dest);
+
+    void initCalc();
+
+    int getTopFloor(coordinate coor);
 };
 
 #endif // !SHIP_HEADER

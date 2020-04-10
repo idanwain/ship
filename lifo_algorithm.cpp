@@ -8,18 +8,78 @@
  */
 void  Lifo_algorithm::get_instructions_for_crane(std::ofstream& output) {
     //unload containers from ship to port
-    std::vector<Container> priority_to_load;
-    unloadContainers(output, priority_to_load);
-
-    //load unrelated unloaded containers back to ship
-    for(auto& con : priority_to_load){
-        ship->add_container(con,ship->find_min_floor());
-        Port::write_instruction_to_file(output, "L", con.get_id(), ship->get_coordinate(con));
-    }
+//    std::vector<Container> priority_to_load;
+//    unloadContainers(output, priority_to_load);
+//
+//    //load unrelated unloaded containers back to ship
+//    for(auto& con : priority_to_load){
+//        ship->add_container(con,ship->find_min_floor());
+//        Port::write_instruction_to_file(output, "L", con.get_id(), ship->get_coordinate(con));
+//    }
+    unload_containers(output);
 
     //load containers from port to ship
     loadContainers(output);
 }
+
+void Lifo_algorithm::unload_containers(std::ofstream& output){
+    std::vector<Container> containersToUnload;
+    ship->get_containers_to_unload(port, containersToUnload);
+    std::set<coordinate> coordinates_to_handle;
+    ship->get_coordinates_to_handle(coordinates_to_handle, containersToUnload);
+
+    for(coordinate coor : coordinates_to_handle){
+        int lowest_floor = ship->get_lowest_floor_of_relevant_container(port, coor);
+        std::vector<Container> column;
+        ship->get_column(coor, column);
+        for(auto con_iterator = column.end() - 1; !column.empty() && con_iterator >= column.begin();){
+            if(con_iterator - column.begin() == lowest_floor - 1){
+                break;
+            }
+            if(*(con_iterator->get_dest()) == *port){
+                if(ship->getCalc()->tryOperation('U', con_iterator->get_weight(), std::get<0>(coor), std::get<1>(coor)) == APPROVED){
+                    port->add_container(*con_iterator, "A");
+                    Algorithm::write_to_output(output,"U", con_iterator->get_id(), ship->get_coordinate(*con_iterator), std::forward_as_tuple(-1,-1,-1));
+                    ship->remove_from_containers_by_port(*con_iterator, port);
+                    column.pop_back(); // might destroy container -->check in port if exist
+                    Algorithm::increase_instruction_counter();
+                    --con_iterator;
+                }
+                else{
+                    //calculator didnt approved unload --> do something
+                }
+            }
+            else {
+                bool found = false;
+                coordinate new_spot;
+                ship->find_column_to_move_to(coor, new_spot, found, containersToUnload, con_iterator->get_weight()); //checks weight, space and efficiency.
+                if(!found){
+                    if(ship->getCalc()->tryOperation('U', con_iterator->get_weight(), std::get<0>(coor), std::get<1>(coor)) == APPROVED){
+                        port->add_container(*con_iterator, "P");
+                        Algorithm::write_to_output(output,"U", con_iterator->get_id(), ship->get_coordinate(*con_iterator), std::forward_as_tuple(-1,-1,-1));
+                        ship->remove_from_containers_by_port(*con_iterator, port);
+                        column.pop_back(); // might destroy container -->check in port if exist
+                        Algorithm::increase_instruction_counter();
+                        --con_iterator;
+                    }
+                    else{
+                        //calculator didnt approved unload --> do something
+                    }
+                }
+                else {
+                    std::tuple<int,int,int> old_coor = ship->get_coordinate(*con_iterator);
+                    std::string id = con_iterator->get_id();
+                    ship->move_container(coor, new_spot);
+                    std::tuple<int,int,int> new_coor(std::get<0>(new_spot),std::get<1>(new_spot),ship->getTopFloor(new_spot));
+                    Algorithm::write_to_output(output,"M", id, old_coor, new_coor);
+                    Algorithm::increase_instruction_counter();
+                    --con_iterator;
+                }
+            }
+        }
+    }
+}
+
 
 /**
  * This function unloads all the containers that need to be unloaded to port by these scheme:

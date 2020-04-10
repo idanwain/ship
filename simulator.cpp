@@ -5,6 +5,7 @@
 #include "Parser.h"
 #include "stowage_algorithm.h"
 #include "lifo_algorithm.h"
+#include "WeightBalanceCalculator.h"
 
 /*
  * TODO function only for debug purposes --> to delete.
@@ -64,12 +65,13 @@ int main(int argc, char** argv) {
     for (auto &folder : directories) {
         Ship* mainShip = extractArgsForShip(folder);
         if(mainShip == nullptr) continue;
+        mainShip->initCalc();
         initAlgorithmList(algVec, mainShip);
         for (auto &alg : algVec) {
             for (size_t j = 2; j < folder.size(); j++) {
                 string outputPath = getFullOutPutPath(folder.at(j), path,alg->getTypeName());
                 string inputPath = folder[j].string();
-                alg->operator()(inputPath, outputPath);
+                (*alg)(inputPath, outputPath);
             }
         }
         delete mainShip;

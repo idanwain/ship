@@ -1,6 +1,5 @@
 #include "ship.h"
 
-
 /**
  * X - x coordinate ,  Y - y coordinate. ,  Z - floor number
  * given a container that is certainly on the ship, returns a tuple of the container's position at the ship
@@ -137,4 +136,59 @@ Ship::~Ship() {
         delete port;
     }
     std::cout << "in ship's d'tor" << std::endl;
+}
+
+void Ship::get_coordinates_to_handle(std::set<coordinate> &coordinates_to_handle, std::vector<Container>& containers_to_unload) {
+    for(Container& con : containers_to_unload){
+        coordinates_to_handle.emplace(coordinate(std::get<0>(this->get_coordinate(con)),std::get<1>(this->get_coordinate(con))));
+    }
+}
+
+int Ship::get_lowest_floor_of_relevant_container(Port *pPort, coordinate coor) {
+    int lowest = 0;
+    for(Container& con : this->shipMap[std::get<0>(coor)][std::get<1>(coor)]){
+        if(*(con.get_dest()) == (*pPort)){
+            break;
+        }
+        ++lowest;
+    }
+    return lowest;
+}
+
+void Ship::get_column(coordinate coor, std::vector<Container> &column) {
+    column = shipMap[std::get<0>(coor)][std::get<1>(coor)];
+}
+
+void Ship::remove_from_containers_by_port(Container &container, Port *pPort) {
+    containersByPort[pPort].erase(std::find(containersByPort[pPort].begin(), containersByPort[pPort].end(), container));
+}
+
+WeightBalanceCalculator* Ship::getCalc() {
+    return calculator;
+}
+
+void Ship::find_column_to_move_to(coordinate old_coor, coordinate& new_coor, bool &found, std::vector<Container>& containersToUnload, int weight) {
+    std::set<coordinate> coordinates_to_check;
+    this->get_coordinates_to_handle(coordinates_to_check, containersToUnload);
+    for(coordinate coor : coordinates_to_check){
+        if(this->getCalc()->tryOperation('U', weight, std::get<0>(old_coor), std::get<1>(old_coor)) == APPROVED &&
+                this->getCalc()->tryOperation('U', weight, std::get<0>(coor), std::get<1>(coor)) == APPROVED){
+            new_coor = coor;
+            found = true;
+            break;
+        }
+    }
+}
+
+void Ship::move_container(coordinate origin, coordinate dest) {
+    shipMap[std::get<0>(dest)][std::get<1>(dest)].emplace_back(shipMap[std::get<0>(origin)][std::get<1>(origin)].back());
+    shipMap[std::get<0>(origin)][std::get<0>(origin)].pop_back();
+}
+
+void Ship::initCalc() {
+    calculator = new WeightBalanceCalculator(this);
+}
+
+int Ship::getTopFloor(coordinate coor) {
+    return shipMap[std::get<0>(coor)][std::get<0>(coor)].size() - 1;
 }

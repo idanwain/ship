@@ -21,6 +21,7 @@ public:
     void unloadContainers(std::ofstream& output, std::vector<Container>& priority_to_load) override;
     void loadContainers(std::ofstream& output) override;
     const std::string getTypeName() const override;
+    void unload_containers(std::ofstream& output);
 };
 
 

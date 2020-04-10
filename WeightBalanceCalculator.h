@@ -1,6 +1,5 @@
 #ifndef SHIP1_WEIGHTBALANCECALCULATOR_H
 #define SHIP1_WEIGHTBALANCECALCULATOR_H
-#include "ship.h"
 
 //The calculator shall be initiated by the simulation with the ship plan file:
 //  readShipPlan(const std::string& full_path_and_file_name)
@@ -20,8 +19,12 @@
 //      The balance calculator doesn’t have a “move” operation,
 //      as for balance purposes “move” is actually an “unload” followed by “load”.
 //      First the “unload” has to be approved, then the “load”.
-
 class Ship;
+
+#include "ship.h"
+#include <tuple>
+#include "container.h"
+
 
 enum BalanceStatus {APPROVED, X_IMBALANCED, Y_IMBALANCED, X_Y_IMBALANCED, FAILED};
 

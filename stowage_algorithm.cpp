@@ -29,6 +29,19 @@ bool Algorithm::operator()(const std::string& input_full_path_and_file_name,
     return true;
 }
 
+void Algorithm::write_to_output(std::ofstream& output,
+        const std::string& command, const std::string& id,
+        const std::tuple<int,int,int>& pos, const std::tuple<int,int,int>& moved_to){
+    if(std::get<0>(moved_to) == -1){
+        output << command << ", " <<  id << ", " << std::get<0>(pos) << ", " << std::get<1>(pos) << ", " << std::get<2>(pos) << std::endl;
+    } else {
+        output << command << ", " <<  id << ", " << std::get<0>(pos) <<
+                ", " << std::get<1>(pos) << ", " << std::get<2>(pos) <<
+                ", [" << std::get<0>(moved_to) << ", " << std::get<1>(moved_to) <<
+                ", " << std::get<2>(moved_to) << "]" << std::endl;
+    }
+}
+
  /**
   * Parses the containers data and connecting it to the "load" list of the port
   * @param input_full_path_and_file_name
@@ -188,5 +201,9 @@ bool Algorithm::validate_container_data(const std::string& line) {
 
     bool dest = isValidPortName(port_name);
     return dest;
+}
+
+void Algorithm::increase_instruction_counter(int instructionsAdded) {
+    instructions+=instructionsAdded;
 }
 
