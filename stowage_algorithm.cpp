@@ -15,6 +15,11 @@ bool Algorithm::operator()(const std::string& input_full_path_and_file_name,
     //init algorithm's port
     this->port = ship->get_route().at(portNum);
 
+     /***** temporal capacity check ******/
+    ship->capacitySizeCheck();
+     /*****/
+
+
     //parse the input data into
     if(!parse_data_to_port(input_full_path_and_file_name)){
         std::cout << CONTAINER_FILE_ERROR << std::endl;

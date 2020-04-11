@@ -216,3 +216,15 @@ void Ship::find_column_to_load(coordinate &coor, bool &found, int kg) {
         y = 0;
     }
 }
+
+void Ship::capacitySizeCheck(){
+    int x = 0; int y = 0;
+    for(auto coor_x : shipMap){
+        for(auto coor_y : coor_x){
+            std::cout << "(" << x << "," << y << "): Size: " << shipMap[x][y].size() << ", Capacity: " << shipMap[x][y].capacity() << std::endl;
+            ++y;
+        }
+        ++x;
+        y = 0;
+    }
+}
