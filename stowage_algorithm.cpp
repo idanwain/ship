@@ -208,7 +208,7 @@ bool Algorithm::validate_container_data(const std::string& line) {
 }
 
 void Algorithm::increase_instruction_counter(int instructionsAdded) {
-    instructions+=instructionsAdded;
+    this->instructions += instructionsAdded;
 }
 
 int Algorithm::getPortNum() {
@@ -220,3 +220,6 @@ bool Algorithm::isPortInRoute(Port *pPort) {
 }
 
 
+int Algorithm::getInstructionsCounter() const {
+    return this->instructions;
+}

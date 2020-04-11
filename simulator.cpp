@@ -53,18 +53,65 @@ void destroyAlgVec(std::vector<Algorithm*> &algVec){
     algVec.clear();
 }
 
+void saveOutPutInformation(std::map<string,std::list<int>> &output_map,std::vector<Algorithm *> algVec){
+    for(Algorithm* alg : algVec){
+        int num = alg->getInstructionsCounter();
+        string name = alg->getTypeName();
+        if(output_map.contains(name)){
+            output_map.at(name).emplace_back(num);
+        }
+        else{
+            std::list<int> ls;
+            ls.emplace_back(num);
+            output_map.insert(make_pair(name,ls));
+        }
+
+    }
+}
+
+void createOutPutFile(std::map<string,std::list<int>> &output_map,std::vector<int> travelNums,string path){
+    std::ofstream inFile;
+    const string spaces = "      ";
+    int sum = 0;
+    path.append("\\simulation.result");
+    inFile.open(path); //Default mode is writing to a file
+    if(inFile.fail()){
+        std::cout << "Failed to create results file" << std::endl;
+        exit(1);
+    }
+    inFile << "RESULTS" << spaces+spaces;
+    for(int i : travelNums)//Assign each travel num;
+        inFile << "Travel " << i << spaces;
+    inFile << "Sum" << '\n';
+    //iterate over the algorithm names and iterate over them, note that p is a pair<string,list<int>>
+    for(const auto &p : output_map){
+        sum = 0;
+        inFile << p.first << spaces;
+        for(int num : p.second){
+            inFile << num << spaces << spaces;
+            sum += num;
+        }
+        inFile << sum << '\n';
+    }
+    inFile.close();
+}
+
 int main(int argc, char** argv) {
 
     string path = argv[argc - 1];
     std::vector<std::vector<fs::path>> directories;
     std::vector<Algorithm *> algVec;
-    std::list<std::list<string>> outputInformation;
+    std::map<string,std::list<int>> outputInformation;
+    std::vector<int> travelsNum;
+    int count = 0;
     initListDirectories(path, directories);
     createOutputDirectories(directories, argv[1]);
 
     for (auto &folder : directories) {
+        count++;
         Ship* mainShip = extractArgsForShip(folder);
         if(mainShip == nullptr) continue;
+        travelsNum.push_back(count);
         mainShip->initCalc();
         initAlgorithmList(algVec, mainShip);
         for (auto &alg : algVec) {
@@ -74,7 +121,9 @@ int main(int argc, char** argv) {
                 (*alg)(inputPath, outputPath);
             }
         }
+        saveOutPutInformation(outputInformation,algVec);
         delete mainShip;
         destroyAlgVec(algVec);
     }
+    createOutPutFile(outputInformation,travelsNum,path);
  }
