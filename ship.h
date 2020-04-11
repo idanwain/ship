@@ -114,6 +114,8 @@ public:
     void initCalc();
 
     int getTopFloor(coordinate coor);
+
+    void find_column_to_load(coordinate &coor, bool &found, int kg);
 };
 
 #endif // !SHIP_HEADER

@@ -32,13 +32,15 @@ bool Algorithm::operator()(const std::string& input_full_path_and_file_name,
 void Algorithm::write_to_output(std::ofstream& output,
         const std::string& command, const std::string& id,
         const std::tuple<int,int,int>& pos, const std::tuple<int,int,int>& moved_to){
-    if(std::get<0>(moved_to) == -1){
-        output << command << ", " <<  id << ", " << std::get<0>(pos) << ", " << std::get<1>(pos) << ", " << std::get<2>(pos) << std::endl;
-    } else {
+    if(command == "R"){
+        output << command << ", " <<  id << std::endl;
+    } else if (command == "M") {
         output << command << ", " <<  id << ", " << std::get<0>(pos) <<
                 ", " << std::get<1>(pos) << ", " << std::get<2>(pos) <<
                 ", [" << std::get<0>(moved_to) << ", " << std::get<1>(moved_to) <<
                 ", " << std::get<2>(moved_to) << "]" << std::endl;
+    } else {
+        output << command << ", " <<  id << ", " << std::get<0>(pos) << ", " << std::get<1>(pos) << ", " << std::get<2>(pos) << std::endl;
     }
 }
 
@@ -60,16 +62,18 @@ bool  Algorithm::parse_data_to_port(const std::string& input_full_path_and_file_
     while(getline(input,line)){
         std::string id; int weight; Port *dest = nullptr;
         if(!validate_container_data(line)){
-            return false;
-        }
-        extract_containers_data(line, id, weight, &dest);
-        if(dest == nullptr) {
-            std::cout << id << ": "<< CONTAINER_NOT_IN_ROUTE << std::endl;
+            std::cout << id << ": "<< CONTAINER_NOT_VALID << std::endl;
         }
         else {
-            Container* con = new Container(id, weight, this->port, dest);
-            this->port->add_container(*con, "L");
-            con->getOffBoard();
+            extract_containers_data(line, id, weight, &dest);
+            if(dest == nullptr) {
+                std::cout << id << ": "<< CONTAINER_NOT_IN_ROUTE << std::endl;
+            }
+            else {
+                Container* con = new Container(id, weight, this->port, dest);
+                this->port->add_container(*con, "L");
+                con->getOffBoard();
+            }
         }
     }
 
@@ -179,13 +183,13 @@ bool Algorithm::validate_container_data(const std::string& line) {
 
     for(const std::string& item : data){
         ++i;
-        if (i == 0) {
-            bool id = validate_id(item);
-            if(!id){
-                return false;
-            }
-        }
-        else if(i == 1) {
+//        if (i == 0) {
+//            bool id = validate_id(item);
+//            if(!id){
+//                return false;
+//            }
+//        }
+        if(i == 1) {
             bool weight = is_number(item);
             if(!weight){
                 return false;
@@ -206,4 +210,13 @@ bool Algorithm::validate_container_data(const std::string& line) {
 void Algorithm::increase_instruction_counter(int instructionsAdded) {
     instructions+=instructionsAdded;
 }
+
+int Algorithm::getPortNum() {
+    return portNum;
+}
+
+bool Algorithm::isPortInRoute(Port *pPort) {
+    return pPort->get_name() != "NOT_IN_ROUTE";
+}
+
 

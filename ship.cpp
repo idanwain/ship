@@ -63,6 +63,9 @@ Port* Ship::getPortByName(const std::string &name) {
             pPort = port;
         }
     }
+    if(pPort == nullptr){
+        pPort = new Port("NOT_IN_ROUTE");
+    }
     return pPort;
 }
 
@@ -172,7 +175,7 @@ void Ship::find_column_to_move_to(coordinate old_coor, coordinate& new_coor, boo
     this->get_coordinates_to_handle(coordinates_to_check, containersToUnload);
     for(coordinate coor : coordinates_to_check){
         if(this->getCalc()->tryOperation('U', weight, std::get<0>(old_coor), std::get<1>(old_coor)) == APPROVED &&
-                this->getCalc()->tryOperation('U', weight, std::get<0>(coor), std::get<1>(coor)) == APPROVED){
+                this->getCalc()->tryOperation('L', weight, std::get<0>(coor), std::get<1>(coor)) == APPROVED){
             new_coor = coor;
             found = true;
             break;
@@ -191,4 +194,25 @@ void Ship::initCalc() {
 
 int Ship::getTopFloor(coordinate coor) {
     return shipMap[std::get<0>(coor)][std::get<0>(coor)].size() - 1;
+}
+
+void Ship::find_column_to_load(coordinate &coor, bool &found, int kg) {
+    int x = 0; int y = 0;
+    for(auto& coor_x : shipMap){
+        for(auto& coor_y : coor_x){
+            int size = shipMap[x][y].size(); int capacity = shipMap[x][y].capacity();
+            if(size < capacity &&
+                    this->getCalc()->tryOperation('L', kg, x, y) == APPROVED && !found){
+                coor = std::make_tuple(x,y);
+                found = true;
+                break;
+            }
+            ++y;
+        }
+        if(found){
+            break;
+        }
+        ++x;
+        y = 0;
+    }
 }

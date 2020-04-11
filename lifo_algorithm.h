@@ -18,10 +18,11 @@ public:
     explicit Lifo_algorithm(Ship* ship): Algorithm(ship){}
     ~Lifo_algorithm() = default;
     void get_instructions_for_crane(std::ofstream &outfile) override;
-    void unloadContainers(std::ofstream& output, std::vector<Container>& priority_to_load) override;
-    void loadContainers(std::ofstream& output) override;
+    //void unloadContainers(std::ofstream& output, std::vector<Container>& priority_to_load) override;
+   // void loadContainers(std::ofstream& output) override;
     const std::string getTypeName() const override;
-    void unload_containers(std::ofstream& output);
+    void unload_containers(std::ofstream& output) override;
+    void load_containers(char list_category, std::ofstream &output) override;
 };
 
 

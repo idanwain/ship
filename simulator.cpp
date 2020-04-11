@@ -67,21 +67,12 @@ int main(int argc, char** argv) {
         if(mainShip == nullptr) continue;
         mainShip->initCalc();
         initAlgorithmList(algVec, mainShip);
-        //write to file which travel
         for (auto &alg : algVec) {
             for (size_t j = 2; j < folder.size(); j++) {
                 string outputPath = getFullOutPutPath(folder.at(j), path,alg->getTypeName());
                 string inputPath = folder[j].string();
                 (*alg)(inputPath, outputPath);
             }
-            //write to file
-            //travel 1:
-                //alg1: errors:
-                //
-                //
-                //
-                //alg2: errors:
-            //
         }
         delete mainShip;
         destroyAlgVec(algVec);

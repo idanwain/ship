@@ -49,6 +49,7 @@ bool Container::operator!=(const Container& c) {
 	return *this == c;
 }
 
+
 //int Container::change_status(const std::string& command, Port* port) {
 //	if (command != "U" || command != "L") {
 //		return 0;
