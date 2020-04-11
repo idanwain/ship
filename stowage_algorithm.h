@@ -20,7 +20,7 @@
 
 class Algorithm {
     inline static int portNum = 0;
-    inline static int instructions = 0;
+    int instructions = 0;
     //std::map<std::string, Error> errors; //TODO create a map of containers ID and Error
 
 protected:

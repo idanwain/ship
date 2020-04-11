@@ -3,16 +3,14 @@
 
 #include "container.h"
 
-enum Reason {weight, space};
 
 class Error {
     Container* pCon = nullptr;
     Port* pPort = nullptr;
-    Reason reason;
 public:
-    Error(Container* pCon1, Port* pPort1, Reason reason1): pCon(pCon1), pPort(pPort1), reason(reason1) {}
+    Error(Container* pCon1, Port* pPort1): pCon(pCon1), pPort(pPort1){}
     friend std::ostream& operator<<(std::ostream& os, const Error& c);
-
+    //TODO iterate over ports & containersByPort --> extract data for errors in the end of algorithm run
 };
 
 
