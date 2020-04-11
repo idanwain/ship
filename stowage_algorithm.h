@@ -40,7 +40,8 @@ public:
     virtual const std::string getTypeName() const = 0;
     virtual void loadContainers(std::ofstream& output) = 0;
     virtual void unloadContainers(std::ofstream& output, std::vector<Container>& priority_to_load) = 0;
-    static void increase_instruction_counter(int instructionsAdded = 1);
+    void increase_instruction_counter(int instructionsAdded = 1);
+    int getInstructionsCounter() const;
 
     /***********WANT TO MOVE TO PARSER*********/
     bool parse_data_to_port(const std::string& input_full_path_and_file_name);
