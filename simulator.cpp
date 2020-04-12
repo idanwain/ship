@@ -119,14 +119,6 @@ int main(int argc, char** argv) {
                 string inputPath = travel_folder[j].string();
                 (*alg)(inputPath, outputPath);
             }
-            //write to file
-            //travel 1:
-                //alg1: errors:
-                //
-                //
-                //
-                //alg2: errors:
-            //
         }
         saveOutPutInformation(outputInformation,algVec);
         delete mainShip;

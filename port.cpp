@@ -6,7 +6,7 @@
 #include <fstream>
 
 int Port::add_container(const Container& container, const std::string& command) {
-    if (command != "U" && command != "L" && command != "A") {
+    if (command != "U" && command != "L" && command != "A" && command != "P") {
         return 0;
     }
     if (command == "L") {
@@ -15,8 +15,11 @@ int Port::add_container(const Container& container, const std::string& command) 
     else if(command == "U") {
         unload.emplace_back(container);
     }
-    else {
+    else if(command == "A"){
         arrived.emplace_back(container);
+    }
+    else{
+        priority.emplace_back(container);
     }
     return 1;
 }
@@ -25,8 +28,12 @@ const std::string&  Port::get_name() {
     return name;
 }
 
-void Port::get_containers_to_load(std::vector<Container>& vec){
-    vec = load;
+void Port::get_containers_to_load(std::vector<Container>** vec, char list_category){
+    if(list_category == 'L'){
+        *vec = &load;
+    } else if(list_category == 'P'){
+        *vec = &priority;
+    }
 }
 
 bool Port::operator==(const Port& p)
@@ -42,7 +49,7 @@ void Port::load_to_ship(Container& container, Ship* ship)
 {
     std::tuple<int,int> coordinate = ship->find_min_floor();
     ship->add_container(container, coordinate);
-    container.getOnBoard();
+//    container.getOnBoard();
     instructions++;
 }
 

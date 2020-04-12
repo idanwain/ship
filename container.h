@@ -36,58 +36,46 @@
 class Port;
 
 class Container {
-	struct Position {
-		int on_board = 0;
-		Port* port = nullptr;
-	};
-    int onBoard;
     std::string id;
 	int weight;
 	Port* source = nullptr;
 	Port* destination = nullptr;
-	Position* status;
+	int distanceFromDest;
 
 public:
 	Container(const std::string& id, int weight, Port* const source, Port* const dest) :
-        onBoard(0),
 		id(id),
 		weight(weight),
 		source(source),
-		destination(dest)
-		{
-        status = new Position();
-        status->on_board = 0;
-        status->port = source;
-    }
+		destination(dest),
+        distanceFromDest(INT_MAX)
+		{}
     /*Container copy c'tor*/
     Container(const Container* contToCopy){
 	    this->id = contToCopy->id;
 	    this->weight = contToCopy->weight;
 	    this->source = contToCopy->source;
 	    this->destination = contToCopy->destination;
-	    this->status = new Position();
-	    this->status->on_board = contToCopy->status->on_board;
-	    this->status->port = contToCopy->status->port;
+	    this->distanceFromDest = contToCopy->distanceFromDest;
 	    std::cout << "in container c'tor" + this->id << std::endl;
 	}
 
-	Container(const std::string& id1): id(id1), weight(-1), source(nullptr), destination(nullptr){
-	        status = new Position();
-	        status->on_board = 0;
-	        status->port = nullptr;
-	}
+	Container(const std::string& id1): id(id1), weight(-1), source(nullptr), destination(nullptr){}
     ~Container();
 	//int change_status(const std::string& command , Port* port);
 	int get_weight();
 	std::string get_id();
 	Port* get_source();
 	Port* get_dest();
-	bool is_on_board();
-	void getOnBoard();
-    void getOffBoard();
+//	bool is_on_board();
+//	void getOnBoard();
+//    void getOffBoard();
     friend std::ostream& operator<<(std::ostream& os, const Container& c);
 	bool operator==(const Container& c);
 	bool operator!=(const Container& c);
+    bool operator <(const Container& c);
+    void setDistance(int distance);
+
 };
 
 class Block : public Container{
