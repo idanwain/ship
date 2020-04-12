@@ -28,11 +28,11 @@ const std::string&  Port::get_name() {
     return name;
 }
 
-void Port::get_containers_to_load(std::vector<Container>& vec, char list_category){
+void Port::get_containers_to_load(std::vector<Container>** vec, char list_category){
     if(list_category == 'L'){
-        vec = load;
+        *vec = &load;
     } else if(list_category == 'P'){
-        vec = priority;
+        *vec = &priority;
     }
 }
 
@@ -49,7 +49,7 @@ void Port::load_to_ship(Container& container, Ship* ship)
 {
     std::tuple<int,int> coordinate = ship->find_min_floor();
     ship->add_container(container, coordinate);
-    container.getOnBoard();
+//    container.getOnBoard();
     instructions++;
 }
 

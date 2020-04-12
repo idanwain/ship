@@ -18,17 +18,17 @@ Port*  Container::get_dest() {
 	return destination;
 }
 
-bool Container::is_on_board() {
-    return this->onBoard == 1;
-}
-
-void Container::getOnBoard(){
-    this->onBoard = 1;
-}
-
-void Container::getOffBoard(){
-    this->onBoard = 0;
-}
+//bool Container::is_on_board() {
+//    return this->onBoard == 1;
+//}
+//
+//void Container::getOnBoard(){
+//    this->onBoard = 1;
+//}
+//
+//void Container::getOffBoard(){
+//    this->onBoard = 0;
+//}
 
 
 std::ostream& operator<<(std::ostream& os, const Container& c)
@@ -66,3 +66,11 @@ bool Container::operator!=(const Container& c) {
 //}
 
 Container::~Container(){}
+
+bool Container::operator<(const Container &c) {
+    return distanceFromDest < c.distanceFromDest;
+}
+
+void Container::setDistance(int distance) {
+    distanceFromDest = distance;
+}

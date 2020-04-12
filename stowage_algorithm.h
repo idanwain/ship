@@ -48,16 +48,18 @@ public:
     int getInstructionsCounter() const;
 
     /***********WANT TO MOVE TO PARSER*********/
-    bool parse_data_to_port(const std::string& input_full_path_and_file_name);
+    bool parse_data_to_port(const std::string& input_full_path_and_file_name, std::ofstream &output);
     static bool validate_id(const std::string& str);
     static std::vector<std::string> string_split(std::string s, const char* delimiter);
-    static bool validate_container_data(const std::string& line);
+    static bool validate_container_data(const std::string& line, std::ofstream &output);
 
     static void write_to_output(std::ofstream &output, const string &command, const string &id,
                     const std::tuple<int, int, int> &pos,
                     const std::tuple<int,int,int>& moved_to);
 
     bool isPortInRoute(Port *pPort);
+
+    void initContainersDistance(std::vector<Container> &vector);
 };
 
 #endif //SHIP1_STOWAGE_ALGORITHM_H

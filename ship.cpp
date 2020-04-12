@@ -83,8 +83,8 @@ int Ship::getAxis(const std::string &str) const {
 
 }
 
-void Ship::get_containers_to_unload(Port *pPort, std::vector<Container>& unload) {
-    unload =  this->containersByPort[pPort];
+void Ship::get_containers_to_unload(Port *pPort, std::vector<Container>** unload) {
+    *unload =  &containersByPort[pPort];
 }
 
 void Ship::add_container_to_map(Container &container) {
@@ -158,8 +158,8 @@ int Ship::get_lowest_floor_of_relevant_container(Port *pPort, coordinate coor) {
     return lowest;
 }
 
-void Ship::get_column(coordinate coor, std::vector<Container> &column) {
-    column = shipMap[std::get<0>(coor)][std::get<1>(coor)];
+void Ship::get_column(coordinate coor, std::vector<Container>** column) {
+    *column = &(shipMap[std::get<0>(coor)][std::get<1>(coor)]);
 }
 
 void Ship::remove_from_containers_by_port(Container &container, Port *pPort) {
@@ -173,19 +173,41 @@ WeightBalanceCalculator* Ship::getCalc() {
 void Ship::find_column_to_move_to(coordinate old_coor, coordinate& new_coor, bool &found, std::vector<Container>& containersToUnload, int weight) {
     std::set<coordinate> coordinates_to_check;
     this->get_coordinates_to_handle(coordinates_to_check, containersToUnload);
-    for(coordinate coor : coordinates_to_check){
-        if(this->getCalc()->tryOperation('U', weight, std::get<0>(old_coor), std::get<1>(old_coor)) == APPROVED &&
-                this->getCalc()->tryOperation('L', weight, std::get<0>(coor), std::get<1>(coor)) == APPROVED){
-            new_coor = coor;
-            found = true;
-            break;
+    int x = 0; int y = 0;
+    for(auto coor_x : shipMap){
+        for(auto coor_y : coor_x){
+            int size = this->shipMap[x][y].size();
+            int capacity = this->shipMap[x][y].capacity();
+            if(!std::count(coordinates_to_check.begin(), coordinates_to_check.end(), std::make_tuple(x,y)) &&
+                size < capacity &&
+                this->getCalc()->tryOperation('U', weight, std::get<0>(old_coor), std::get<1>(old_coor)) == APPROVED &&
+                this->getCalc()->tryOperation('L', weight, x, y) == APPROVED){
+                    new_coor = std::make_tuple(x,y);
+                    found = true;
+                    break;
+            }
+            ++y;
         }
+        ++x;
+        y=0;
     }
+//
+//
+//    for(coordinate coor : coordinates_to_check){
+//        int size = this->shipMap[std::get<0>(coor)][std::get<1>(coor)].size();
+//        int capacity = this->shipMap[std::get<0>(coor)][std::get<1>(coor)].capacity();
+//        if(size < capacity && this->getCalc()->tryOperation('U', weight, std::get<0>(old_coor), std::get<1>(old_coor)) == APPROVED &&
+//                this->getCalc()->tryOperation('L', weight, std::get<0>(coor), std::get<1>(coor)) == APPROVED){
+//            new_coor = coor;
+//            found = true;
+//            break;
+//        }
+//    }
 }
 
 void Ship::move_container(coordinate origin, coordinate dest) {
     shipMap[std::get<0>(dest)][std::get<1>(dest)].emplace_back(shipMap[std::get<0>(origin)][std::get<1>(origin)].back());
-    shipMap[std::get<0>(origin)][std::get<0>(origin)].pop_back();
+    shipMap[std::get<0>(origin)][std::get<1>(origin)].pop_back();
 }
 
 void Ship::initCalc() {
@@ -193,7 +215,7 @@ void Ship::initCalc() {
 }
 
 int Ship::getTopFloor(coordinate coor) {
-    return shipMap[std::get<0>(coor)][std::get<0>(coor)].size() - 1;
+    return shipMap[std::get<0>(coor)][std::get<1>(coor)].size();
 }
 
 void Ship::find_column_to_load(coordinate &coor, bool &found, int kg) {

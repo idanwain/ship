@@ -62,6 +62,7 @@ public:
             for(int j = 0; j < y; j++){
                 //Note that this c'tor only for copying the blocks
                 this->shipMap[i][j] = shipToCopy->shipMap[i][j];
+                this->shipMap[i][j].reserve(z);
             }
         }
         bool found = false;
@@ -91,7 +92,7 @@ public:
     Port* getPortByName(const std::string &name);
     void setRoute(std::vector<Port*> &route);
     int getAxis(const std::string& str) const;
-    void get_containers_to_unload(Port* port, std::vector<Container>& unload);
+    void get_containers_to_unload(Port* port, std::vector<Container>** unload);
     void add_container_to_map(Container &container);
     void initContainersByPort(std::vector<Port *> &vector);
     void update_free_space(int num);
@@ -101,7 +102,7 @@ public:
 
     int get_lowest_floor_of_relevant_container(Port *pPort, coordinate coor);
 
-    void get_column(coordinate coor, std::vector<Container> &column);
+    void get_column(coordinate coor, std::vector<Container>** column);
 
     void remove_from_containers_by_port(Container &container, Port *pPort);
 
@@ -118,6 +119,7 @@ public:
     void find_column_to_load(coordinate &coor, bool &found, int kg);
 
     void capacitySizeCheck();
+
 };
 
 #endif // !SHIP_HEADER

@@ -23,17 +23,17 @@ void  Lifo_algorithm::get_instructions_for_crane(std::ofstream& output) {
 }
 
 void Lifo_algorithm::unload_containers(std::ofstream& output){
-    std::vector<Container> containersToUnload;
-    ship->get_containers_to_unload(port, containersToUnload);
+    std::vector<Container>* containersToUnload = nullptr;
+    ship->get_containers_to_unload(port, &containersToUnload);
     std::set<coordinate> coordinates_to_handle;
-    ship->get_coordinates_to_handle(coordinates_to_handle, containersToUnload);
+    ship->get_coordinates_to_handle(coordinates_to_handle, *containersToUnload);
 
     for(coordinate coor : coordinates_to_handle){
         int lowest_floor = ship->get_lowest_floor_of_relevant_container(port, coor);
-        std::vector<Container> column;
-        ship->get_column(coor, column);
-        for(auto con_iterator = column.end() - 1; !column.empty() && con_iterator >= column.begin();){
-            if(con_iterator - column.begin() == lowest_floor - 1){
+        std::vector<Container>* column = nullptr;
+        ship->get_column(coor, &column);
+        for(auto con_iterator = column->end() - 1; !column->empty() && con_iterator >= column->begin();){
+            if(con_iterator - column->begin() == lowest_floor - 1){
                 break;
             }
             if(*(con_iterator->get_dest()) == *port){
@@ -41,7 +41,7 @@ void Lifo_algorithm::unload_containers(std::ofstream& output){
                     port->add_container(*con_iterator, "A");
                     Algorithm::write_to_output(output,"U", con_iterator->get_id(), ship->get_coordinate(*con_iterator), std::forward_as_tuple(-1,-1,-1));
                     ship->remove_from_containers_by_port(*con_iterator, port);
-                    column.pop_back(); // might destroy container -->check in port if exist
+                    column->pop_back(); // might destroy container -->check in port if exist
                     Algorithm::increase_instruction_counter();
                     --con_iterator;
                 }
@@ -54,13 +54,13 @@ void Lifo_algorithm::unload_containers(std::ofstream& output){
             else {
                 bool found = false;
                 coordinate new_spot;
-                ship->find_column_to_move_to(coor, new_spot, found, containersToUnload, con_iterator->get_weight()); //checks weight, space and efficiency.
+                ship->find_column_to_move_to(coor, new_spot, found, *containersToUnload, con_iterator->get_weight()); //checks weight, space and efficiency.
                 if(!found){
                     if(ship->getCalc()->tryOperation('U', con_iterator->get_weight(), std::get<0>(coor), std::get<1>(coor)) == APPROVED){
                         port->add_container(*con_iterator, "P");
                         Algorithm::write_to_output(output,"U", con_iterator->get_id(), ship->get_coordinate(*con_iterator), std::forward_as_tuple(-1,-1,-1));
                         ship->remove_from_containers_by_port(*con_iterator, port);
-                        column.pop_back(); // might destroy container -->check in port if exist
+                        column->pop_back(); // might destroy container -->check in port if exist
                         Algorithm::increase_instruction_counter();
                         --con_iterator;
                     }
@@ -86,38 +86,29 @@ void Lifo_algorithm::unload_containers(std::ofstream& output){
 
 void Lifo_algorithm::load_containers(char list_category, std::ofstream& output){
     //get proper container's vector
-    std::vector<Container> load;
-    port->get_containers_to_load(load, list_category);
+    std::vector<Container>* load = nullptr;
+    port->get_containers_to_load(&load, list_category);
     // sort by reverse order of ports in route
-    std::sort(load.begin(), load.end(), [this](Container& con1, Container& con2){
-        auto first_instance_of_con1 = std::find(ship->get_route().begin() + getPortNum() ,ship->get_route().end(), con1.get_dest());
-        auto first_instance_of_con2 = std::find(ship->get_route().begin() + getPortNum() ,ship->get_route().end(), con2.get_dest());
-        return first_instance_of_con1 > first_instance_of_con2;
-    });
+    Algorithm::initContainersDistance(*load);
+    std::sort(load->begin(), load->end());
     //validate by:
     //data, port is'nt in route, space, weight
-    for(auto con = load.begin(); con != load.end();){
+    for(auto con = load->end() - 1; !load->empty() && con >= load->begin();){
         bool found = false;
         coordinate coor;
         int weight = con->get_weight();
         ship->find_column_to_load(coor, found, weight);
         if(validate_id(con->get_id()) && isPortInRoute(con->get_dest()) && found){
             ship->add_container(*con, coor);
-            Algorithm::write_to_output(output,"R", con->get_id(), ship->get_coordinate(*con), std::forward_as_tuple(-1,-1,-1));
-            con = load.erase(con);
+            Algorithm::write_to_output(output,"L", con->get_id(), ship->get_coordinate(*con), std::forward_as_tuple(-1,-1,-1));
+            load->pop_back();
+            Algorithm::increase_instruction_counter();
         } else {
             Algorithm::write_to_output(output,"R", con->get_id(), std::forward_as_tuple(-1,-1,-1), std::forward_as_tuple(-1,-1,-1));
-            ++con;
         }
+        --con;
     }
 }
-//
-//bool Algorithm::compareContainersByRoute(Container& con1, Container& con2) {
-//    auto first_instance_of_con1 = std::find(ship->get_route().begin() + getPortNum() ,ship->get_route().end(), con1.get_dest());
-//    auto first_instance_of_con2 = std::find(ship->get_route().begin() + getPortNum() ,ship->get_route().end(), con2.get_dest());
-//    return first_instance_of_con1 > first_instance_of_con2;
-//}
-
 
 /**
  * This function unloads all the containers that need to be unloaded to port by these scheme:
