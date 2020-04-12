@@ -46,6 +46,7 @@ public:
     void increase_instruction_counter(int instructionsAdded = 1);
     int getPortNum();
     int getInstructionsCounter() const;
+    Ship* getShip() const;
 
     /***********WANT TO MOVE TO PARSER*********/
     bool parse_data_to_port(const std::string& input_full_path_and_file_name, std::ofstream &output);

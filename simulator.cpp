@@ -5,24 +5,7 @@
 #include "Parser.h"
 #include "stowage_algorithm.h"
 #include "lifo_algorithm.h"
-#include "WeightBalanceCalculator.h"
-
-/*
- * TODO function only for debug purposes --> to delete.
- */
-void printWhereBlocks(Ship* &ship){
-        auto map = ship->get_map();
-        for(size_t i = 0; i < (*map).size(); i++){
-            for(size_t j = 0; j < (*map)[i].size(); j++){
-                for(size_t k = 0; k < (*map)[i][j].size(); k++){
-                    cout << "size is " << (*map)[i][j].size() << endl;
-                    if((*map)[i][j][k].get_id() == "block"){
-                        cout << "at " << i << "," << j << "," << k <<endl;
-                    }
-                }
-            }
-        }
-}
+#include "OutPutHandler.h"
 
 /**
  * This function creates a vector of algorithms that the simulator willing to test on
@@ -46,71 +29,36 @@ string getFullOutPutPath(fs::path &path, string &root_path, const string &algNam
     algName + "- " + path.filename().string();
 
 }
+
+/**
+ * This function iterate through the vector and delete each algorithm
+ * @param algVec
+ */
 void destroyAlgVec(std::vector<Algorithm*> &algVec){
-    for(auto &alg : algVec){
+    for(auto &alg : algVec)
         delete alg;
-    }
+
     algVec.clear();
 }
 
-void saveOutPutInformation(std::map<string,std::list<int>> &output_map,std::vector<Algorithm *> algVec){
-    for(Algorithm* alg : algVec){
-        int num = alg->getInstructionsCounter();
-        string name = alg->getTypeName();
-        if(output_map.contains(name)){
-            output_map.at(name).emplace_back(num);
-        }
-        else{
-            std::list<int> ls;
-            ls.emplace_back(num);
-            output_map.insert(make_pair(name,ls));
-        }
-
-    }
-}
-
-void createOutPutFile(std::map<string,std::list<int>> &output_map,std::vector<string> &travels,string path){
-    std::ofstream inFile;
-    const string spaces = "      ";
-    int sum = 0;
-    path.append("\\simulation.csv");
-    inFile.open(path); //Default mode is writing to a file
-    if(inFile.fail()){
-        std::cout << "Failed to create results file" << std::endl;
-        exit(1);
-    }
-    inFile << "RESULTS" << ",";
-    for(string &travel_name : travels)
-        inFile << travel_name << ",";
-    inFile << "Sum" << '\n';
-    //iterate over the algorithm names and iterate over them, note that p is a pair<string,list<int>>
-    for(const auto &p : output_map){
-        sum = 0;
-        inFile << p.first << ",";
-        for(int num : p.second){
-            inFile << num << ",";
-            sum += num;
-        }
-        inFile << sum << '\n';
-    }
-    inFile.close();
-}
 
 int main(int argc, char** argv) {
 
     string path = argv[argc - 1];
-    std::vector<std::vector<fs::path>> directories;
-    std::vector<Algorithm *> algVec;
-    std::map<string,std::list<int>> outputInformation;
-    std::vector<string> travelsNum;
+    vector<vector<fs::path>> directories;
+    vector<Algorithm *> algVec;
+    std::map<string,list<int>> outputResultsInfo;
+    vector<pair<string,list<pair<string,list<string>>>>> outputErrorInfo;
+    vector<string> travelNames;
 
     initListDirectories(path, directories);
     createOutputDirectories(directories, argv[1]);
 
     for (auto &travel_folder : directories) {
-        Ship* mainShip = extractArgsForShip(travel_folder);
+        Ship* mainShip = extractArgsForShip(travel_folder);//TODO check why empty root exists
         if(mainShip == nullptr) continue;
-        travelsNum.push_back(travel_folder.at(0).parent_path().filename().string());
+        string currTravel = travel_folder.at(0).parent_path().filename().string();
+        travelNames.push_back(currTravel);
         mainShip->initCalc();
         initAlgorithmList(algVec, mainShip);
         for (auto &alg : algVec) {
@@ -120,9 +68,10 @@ int main(int argc, char** argv) {
                 (*alg)(inputPath, outputPath);
             }
         }
-        saveOutPutInformation(outputInformation,algVec);
+        saveOutPutInformation(outputResultsInfo,outputErrorInfo, algVec,currTravel);
         delete mainShip;
         destroyAlgVec(algVec);
     }
-    createOutPutFile(outputInformation,travelsNum,path);
+    createResultsFile(outputResultsInfo, travelNames, path);
+    createErrorsFile(outputErrorInfo,path);
  }

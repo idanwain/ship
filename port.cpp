@@ -125,3 +125,14 @@ void Port::print_containers() {
         std::cout << it;
     };
 }
+
+std::vector<Container>& Port::getContainerVec(const std::string &type){
+    if(type == "load")
+        return this->load;
+    else if(type == "unload")
+        return this->unload;
+    else if(type == "priority")
+        return this->priority;
+    else if(type == "arrived")
+        return this->arrived;
+}

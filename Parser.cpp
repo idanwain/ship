@@ -25,6 +25,11 @@ bool isValidPortName(const string& name){
     return std::regex_match(name,reg);
 }
 
+bool isValidTravelName(const string& name){
+    std::regex reg("Travel[1-9]*");
+    return std::regex_match(name,reg);
+}
+
 std::vector<std::vector<fs::path>> orderListOfDir(std::list<std::list<fs::path>> &unOrdered){
     std::vector<std::vector<fs::path>> result(unOrdered.size());
     int ind = 0;
@@ -67,6 +72,7 @@ void initListDirectories(string &path,std::vector<std::vector<fs::path>> &vecOfP
             std::cout <<  entry.path().filename()  << msg << std::endl;
             continue;
         }
+        if(!isValidTravelName(entry.path().filename().string())) continue;
         unOrderedList.emplace_back(std::list<fs::path>());
         for (const auto &deep_entry : fs::directory_iterator(entry.path())) {
             unOrderedList.back().emplace_back((deep_entry.path()));
@@ -80,17 +86,19 @@ void initListDirectories(string &path,std::vector<std::vector<fs::path>> &vecOfP
  * This function gets the paths matrix and validate that files exist.
  * @param direct
  */
-void validateSequenceDirectories(std::vector<std::vector<fs::path>> &direct) {
+void validateSequenceDirectories(vector<vector<fs::path>> &direct) {
     string msg;
+    int num = 0;
     setActualSize(direct);
     for (size_t i = 0; i < direct.size(); i++) {
+        num++;
         for (size_t j = 0; j < direct[i].size(); j++) {
             if (direct[i][j].empty()) {
                 msg.clear();
                 if (j == 0) msg = "ship_plan";
                 else if (j == 1) msg = "ship_route";
-                else msg.append("port num " + std::to_string(j-1));
-                std::cout << "Folder Travel " << direct[i][j].filename().string() << " lack of " << msg
+                else msg = ("port num " + std::to_string(j-1));
+                std::cout << "Folder Travel " << num << " lack of " << msg
                           << " file, this travel folder isn't going to be tested" << std::endl;
                 direct[i].clear();
                 break;
@@ -115,31 +123,6 @@ void setActualSize(std::vector<std::vector<fs::path>> &direct){
     }
 }
 
-/**
- * This function creates the outPutDirectories from list of paths.
- * @param paths
- * @param mainDirectory
- */
-void createOutputDirectories(std::vector<std::vector<fs::path>> &paths,char* mainDirectory){
-    string outputDir(mainDirectory);
-    outputDir.append(OP_MAIN_DIRECTORY);
-    fs::path dir(outputDir);
-    fs::path root_path(mainDirectory);
-    if(!fs::exists(dir) && !fs::create_directory(dir,root_path)){//Case we failed to create output directory.
-        std::cout << "Failed to create output directory, exists program" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-    for(auto const &list : paths){
-        if(!list.empty()){
-            string currOutputDir = outputDir + "\\" + list[0].parent_path().filename().string() +"Out";
-            fs::path dir(currOutputDir);
-            fs::path root_path(outputDir);
-            if(!fs::exists(dir)){
-                fs::create_directory(currOutputDir,outputDir);
-            }
-        }
-    }
-}
 
 /**
  * This function checks if port already exist in the vector list, if exists it return 0 but
@@ -202,7 +185,7 @@ void getTravelRoute(Ship* &ship, std::istream &inFile) {
  * @param str - the string to parse
  * @param ship - the ship to get it's map from.
  */
-void getBlocksByLine(std::string &str,Ship* &ship) {
+void setBlocksByLine(std::string &str, Ship* &ship) {
     auto map = ship->get_map();
     std::ifstream inFile;
     std::array<int,3> dim{};
@@ -228,7 +211,7 @@ void extractArgsForBlocks(Ship* &ship, std::istream &inFile) {
     string line;
     while (getline(inFile, line)){
         if(line.at(0) == '#') continue;
-        getBlocksByLine(line,ship);
+        setBlocksByLine(line, ship);
     }
 }
 /**

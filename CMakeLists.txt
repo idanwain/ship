@@ -17,4 +17,4 @@ add_executable(shipTest
         ship.cpp
         ship.h
         simulator.cpp
-        stowage_algorithm.cpp lifo_algorithm.cpp lifo_algorithm.h stowage_algorithm.h Parser.cpp Parser.h Error.cpp Error.h WeightBalanceCalculator.cpp WeightBalanceCalculator.h)
+        stowage_algorithm.cpp lifo_algorithm.cpp lifo_algorithm.h stowage_algorithm.h Parser.cpp Parser.h Error.cpp Error.h WeightBalanceCalculator.cpp WeightBalanceCalculator.h OutPutHandler.cpp OutPutHandler.h)

@@ -246,3 +246,7 @@ void Algorithm::initContainersDistance(std::vector<Container> &vector) {
         }
     }
 }
+
+Ship* Algorithm::getShip() const {
+    return this->ship;
+}
