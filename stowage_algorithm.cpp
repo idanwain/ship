@@ -65,7 +65,7 @@ bool  Algorithm::parse_data_to_port(const std::string& input_full_path_and_file_
         }
         else {
             extract_containers_data(line, id, weight, &dest);
-            if(!isPortInRoute(dest)) {
+            if(dest == nullptr) {
                 std::cout << id << ": "<< CONTAINER_NOT_IN_ROUTE << std::endl;
                 Algorithm::write_to_output(output,"R", id,std::forward_as_tuple(-1,-1,-1) , std::forward_as_tuple(-1,-1,-1));
             }
