@@ -1,3 +1,4 @@
+
 #include "common.h"
 
 void execute(Ship* ship, char command, Container* container, coordinate origin, coordinate dest) {
@@ -17,25 +18,27 @@ void execute(Ship* ship, char command, Container* container, coordinate origin, 
 }
 
 void validateAlgorithm(std::string &path,Ship* simulatorShip){
+void validateAlgorithm(string &outputPath,string &inputPath, Ship* simulatorShip, int portNumber){
     std::ifstream inFile;
-    std::string line,id,instruction;
+    string line,id,instruction;
     std::pair<string,string> idAndInstruction;
-    std::vector<int> coordinates;
-    inFile.open(path);
+    std::map<string,string> linesFromPortFile;
+    inFile.open(outputPath);
+    parseDataFromPortFile(linesFromPortFile, inputPath, simulatorShip);
     if(inFile.fail()) {
-        cout << "Failed to read from this file path - " + path << endl;
+        cout << FAIL_TO_READ_PATH + outputPath << endl;
         return;
     }
     while(getline(inFile,line)){
+        vector<int> coordinates;
         parseInstruction(line,idAndInstruction,coordinates);
         instruction = std::get<0>(idAndInstruction);
         id = std::get<1>(idAndInstruction);
-        if(validateInstruction(instruction,coordinates,simulatorShip)){
+        if(validateInstruction(instruction, id, coordinates, simulatorShip, linesFromPortFile)){
             coordinate one = std::tuple<int,int>(coordinates[0],coordinates[1]);
             if(instruction == "L") {
-                Container *cont = new Container(id);
+                Container* cont = new Container(id);
                 execute(simulatorShip, instruction.at(0),cont, one, std::forward_as_tuple(-1, -1));
-
             }
             else if(instruction == "U"){
                 execute(simulatorShip, instruction.at(0),nullptr, one, std::forward_as_tuple(-1, -1));
@@ -47,10 +50,11 @@ void validateAlgorithm(std::string &path,Ship* simulatorShip){
         }
 
     }
-}
 
-void parseInstruction(std::string &toParse,std::pair<std::string,std::string> &instruction,vector<int> &coordinates){
-    std::vector<string> parsedInfo = stringSplit(toParse,delim);
+    inFile.close();
+}
+void parseInstruction(string &toParse,std::pair<string,string> &instruction,vector<int> &coordinates){
+    auto parsedInfo = Algorithm::stringSplit(toParse,delim);
     for(int i = 0; i < parsedInfo.size(); i++){
         if(i == 0)
             std::get<0>(instruction) = parsedInfo.at(0);
@@ -61,23 +65,34 @@ void parseInstruction(std::string &toParse,std::pair<std::string,std::string> &i
     }
 }
 
-bool validateInstruction(std::pair<std::string,std::string> &instruction,std::vector<int> &coordinates,Ship* ship){
-    string inst = std::get<0>(instruction);
-    string id = std::get<1>(instruction);
+bool validateInstruction(string &instruction,string &id, vector<int> &coordinates,Ship* ship,std::map<string,string>& portContainers){
     int x1 = coordinates[0],y1 = coordinates[1], z1 = coordinates[2];
     auto map = ship->getMap();
     bool error;
-    if(inst == "L")
+    if(instruction == "L")
         error =  validateLoadInstruction(x1,y1,z1,*map);
-    else if(inst == "U")
+    else if(instruction == "U")
         error =  validateUnloadInstruction(x1,y1,z1,*map);
+    else if(instruction == "R")
+        error = validateRejectInstruction(portContainers,id,ship);
     else{
         error = validateMoveInstruction(coordinates,*map);
     }
     return error;
 }
 
-bool validateLoadInstruction(int x,int y,int z,std::vector<std::vector<std::vector<Container>>>& map){
+bool validateRejectInstruction(std::map<string,string>& portContainers, string& id,Ship* ship){
+    string line = portContainers[id];
+    VALIDATION reason = VALIDATION::Valid;/*might be used in exercise 2 to be more specific*/
+    bool err = validate(line,reason,id,ship);//true == bad
+    if(err){
+        /*need to add the error to the error general list*/
+    }
+    return !err;
+
+}
+
+bool validateLoadInstruction(int x,int y,int z,vector<vector<vector<Container>>>& map){
     if((map).at(x).at(y).size() != z)
         /*if not in size --> either in lower level which is wrong, or floating in the air*/
         return false;
@@ -86,7 +101,7 @@ bool validateLoadInstruction(int x,int y,int z,std::vector<std::vector<std::vect
     return true;
 }
 
-bool validateUnloadInstruction(int x,int y,int z,std::vector<std::vector<std::vector<Container>>>& map){
+bool validateUnloadInstruction(int x,int y,int z,vector<vector<vector<Container>>>& map){
     if((map).at(x).at(y).size() != z)
         return false;
     /*else if(check weight calculator)
@@ -94,7 +109,7 @@ bool validateUnloadInstruction(int x,int y,int z,std::vector<std::vector<std::ve
     return true;
 }
 
-bool validateMoveInstruction(std::vector<int> coordinates, std::vector<std::vector<std::vector<Container>>>& map){
+bool validateMoveInstruction(vector<int> coordinates, vector<vector<vector<Container>>>& map){
     int x1 = coordinates[0], y1 = coordinates[1], z1 = coordinates[2];
     int x2 = coordinates[3], y2 = coordinates[4], z2 = coordinates[5];
     return !validateUnloadInstruction(x1, y1, z1, map) && !validateLoadInstruction(x2, y2, z2, map);
@@ -238,4 +253,3 @@ bool isPortInRoute(Port *pPort, const std::vector<Port*>& route, int portNum) {
     }
     return pPort->get_name() != "NOT_IN_ROUTE" && found;
 }
-

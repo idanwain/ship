@@ -1,4 +1,5 @@
 #include "Parser.h"
+#include "stowage_algorithm.h"
 
 /**
  * This function gets the number from the <port_symbol>_<num>.<filetype> decleration
@@ -225,7 +226,7 @@ Ship* extractArgsForShip(std::vector<fs::path> &folder) {
         file_path = folder[i].string();
         inFile.open(file_path);
         if (inFile.fail()) {
-            cout << "Failed to read from this file path - " + file_path << endl;
+            std::cerr << FAIL_TO_READ_PATH + file_path << endl;
             return nullptr;
         } else if (i == 0) {
             getDimensions(dimensions, inFile,"byFile");
@@ -237,4 +238,36 @@ Ship* extractArgsForShip(std::vector<fs::path> &folder) {
         inFile.close();
     }
     return ship;
+}
+
+void parseDataFromPortFile(std::map<string,string>& map, string& inputPath,Ship* simulatorShip){
+    std::ifstream inFile;
+    string line;
+    inFile.open(inputPath);
+    if(inFile.fail()){
+        std::cerr << FAIL_TO_READ_PATH + inputPath << endl;
+        return;
+    }
+    while(getline(inFile,line)){
+        if(line.at(0) == '#')continue;
+        vector<string> parsedInfo = Algorithm::stringSplit(line,delim);
+        if(parsedInfo.size() != 4)continue; /*case not enough information or too much*/
+        string contID = parsedInfo.at(0);
+        map.insert(make_pair(contID,line));
+    }
+    inFile.close();
+}
+
+string* getPortNameFromFile(string filePath){
+    string* portName = new string();//TODO destroy it!!!
+    int i = 0,j;
+    for(i = filePath.size()-1; i > 0; i--){
+        if(filePath.at(i) == '_'){
+            j = i;
+        }
+        if(filePath.at(i) == '\\')
+            break;
+    }
+    portName->append(filePath.substr(filePath.size() - i+1,j-i));//TODO check it
+    return portName;
 }
