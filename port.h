@@ -49,7 +49,7 @@ public:
     const std::string & get_name();
     bool operator==(const Port& p);
     void getContainersToLoad(std::vector<Container>** vec, char list_category);
-    std::vector<Container>& getContainerVec(const std::string &type);
+    std::vector<Container>* getContainerVec(const std::string &type);
 
     void printContainers(); //debugging purpose
 };

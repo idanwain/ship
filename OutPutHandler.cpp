@@ -36,7 +36,7 @@ list<string> createAlgListOfErrors(Algorithm* alg){
     for(Port* p : route){
         if(visitedPorts.contains(p->get_name())) continue;
         visitedPorts.emplace(p->get_name());
-        vector<Container> containers_vec = p->getContainerVec("load");
+        vector<Container> containers_vec = *(p->getContainerVec("load"));
         for(Container &cont : containers_vec){
             msg = "Error: container id: " + cont.get_id();
             if(cont.get_dest()->get_name() == "NOT_IN_ROUTE")
@@ -161,13 +161,13 @@ void createOutputDirectories(std::vector<std::vector<fs::path>> &paths,char* mai
         std::cout << "Failed to create output directory, exists program" << std::endl;
         exit(EXIT_FAILURE);
     }
-    for(auto const &list : paths){
-        if(!list.empty()){
-            string currOutputDir = outputDir + "\\" + list[0].parent_path().filename().string() +"Out";
+    for(auto const &list : paths) {
+        if (!list.empty()) {
+            string currOutputDir = outputDir + "\\" + list[0].parent_path().filename().string() + "Out";
             fs::path dir(currOutputDir);
             fs::path root_path(outputDir);
-            if(!fs::exists(dir)){
-                fs::create_directory(currOutputDir,outputDir);
+            if (!fs::exists(dir)) {
+                fs::create_directory(currOutputDir, outputDir);
             }
         }
     }
