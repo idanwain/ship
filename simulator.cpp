@@ -6,6 +6,7 @@
 #include "stowage_algorithm.h"
 #include "lifo_algorithm.h"
 #include "OutPutHandler.h"
+#include "common.h"
 
 /**
  * This function creates a vector of algorithms that the simulator willing to test on
@@ -55,7 +56,7 @@ int main(int argc, char** argv) {
     createOutputDirectories(directories, argv[1]);
 
     for (auto &travel_folder : directories) {
-        Ship* mainShip = extractArgsForShip(travel_folder);//TODO check why empty root exists
+        Ship* mainShip = extractArgsForShip(travel_folder);
         if(mainShip == nullptr) continue;
         string currTravel = travel_folder.at(0).parent_path().filename().string();
         travelNames.push_back(currTravel);
@@ -66,6 +67,7 @@ int main(int argc, char** argv) {
                 string outputPath = getFullOutPutPath(travel_folder.at(j), path, alg->getTypeName());
                 string inputPath = travel_folder[j].string();
                 (*alg)(inputPath, outputPath);
+                validateAlgorithm(outputPath,mainShip);
             }
         }
         saveOutPutInformation(outputResultsInfo,outputErrorInfo, algVec,currTravel);

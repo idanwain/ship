@@ -54,7 +54,7 @@ public:
     void load_to_ship(Container& container, Ship* ship); //TODO crane management
     static void write_instruction_to_file(std::ofstream& output , const std::string& command, const std::string& id, const std::tuple<int,int,int>& pos);
     void get_containers_to_load(std::vector<Container>** vec, char list_category);
-    std::vector<Container>& getContainerVec(const std::string &type);
+    std::vector<Container>* getContainerVec(const std::string &type);
 
     void print_containers(); //debugging purpose
 

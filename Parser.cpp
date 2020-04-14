@@ -114,7 +114,7 @@ void validateSequenceDirectories(vector<vector<fs::path>> &direct) {
  */
 void setActualSize(std::vector<std::vector<fs::path>> &direct){
     for(size_t i = 0; i < direct.size(); i++){
-        for(size_t j = direct[i].size()-1; j > 0; j--){
+        for(size_t j = direct[i].size()-1; !direct[i].empty() && j > 0; j--){
             if(!direct[i][j].empty()){
                 direct[i].resize(j+1);
                 break;
