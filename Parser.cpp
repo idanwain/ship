@@ -186,7 +186,7 @@ void getTravelRoute(Ship* &ship, std::istream &inFile) {
  * @param ship - the ship to get it's map from.
  */
 void setBlocksByLine(std::string &str, Ship* &ship) {
-    auto map = ship->get_map();
+    auto map = ship->getMap();
     std::ifstream inFile;
     std::array<int,3> dim{};
     getDimensions(dim,inFile,str);
@@ -198,7 +198,7 @@ void setBlocksByLine(std::string &str, Ship* &ship) {
         for(int i = 0; i < ship->getAxis("z")-dim[2]; i++){
             (*map)[dim[0]][dim[1]].emplace_back(Block());
         }
-        ship->update_free_space(-(ship->getAxis("z") - dim[2]));
+        ship->updateFreeSpace(-(ship->getAxis("z") - dim[2]));
     }
 }
 

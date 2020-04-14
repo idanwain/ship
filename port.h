@@ -30,11 +30,8 @@
 #include <vector>
 #include <stack>
 
-#define MOVE "M"
-
 class Container;
 class Ship;
-
 
 class Port {
     std::string name;
@@ -48,21 +45,12 @@ public:
     /*C'tor*/
     Port(const std::string& name) : name(name), instructions(0){}
     ~Port();
-    int add_container(const Container& container, const std::string& command);
+    void addContainer(Container& container,char command);
     const std::string & get_name();
     bool operator==(const Port& p);
-    void load_to_ship(Container& container, Ship* ship); //TODO crane management
-    static void write_instruction_to_file(std::ofstream& output , const std::string& command, const std::string& id, const std::tuple<int,int,int>& pos);
-    void get_containers_to_load(std::vector<Container>** vec, char list_category);
+    void getContainersToLoad(std::vector<Container>** vec, char list_category);
     std::vector<Container>& getContainerVec(const std::string &type);
 
-    void print_containers(); //debugging purpose
-
-    //int remove_container(const Container& container, const std::string& command);
-    //void import_container(Ship* ship, Container& container, std::ofstream& output, std::vector<Container>& priority_to_load);
-    //void get_containers_to(const std::string& command, std::vector<Container>& vec);
-
-
-
+    void printContainers(); //debugging purpose
 };
 #endif

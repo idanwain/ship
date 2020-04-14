@@ -13,31 +13,31 @@
 bool Algorithm::operator()(const std::string& input_full_path_and_file_name,
                 const std::string& output_full_path_and_file_name) {
     //init algorithm's port
-    this->port = ship->get_route().at(portNum);
+    this->port = ship->getRoute().at(portNum);
      std::ofstream output(output_full_path_and_file_name);
     //parse the input data into
-    if(!parse_data_to_port(input_full_path_and_file_name, output)){
+    if(!parseDataToPort(input_full_path_and_file_name, output)){
         std::cout << CONTAINER_FILE_ERROR << std::endl;
         return false;
     };
 
     //write to output
-    get_instructions_for_crane(output);
+    getInstructionsForCrane(output);
     output.close();
     ++Algorithm::portNum;
     return true;
 }
 
-void Algorithm::write_to_output(std::ofstream& output,
+void Algorithm::writeToOutput(std::ofstream& output,
         const std::string& command, const std::string& id,
-        const std::tuple<int,int,int>& pos, const std::tuple<int,int,int>& moved_to){
+        const std::tuple<int,int,int>& pos, const std::tuple<int,int,int>& movedTo){
     if(command == "R"){
         output << command << ", " <<  id << std::endl;
     } else if (command == "M") {
         output << command << ", " <<  id << ", " << std::get<0>(pos) <<
                 ", " << std::get<1>(pos) << ", " << std::get<2>(pos) <<
-                ", [" << std::get<0>(moved_to) << ", " << std::get<1>(moved_to) <<
-                ", " << std::get<2>(moved_to) << "]" << std::endl;
+                ", " << std::get<0>(movedTo) << ", " << std::get<1>(movedTo) <<
+                ", " << std::get<2>(movedTo) << std::endl;
     } else {
         output << command << ", " <<  id << ", " << std::get<0>(pos) << ", " << std::get<1>(pos) << ", " << std::get<2>(pos) << std::endl;
     }
@@ -47,11 +47,11 @@ void Algorithm::write_to_output(std::ofstream& output,
   * Parses the containers data and connecting it to the "load" list of the port
   * @param input_full_path_and_file_name
   */
-bool  Algorithm::parse_data_to_port(const std::string& input_full_path_and_file_name, std::ofstream &output) {
+bool  Algorithm::parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream &output) {
     std::string line;
     std::ifstream input;
 
-    input.open(input_full_path_and_file_name);
+    input.open(inputFullPathAndFileName);
 
     if(input.fail()){
         std::cout << "Error Opening file, closing program" << std::endl;
@@ -60,19 +60,16 @@ bool  Algorithm::parse_data_to_port(const std::string& input_full_path_and_file_
 
     while(getline(input,line)){
         std::string id; int weight; Port *dest = nullptr;
-        if(!validate_container_data(line, output)){
-            std::cout << id << ": "<< CONTAINER_NOT_VALID << std::endl;
-        }
-        else {
-            extract_containers_data(line, id, weight, &dest);
+        if(validateContainerData(line, output))
+        {
+            extractContainersData(line, id, weight, &dest);
             if(dest == nullptr) {
                 std::cout << id << ": "<< CONTAINER_NOT_IN_ROUTE << std::endl;
-                Algorithm::write_to_output(output,"R", id,std::forward_as_tuple(-1,-1,-1) , std::forward_as_tuple(-1,-1,-1));
+                Algorithm::writeToOutput(output,"R", id,std::forward_as_tuple(-1,-1,-1) , std::forward_as_tuple(-1,-1,-1));
             }
             else {
                 Container* con = new Container(id, weight, this->port, dest);
-                this->port->add_container(*con, "L");
-                //con->getOffBoard();
+                this->port->addContainer(*con, 'L');
             }
         }
     }
@@ -87,7 +84,7 @@ bool  Algorithm::parse_data_to_port(const std::string& input_full_path_and_file_
  * @param delimiter - delimiters to be splitted by
  * @return vector of words in s
  */
-std::vector<std::string>  Algorithm::string_split(std::string s, const char* delimiter) {
+std::vector<std::string>  Algorithm::stringSplit(std::string s, const char* delimiter) {
     size_t start = 0;
     size_t end = s.find_first_of(delimiter);
 
@@ -114,9 +111,9 @@ std::vector<std::string>  Algorithm::string_split(std::string s, const char* del
  * @param weight - container's weight
  * @param dest - container's destination
  */
-void  Algorithm::extract_containers_data(const std::string& line, std::string &id, int &weight, Port** dest) {
+void  Algorithm::extractContainersData(const std::string& line, std::string &id, int &weight, Port** dest) {
     int i=0;
-    auto data = string_split(line, delim);
+    auto data = stringSplit(line, delim);
     std::string port_name;
     for(const std::string& item : data){
         switch(i){
@@ -142,7 +139,7 @@ void  Algorithm::extract_containers_data(const std::string& line, std::string &i
     }
 }
 
-bool Algorithm::validate_id(const std::string& str) {
+bool Algorithm::validateId(const std::string& str) {
     int i = 0;
     if (str.length() != 11)
         return false;
@@ -172,9 +169,9 @@ bool is_number(const std::string& s) {
                      s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
 }
 
-bool Algorithm::validate_container_data(const std::string& line, std::ofstream &output) {
+bool Algorithm::validateContainerData(const std::string& line, std::ofstream &output) {
     int i=-1;
-    auto data = string_split(line, delim);
+    auto data = stringSplit(line, delim);
 
     if(data.size() != 4)
         return false;
@@ -184,10 +181,17 @@ bool Algorithm::validate_container_data(const std::string& line, std::ofstream &
     for(const std::string& item : data){
         ++i;
         if (i == 0) {
-            bool id = validate_id(item);
+            bool id = validateId(item);
             if(!id){
-                Algorithm::write_to_output(output, "R", item, std::forward_as_tuple(-1,-1,-1), std::forward_as_tuple(-1,-1,-1));
+                Algorithm::writeToOutput(output, "R", item, std::forward_as_tuple(-1,-1,-1), std::forward_as_tuple(-1,-1,-1));
                 return false;
+            }
+            else {
+                if(idExistOnShip(item)){
+                    //print a proper message and return false
+                    std::cout << item << ": " << ID_EXIST_ON_SHIP << std::endl;
+                    return false;
+                }
             }
         }
         if(i == 1) {
@@ -207,17 +211,13 @@ bool Algorithm::validate_container_data(const std::string& line, std::ofstream &
     return dest;
 }
 
-void Algorithm::increase_instruction_counter(int instructionsAdded) {
+void Algorithm::increaseInstructionCounter(int instructionsAdded) {
     this->instructions += instructionsAdded;
-}
-
-int Algorithm::getPortNum() {
-    return portNum;
 }
 
 bool Algorithm::isPortInRoute(Port *pPort) {
     bool found = false;
-    auto route = ship->get_route();
+    auto route = ship->getRoute();
     for(auto port_it = route.begin() + portNum + 1; port_it != route.end(); ++port_it){
         if(*(*port_it) == *pPort){
             found = true;
@@ -233,7 +233,7 @@ int Algorithm::getInstructionsCounter() const {
 }
 
 void Algorithm::initContainersDistance(std::vector<Container> &vector) {
-    auto route = this->ship->get_route();
+    auto route = this->ship->getRoute();
     for(auto pPort = route.rbegin(); pPort != route.rend(); ++pPort){
         int distance = std::distance(pPort, route.rend() - portNum);
         if(distance <= 0){
@@ -249,4 +249,16 @@ void Algorithm::initContainersDistance(std::vector<Container> &vector) {
 
 Ship* Algorithm::getShip() const {
     return this->ship;
+}
+
+bool Algorithm::idExistOnShip(const std::string& id){
+    auto map = ship->getContainersByPort();
+    for(auto & pPort : map){
+        for(auto con_it : pPort.second) {
+            if(con_it.get_id() == id){
+                return true;
+            }
+        }
+    }
+    return false;
 }

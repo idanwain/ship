@@ -62,14 +62,9 @@ public:
 
 	Container(const std::string& id1): id(id1), weight(-1), source(nullptr), destination(nullptr){}
     ~Container();
-	//int change_status(const std::string& command , Port* port);
 	int get_weight();
 	std::string get_id();
-	Port* get_source();
 	Port* get_dest();
-//	bool is_on_board();
-//	void getOnBoard();
-//    void getOffBoard();
     friend std::ostream& operator<<(std::ostream& os, const Container& c);
 	bool operator==(const Container& c);
 	bool operator!=(const Container& c);
