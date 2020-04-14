@@ -56,7 +56,7 @@ void setBlocksByLine(std::string &str, Ship* &ship);
 void getTravelRoute(Ship* &ship, std::istream &inFile);
 void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str);
 int portAlreadyExist(std::vector<Port*> &vec,string &str);
-void parseDataFromPortFile(std::map<string,Container*>& map, string &inputPath,Ship* simulatorShip);
+void parseDataFromPortFile(std::map<string,string>& map, string &inputPath,Ship* simulatorShip);
 string* getPortNameFromFile(string &filePath);
 
 #endif // !PARSER_HEADER

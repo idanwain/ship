@@ -5,9 +5,9 @@ void validateAlgorithm(string &outputPath,string &inputPath, Ship* simulatorShip
     std::ifstream inFile;
     string line,id,instruction;
     std::pair<string,string> idAndInstruction;
-    std::map<string,Container*> portContainers;
+    std::map<string,string> linesFromPortFile;
     inFile.open(outputPath);
-    parseDataFromPortFile(portContainers,inputPath,simulatorShip);
+    parseDataFromPortFile(linesFromPortFile, inputPath, simulatorShip);
     if(inFile.fail()) {
         cout << FAIL_TO_READ_PATH + outputPath << endl;
         return;
@@ -17,7 +17,7 @@ void validateAlgorithm(string &outputPath,string &inputPath, Ship* simulatorShip
         parseInstruction(line,idAndInstruction,coordinates);
         instruction = std::get<0>(idAndInstruction);
         id = std::get<1>(idAndInstruction);
-        if(validateInstruction(instruction,id,coordinates,simulatorShip,portContainers)){
+        if(validateInstruction(instruction, id, coordinates, simulatorShip, linesFromPortFile)){
             coordinate one = std::tuple<int,int>(coordinates[0],coordinates[1]);
             if(instruction == "L") {
                 Container* cont = new Container(id);
@@ -48,7 +48,7 @@ void parseInstruction(string &toParse,std::pair<string,string> &instruction,vect
     }
 }
 
-bool validateInstruction(string &instruction,string &id, vector<int> &coordinates,Ship* ship,std::map<string,Container*>& portContainers){
+bool validateInstruction(string &instruction,string &id, vector<int> &coordinates,Ship* ship,std::map<string,string>& portContainers){
     int x1 = coordinates[0],y1 = coordinates[1], z1 = coordinates[2];
     auto map = ship->getMap();
     bool error;
@@ -66,10 +66,10 @@ bool validateInstruction(string &instruction,string &id, vector<int> &coordinate
 
 bool validateRejectInstruction(std::map<string,string>& portContainers, string& id,Ship* ship){
     string line = portContainers[id];
-    VALIDATION reason = VALIDATION::Valid;
+    VALIDATION reason = VALIDATION::Valid;/*might be used in exercise 2 to be more specific*/
     bool err = validate(line,reason,id,ship);//true == bad
     if(err){
-        //To add error to file
+        /*need to add the error to the error general list*/
     }
     return !err;
 

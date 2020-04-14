@@ -246,7 +246,7 @@ Ship* extractArgsForShip(std::vector<fs::path> &folder) {
     return ship;
 }
 
-void parseDataFromPortFile(std::map<string,Container*>& map, string& inputPath,Ship* simulatorShip){
+void parseDataFromPortFile(std::map<string,string>& map, string& inputPath,Ship* simulatorShip){
     std::ifstream inFile;
     string line;
     inFile.open(inputPath);
@@ -259,13 +259,7 @@ void parseDataFromPortFile(std::map<string,Container*>& map, string& inputPath,S
         vector<string> parsedInfo = Algorithm::stringSplit(line,delim);
         if(parsedInfo.size() != 4)continue; /*case not enough information or too much*/
         string contID = parsedInfo.at(0);
-        string portDstName = parsedInfo.at(2) + " " + parsedInfo.at(3);
-        int contWeight = atoi(parsedInfo.at(1).data());
-        Port* portDst = nullptr;
-        if(isPortInRoute(simulatorShip->getRoute(),portDstName))
-            Port* portDst = simulatorShip->getPortByName(portDstName);
-        Container* cont = new Container(contID,contWeight,nullptr,portDst);
-        map.insert(make_pair(contID,cont));
+        map.insert(make_pair(contID,line));
     }
     inFile.close();
 }

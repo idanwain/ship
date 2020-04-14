@@ -10,11 +10,15 @@ add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
 include_directories(.)
 
 add_executable(shipTest
-        container.cpp
-        container.h
-        port.cpp
-        port.h
-        ship.cpp
-        ship.h
+        container.cpp container.h
+        port.cpp port.h
+        ship.cpp ship.h
         simulator.cpp
-        stowage_algorithm.cpp lifo_algorithm.cpp lifo_algorithm.h stowage_algorithm.h Parser.cpp Parser.h Error.cpp Error.h WeightBalanceCalculator.cpp WeightBalanceCalculator.h OutPutHandler.cpp OutPutHandler.h common.cpp common.h)
+        stowage_algorithm.cpp stowage_algorithm.h
+        lifo_algorithm.cpp lifo_algorithm.h
+        Parser.cpp Parser.h
+        Error.cpp Error.h
+        WeightBalanceCalculator.cpp WeightBalanceCalculator.h
+        outputHandler.cpp outputHandler.h
+        common.cpp common.h
+        Unsorted_Lifo_Algorithm.cpp Unsorted_Lifo_Algorithm.h)
