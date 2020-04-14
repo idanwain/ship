@@ -1,8 +1,5 @@
 #include "stowage_algorithm.h"
 
-/**
- *
- */
  /**
   * Given a file path to a list of containers, this function writes into a file
   * the set of instructions needed to be executed to LOAD / UNLOAD the port's containers.
@@ -60,7 +57,8 @@ bool  Algorithm::parseDataToPort(const std::string& inputFullPathAndFileName, st
 
     while(getline(input,line)){
         std::string id; int weight; Port *dest = nullptr;
-        if(validateContainerData(line, output))
+        VALIDATION reason = VALIDATION::Valid;
+        if(validateContainerData(line, reason, id, this->ship))
         {
             extractContainersData(line, id, weight, &dest);
             if(dest == nullptr) {
@@ -72,37 +70,47 @@ bool  Algorithm::parseDataToPort(const std::string& inputFullPathAndFileName, st
                 this->port->addContainer(*con, 'L');
             }
         }
+        else {
+            if(reason != VALIDATION::Valid){
+                Algorithm::writeToOutput(output, "R", id, std::forward_as_tuple(-1,-1,-1), std::forward_as_tuple(-1,-1,-1));
+            }
+        }
     }
 
     input.close();
     return true;
 }
-
-/**
- * util function that split strings by a given delimiter
- * @param s - string to be splitted
- * @param delimiter - delimiters to be splitted by
- * @return vector of words in s
- */
-std::vector<std::string>  Algorithm::stringSplit(std::string s, const char* delimiter) {
-    size_t start = 0;
-    size_t end = s.find_first_of(delimiter);
-
-    std::vector<std::string> output;
-
-    while (end <= std::string::npos)
-    {
-        output.emplace_back(s.substr(start, end - start));
-
-        if (end == std::string::npos)
-            break;
-
-        start = end + 1;
-        end = s.find_first_of(delimiter, start);
-    }
-
-    return output;
-}
+//
+///**
+// * util function that split strings by a given delimiter
+// * @param s - string to be splitted
+// * @param delimiter - delimiters to be splitted by
+// * @return vector of words in s
+// */
+//std::vector<std::string>  Algorithm::stringSplit(std::string s, const char* delimiter) {
+//    size_t start = 0;
+//    size_t end = s.find_first_of(delimiter);
+//
+//    std::vector<std::string> output;
+//
+//    while (end <= std::string::npos)
+//    {
+//        output.emplace_back(s.substr(start, end - start));
+//
+//        if (end == std::string::npos)
+//            break;
+//
+//        start = end + 1;
+//        end = s.find_first_of(delimiter, start);
+//
+//        while(start == end){
+//            start = end + 1;
+//            end = s.find_first_of(delimiter, start);
+//        }
+//    }
+//
+//    return output;
+//}
 
 /**
  * parses the data from a given line
@@ -138,95 +146,82 @@ void  Algorithm::extractContainersData(const std::string& line, std::string &id,
         *dest = dest_temp;
     }
 }
+//
+//bool Algorithm::validateId(const std::string& str) {
+//    int i = 0;
+//    if (str.length() != 11)
+//        return false;
+//    for(auto letter : str){
+//        if(i < 3){ // owner code
+//            if(!isupper(letter)){
+//                return false;
+//            }
+//        }
+//        else if(i == 3){ // category identifier
+//            if (letter != 'U' && letter != 'J' && letter != 'Z'){
+//                return false;
+//            }
+//        }
+//        else { // serial number & check digit
+//            if(!isdigit(letter)){
+//                return false;
+//            }
+//        }
+//        ++i;
+//    }
+//    return true;
+//}
 
-bool Algorithm::validateId(const std::string& str) {
-    int i = 0;
-    if (str.length() != 11)
-        return false;
-    for(auto letter : str){
-        if(i < 3){ // owner code
-            if(!isupper(letter)){
-                return false;
-            }
-        }
-        else if(i == 3){ // category identifier
-            if (letter != 'U' && letter != 'J' && letter != 'Z'){
-                return false;
-            }
-        }
-        else { // serial number & check digit
-            if(!isdigit(letter)){
-                return false;
-            }
-        }
-        ++i;
-    }
-    return true;
-}
-
-bool is_number(const std::string& s) {
-    return !s.empty() && std::find_if(s.begin(),
-                     s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
-}
-
-bool Algorithm::validateContainerData(const std::string& line, std::ofstream &output) {
-    int i=-1;
-    auto data = stringSplit(line, delim);
-
-    if(data.size() != 4)
-        return false;
-
-    std::string port_name;
-
-    for(const std::string& item : data){
-        ++i;
-        if (i == 0) {
-            bool id = validateId(item);
-            if(!id){
-                Algorithm::writeToOutput(output, "R", item, std::forward_as_tuple(-1,-1,-1), std::forward_as_tuple(-1,-1,-1));
-                return false;
-            }
-            else {
-                if(idExistOnShip(item)){
-                    //print a proper message and return false
-                    std::cout << item << ": " << ID_EXIST_ON_SHIP << std::endl;
-                    return false;
-                }
-            }
-        }
-        if(i == 1) {
-            bool weight = is_number(item);
-            if(!weight){
-                return false;
-            }
-        }
-        else if (i == 2) {
-            port_name = item;
-        }
-        else if(i == 3){
-            port_name += " " + item;
-        }
-    }
-    bool dest = isValidPortName(port_name);
-    return dest;
-}
+//
+//bool Algorithm::validateContainerData(const std::string& line, VALIDATION& reason, std::string& id) {
+//    int i=-1;
+//    auto data = stringSplit(line, delim);
+//
+//    if(data.size() != 4)
+//        return false;
+//
+//    std::string port_name;
+//
+//    for(const std::string& item : data){
+//        ++i;
+//        if (i == 0) {
+//            id = item;
+//            bool idBool = validateId(item);
+//            if(!idBool){
+//                reason = VALIDATION::InvalidID;
+//                return false;
+//            }
+//            else {
+//                if(idExistOnShip(item)){
+//                    reason = VALIDATION::ExistID;
+//                    return false;
+//                }
+//            }
+//        }
+//        if(i == 1) {
+//            bool weight = is_number(item);
+//            if(!weight){
+//                return false;
+//            }
+//        }
+//        else if (i == 2) {
+//            port_name = item;
+//        }
+//        else if(i == 3){
+//            port_name += " " + item;
+//        }
+//    }
+//    bool dest = isValidPortName(port_name);
+//    if(!dest){
+//        reason = VALIDATION::InvalidPort;
+//        return false;
+//    }
+//    return true;
+//}
 
 void Algorithm::increaseInstructionCounter(int instructionsAdded) {
     this->instructions += instructionsAdded;
 }
-
-bool Algorithm::isPortInRoute(Port *pPort) {
-    bool found = false;
-    auto route = ship->getRoute();
-    for(auto port_it = route.begin() + portNum + 1; port_it != route.end(); ++port_it){
-        if(*(*port_it) == *pPort){
-            found = true;
-            break;
-        }
-    }
-    return pPort->get_name() != "NOT_IN_ROUTE" && found;
-}
-
 
 int Algorithm::getInstructionsCounter() const {
     return this->instructions;
@@ -251,14 +246,6 @@ Ship* Algorithm::getShip() const {
     return this->ship;
 }
 
-bool Algorithm::idExistOnShip(const std::string& id){
-    auto map = ship->getContainersByPort();
-    for(auto & pPort : map){
-        for(auto con_it : pPort.second) {
-            if(con_it.get_id() == id){
-                return true;
-            }
-        }
-    }
-    return false;
+int Algorithm::getPortNum() {
+    return portNum;
 }

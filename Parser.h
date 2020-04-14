@@ -29,6 +29,7 @@
 #include <filesystem>
 #include <iostream>
 #include "ship.h"
+#include "common.h"
 #include <fstream>
 
 using std::cout;
@@ -46,7 +47,6 @@ bool isValidPortExpressionFile(const string& file_name);
 std::vector<std::vector<fs::path>> orderListOfDir(std::list<std::list<fs::path>> &unOrdered);
 void initListDirectories(string &path,std::vector<std::vector<fs::path>> &vecOfPaths);
 void validateSequenceDirectories(std::vector<std::vector<fs::path>> &direct);
-bool isValidPortName(const string& name);
 bool isValidTravelName(const string& name);
 void setActualSize(std::vector<std::vector<fs::path>> &direct);
 Ship* extractArgsForShip(std::vector<fs::path> &folder);

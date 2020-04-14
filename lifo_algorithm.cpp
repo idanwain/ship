@@ -41,8 +41,8 @@ void Lifo_algorithm::unloadContainers(std::ofstream& output){
             if(*(con_iterator->get_dest()) == *port){
                 //calculator approved unload --> unload, record & move to next container
                 if(ship->getCalc()->tryOperation('U', con_iterator->get_weight(), std::get<0>(coor), std::get<1>(coor)) == APPROVED){
-                    unloadSingleContainer(output, *con_iterator, 'A');
-                    column->pop_back(); // might destroy container -->check in port if exist
+                    unloadSingleContainer(output, *con_iterator, 'A', coor);
+//                    column->pop_back(); // might destroy container -->check in port if exist
                     --con_iterator;
                 }
                 //calculator didnt approved unload --> record & move to next column
@@ -60,8 +60,8 @@ void Lifo_algorithm::unloadContainers(std::ofstream& output){
                 if(!found){
                     //if cant move, maybe can at least unload it, calculator approved unload --> unload, record & move to next container
                     if(ship->getCalc()->tryOperation('U', con_iterator->get_weight(), std::get<0>(coor), std::get<1>(coor)) == APPROVED){
-                        unloadSingleContainer(output, *con_iterator, 'P');
-                        column->pop_back();
+                        unloadSingleContainer(output, *con_iterator, 'P', coor);
+//                        column->pop_back();
                         --con_iterator;
                     }
                     else{
@@ -106,7 +106,7 @@ void Lifo_algorithm::loadContainers(char list_category, std::ofstream& output){
         coordinate coor;
         int weight = con->get_weight();
         ship->findColumnToLoad(coor, found, weight);
-        if(validateId(con->get_id()) && isPortInRoute(con->get_dest()) && found){
+        if(validateId(con->get_id()) && isPortInRoute(con->get_dest(), ship->getRoute(), getPortNum()) && found){
             ship->addContainer(*con, coor);
             Algorithm::writeToOutput(output,"L", con->get_id(), ship->getCoordinate(*con), std::forward_as_tuple(-1,-1,-1));
             load->erase(con);
@@ -122,9 +122,10 @@ const std::string Lifo_algorithm::getTypeName() const {
     return this->name;
 }
 
-void Lifo_algorithm::unloadSingleContainer(std::ofstream &output,Container& con, char vecType){
+void Lifo_algorithm::unloadSingleContainer(std::ofstream &output,Container& con, char vecType, coordinate coor){
     port->addContainer(con, vecType);
     Algorithm::writeToOutput(output,"U", con.get_id(), ship->getCoordinate(con), std::forward_as_tuple(-1,-1,-1));
-    ship->removeFromContainersByPort(con, port);
+//    ship->removeFromContainersByPort(con, port);
+    ship->removeContainer(coor);
     Algorithm::increaseInstructionCounter();
 }

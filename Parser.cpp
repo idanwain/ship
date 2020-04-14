@@ -1,6 +1,5 @@
 #include "Parser.h"
 
-
 /**
  * This function gets the number from the <port_symbol>_<num>.<filetype> decleration
  * @param file_name
@@ -18,11 +17,6 @@ int getPortNumFile(const string& file_name){
 bool isValidPortExpressionFile(const string& file_name){
     std::regex reg("\\s*[A-Z]{2}\\s+[A-Z]{3}_[1-9]+.[a-z]*");
     return std::regex_match(file_name,reg);
-}
-
-bool isValidPortName(const string& name){
-    std::regex reg("\\s*[A-Z]{2}\\s+[A-Z]{3}s*$");
-    return std::regex_match(name,reg);
 }
 
 bool isValidTravelName(const string& name){

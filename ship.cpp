@@ -28,7 +28,11 @@ std::vector<Port*> Ship::getRoute() {
 }
 
 void Ship::addContainer(Container& container, std::tuple<int,int> coordinate) {
-    this->addContainerToMap(container);
+    if(this->containersByPort.find(container.get_dest()) == containersByPort.end()){
+        this->containersByPort.insert({container.get_dest(), std::vector<Container>{container}});
+    } else {
+        this->containersByPort[container.get_dest()].emplace_back(container);
+    }
     shipMap[std::get<0>(coordinate)][std::get<1>(coordinate)].emplace_back(container);
     freeSpace--;
 }
@@ -66,14 +70,6 @@ int Ship::getAxis(const std::string &str) const {
 
 void Ship::getContainersToUnload(Port *pPort, std::vector<Container>** unload) {
     *unload =  &containersByPort[pPort];
-}
-
-void Ship::addContainerToMap(Container &container) {
-    if(this->containersByPort.find(container.get_dest()) == containersByPort.end()){
-        this->containersByPort.insert({container.get_dest(), std::vector<Container>{container}});
-    } else {
-        this->containersByPort[container.get_dest()].emplace_back(container);
-    }
 }
 
 void Ship::initContainersByPort(std::vector<Port *> &vector) {
@@ -122,10 +118,6 @@ int Ship::getLowestFloorOfRelevantContainer(Port *pPort, coordinate coor){
 
 void Ship::getColumn(coordinate coor, std::vector<Container>** column) {
     *column = &(shipMap[std::get<0>(coor)][std::get<1>(coor)]);
-}
-
-void Ship::removeFromContainersByPort(Container &container, Port *pPort) {
-    containersByPort[pPort].erase(std::find(containersByPort[pPort].begin(), containersByPort[pPort].end(), container));
 }
 
 WeightBalanceCalculator* Ship::getCalc() {
@@ -205,13 +197,11 @@ std::map<Port*,std::vector<Container>>& Ship::getContainersByPort() {
 }
 
 void Ship::removeContainer(coordinate coor) {
+    Container* con = &shipMap[std::get<0>(coor)][std::get<1>(coor)].back();
+    containersByPort[con->get_dest()].erase(std::find(containersByPort[con->get_dest()].begin(), containersByPort[con->get_dest()].end(), *con));
     shipMap[std::get<0>(coor)][std::get<1>(coor)].pop_back();
+    freeSpace++;
 }
-
-void Ship::addSimulationContainer(Container &container, coordinate coor) {
-    shipMap[std::get<0>(coor)][std::get<1>(coor)].emplace_back(container);
-}
-
 
 //std::tuple<int,int> Ship::find_min_floor(){
 //    std::tuple<int, int> min_floor_coor;

@@ -21,7 +21,7 @@ public:
     const std::string getTypeName() const override;
     void unloadContainers(std::ofstream& output) override;
     void loadContainers(char list_category, std::ofstream &output) override;
-    void unloadSingleContainer(std::ofstream &output, Container& con, char vecType);
+    void unloadSingleContainer(std::ofstream &output, Container& con, char vecType, coordinate coor);
 };
 
 

@@ -10,6 +10,7 @@
 #include "container.h"
 #include "Parser.h"
 #include "port.h"
+#include "common.h"
 #include <stack>
 #include <set>
 #include <iostream>
@@ -44,18 +45,14 @@ public:
     void increaseInstructionCounter(int instructionsAdded = 1);
     int getInstructionsCounter() const;
     Ship* getShip() const;
+    int getPortNum();
 
     /***********WANT TO MOVE TO PARSER*********/
     bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream &output);
-    static bool validateId(const std::string& str);
-    static std::vector<std::string> stringSplit(std::string s, const char* delimiter);
-    bool validateContainerData(const std::string& line, std::ofstream &output);
     static void writeToOutput(std::ofstream &output, const string &command, const string &id,
                     const std::tuple<int, int, int> &pos,
                     const std::tuple<int,int,int>& moved_to);
-    bool isPortInRoute(Port *pPort);
     void initContainersDistance(std::vector<Container> &vector);
-    bool idExistOnShip(const string& id);
 };
 
 #endif //SHIP1_STOWAGE_ALGORITHM_H

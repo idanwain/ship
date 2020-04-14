@@ -82,33 +82,32 @@ public:
         }
     }
     ~Ship();
+
+    void initContainersByPort(std::vector<Port *> &vector);
+    void setRoute(std::vector<Port*> &route);
+    void initCalc();
+
     std::tuple<int, int, int> getCoordinate(const Container& container);
     std::vector<Port*> getRoute();
     std::vector<std::vector<std::vector<Container>>>* getMap();
-    void addContainer(Container& container, std::tuple<int,int> coordinate);
     Port* getPortByName(const std::string &name);
-    void setRoute(std::vector<Port*> &route);
     int getAxis(const std::string& str) const;
-    void getContainersToUnload(Port* port, std::vector<Container>** unload);
-    void addContainerToMap(Container &container);
-    void initContainersByPort(std::vector<Port *> &vector);
-    void updateFreeSpace(int num);
     std::map<Port*,std::vector<Container>>& getContainersByPort();
     void getCoordinatesToHandle(std::set<coordinate> &coordinates_to_handle, std::vector<Container>& containers_to_unload);
     int getLowestFloorOfRelevantContainer(Port *pPort, coordinate coor);
-    void getColumn(coordinate coor, std::vector<Container>** column);
-    void removeFromContainersByPort(Container &container, Port *pPort);
-    WeightBalanceCalculator* getCalc();
-    bool findColumnToMoveTo(coordinate old_coor, coordinate& new_coor, std::vector<Container>& containersToUnload, int weight);
-    void moveContainer(coordinate origin, coordinate dest);
-    void initCalc();
     int getTopFloor(coordinate coor);
+    void getColumn(coordinate coor, std::vector<Container>** column);
+    WeightBalanceCalculator* getCalc();
+    void getContainersToUnload(Port* port, std::vector<Container>** unload);
+    bool findColumnToMoveTo(coordinate old_coor, coordinate& new_coor, std::vector<Container>& containersToUnload, int weight);
     void findColumnToLoad(coordinate &coor, bool &found, int kg);
+
+    void addContainer(Container& container, std::tuple<int,int> coordinate);
     void removeContainer(coordinate coor);
+    void moveContainer(coordinate origin, coordinate dest);
+    void updateFreeSpace(int num);
     void capacitySizeCheck();
     //std::tuple<int, int> find_min_floor();
-
-    void addSimulationContainer(Container &container, coordinate coor);
 };
 
 #endif // !SHIP_HEADER

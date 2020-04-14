@@ -11,7 +11,6 @@
 * -status:
 *	represents the current status of a container.
 *
-*
 *      *******      Functions      ******
 *
 * change_status - given a state, changes the status of the container
