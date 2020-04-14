@@ -1,11 +1,6 @@
 
 #include "common.h"
 
-//Ship* pointer, char - U L M?, coordinate, container*
-//check with weight balance calculator
-//try operation by calculator
-//get calc
-
 
 void validateAlgorithm(string &path,Ship* simulatorShip){
     std::ifstream inFile;
@@ -25,14 +20,15 @@ void validateAlgorithm(string &path,Ship* simulatorShip){
             coordinate one = std::tuple<int,int>(coordinates[0],coordinates[1]);
             if(instruction == "L") {
                 Container *cont = new Container(id);
-                executeInstruction(simulatorShip, instruction, one, std::forward_as_tuple(-1, -1), cont);
+                execute(simulatorShip, instruction.at(0),cont, one, std::forward_as_tuple(-1, -1));
+
             }
             else if(instruction == "U"){
-                executeInstruction(simulatorShip, instruction, one, std::forward_as_tuple(-1, -1), nullptr);
+                execute(simulatorShip, instruction.at(0),nullptr, one, std::forward_as_tuple(-1, -1));
             }
             else{
                 coordinate two = std::tuple<int,int>(coordinates[3],coordinates[4]);
-                executeInstruction(simulatorShip, instruction, one, two, nullptr);
+                execute(simulatorShip, instruction.at(0), nullptr, one, two);
             }
         }
 
@@ -41,7 +37,7 @@ void validateAlgorithm(string &path,Ship* simulatorShip){
 
 }
 void parseInstruction(string &toParse,std::pair<string,string> &instruction,vector<int> &coordinates){
-    vector<string> parsedInfo = Algorithm::string_split(toParse,delim);
+    vector<string> parsedInfo = Algorithm::stringSplit(toParse,delim);
     for(int i = 0; i < parsedInfo.size(); i++){
         if(i == 0)
             std::get<0>(instruction) = parsedInfo.at(0);
@@ -56,8 +52,8 @@ bool validateInstruction(std::pair<string,string> &instruction,vector<int> &coor
     string inst = std::get<0>(instruction);
     string id = std::get<1>(instruction);
     int x1 = coordinates[0],y1 = coordinates[1], z1 = coordinates[2];
-    auto map = ship->get_map();
-    bool error = false;
+    auto map = ship->getMap();
+    bool error;
     if(inst == "L")
         error =  validateLoadInstruction(x1,y1,z1,*map);
     else if(inst == "U")
@@ -89,4 +85,20 @@ bool validateMoveInstruction(vector<int> coordinates, vector<vector<vector<Conta
     int x1 = coordinates[0], y1 = coordinates[1], z1 = coordinates[2];
     int x2 = coordinates[3], y2 = coordinates[4], z2 = coordinates[5];
     return !validateUnloadInstruction(x1, y1, z1, map) && !validateLoadInstruction(x2, y2, z2, map);
+}
+
+void execute(Ship* ship, char command, Container* container, coordinate origin, coordinate dest) {
+    switch (command) {
+        case 'L':
+            ship->addSimulationContainer(*container, origin);
+            break;
+        case 'U':
+            ship->removeContainer(origin);
+            break;
+        case 'M':
+            ship->moveContainer(origin, dest);
+            break;
+        default:
+            std::cout << "Invalid command, please insert L/U/M commands." << std::endl;
+    }
 }
