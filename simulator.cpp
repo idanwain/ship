@@ -5,6 +5,7 @@
 #include "Parser.h"
 #include "stowage_algorithm.h"
 #include "lifo_algorithm.h"
+#include "Unsorted_Lifo_Algorithm.h"
 #include "OutPutHandler.h"
 #include "common.h"
 
@@ -14,8 +15,10 @@
  * @param ship
  */
 void initAlgorithmList(std::vector<Algorithm*> &algList,Ship* ship){
-    Algorithm* alg = new Lifo_algorithm(new Ship(ship));
-    algList.emplace_back(alg);
+    Algorithm* lifoAlgorithm = new Lifo_algorithm(new Ship(ship));
+    algList.emplace_back(lifoAlgorithm);
+    Algorithm* unsortedLifoAlgorithm = new Unsorted_Lifo_Algorithm(new Ship(ship));
+    algList.emplace_back(unsortedLifoAlgorithm);
     //TODO need to insert another algo variants/types
 }
 

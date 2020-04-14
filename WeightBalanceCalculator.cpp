@@ -2,7 +2,7 @@
 
 BalanceStatus WeightBalanceCalculator::tryOperation(char loadUnload, int kg, int X, int Y) {
     std::tuple<bool, bool> x_y_imbalance;
-    std::vector<Container> column = (this->ship->get_map())->at(X).at(Y);
+    std::vector<Container> column = (this->ship->getMap())->at(X).at(Y);
     switch(loadUnload){
         case 'L':
             checkLoad(x_y_imbalance, kg, column);

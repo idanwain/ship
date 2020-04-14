@@ -28,7 +28,7 @@ void saveResultsInfo(std::map<string,std::list<int>> &results_map,std::vector<Al
  * @return - list of strings , each string is an informative error message
  */
 list<string> createAlgListOfErrors(Algorithm* alg){
-    auto route = alg->getShip()->get_route();
+    auto route = alg->getShip()->getRoute();
     std::set<string> visitedPorts;
     std::list<string> res;
     string msg;
