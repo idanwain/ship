@@ -1,27 +1,27 @@
 
 #include "common.h"
 
-
-void validateAlgorithm(string &path,Ship* simulatorShip){
+void validateAlgorithm(string &outputPath,string &inputPath, Ship* simulatorShip, int portNumber){
     std::ifstream inFile;
     string line,id,instruction;
     std::pair<string,string> idAndInstruction;
-    vector<int> coordinates;
-    inFile.open(path);
+    std::map<string,Container*> portContainers;
+    inFile.open(outputPath);
+    parseDataFromPortFile(portContainers,inputPath,simulatorShip);
     if(inFile.fail()) {
-        cout << "Failed to read from this file path - " + path << endl;
+        cout << FAIL_TO_READ_PATH + outputPath << endl;
         return;
     }
     while(getline(inFile,line)){
+        vector<int> coordinates;
         parseInstruction(line,idAndInstruction,coordinates);
         instruction = std::get<0>(idAndInstruction);
         id = std::get<1>(idAndInstruction);
-        if(validateInstruction(instruction,coordinates,simulatorShip)){
+        if(validateInstruction(instruction,id,coordinates,simulatorShip,portContainers)){
             coordinate one = std::tuple<int,int>(coordinates[0],coordinates[1]);
             if(instruction == "L") {
-                Container *cont = new Container(id);
+                Container* cont = new Container(id);
                 execute(simulatorShip, instruction.at(0),cont, one, std::forward_as_tuple(-1, -1));
-
             }
             else if(instruction == "U"){
                 execute(simulatorShip, instruction.at(0),nullptr, one, std::forward_as_tuple(-1, -1));
@@ -34,10 +34,10 @@ void validateAlgorithm(string &path,Ship* simulatorShip){
 
     }
 
-
+    inFile.close();
 }
 void parseInstruction(string &toParse,std::pair<string,string> &instruction,vector<int> &coordinates){
-    vector<string> parsedInfo = Algorithm::stringSplit(toParse,delim);
+    auto parsedInfo = Algorithm::stringSplit(toParse,delim);
     for(int i = 0; i < parsedInfo.size(); i++){
         if(i == 0)
             std::get<0>(instruction) = parsedInfo.at(0);
@@ -48,20 +48,31 @@ void parseInstruction(string &toParse,std::pair<string,string> &instruction,vect
     }
 }
 
-bool validateInstruction(std::pair<string,string> &instruction,vector<int> &coordinates,Ship* ship){
-    string inst = std::get<0>(instruction);
-    string id = std::get<1>(instruction);
+bool validateInstruction(string &instruction,string &id, vector<int> &coordinates,Ship* ship,std::map<string,Container*>& portContainers){
     int x1 = coordinates[0],y1 = coordinates[1], z1 = coordinates[2];
     auto map = ship->getMap();
     bool error;
-    if(inst == "L")
+    if(instruction == "L")
         error =  validateLoadInstruction(x1,y1,z1,*map);
-    else if(inst == "U")
+    else if(instruction == "U")
         error =  validateUnloadInstruction(x1,y1,z1,*map);
+    else if(instruction == "R")
+        error = validateRejectInstruction(portContainers,id,ship);
     else{
         error = validateMoveInstruction(coordinates,*map);
     }
     return error;
+}
+
+bool validateRejectInstruction(std::map<string,string>& portContainers, string& id,Ship* ship){
+    string line = portContainers[id];
+    VALIDATION reason = VALIDATION::Valid;
+    bool err = validate(line,reason,id,ship);//true == bad
+    if(err){
+        //To add error to file
+    }
+    return !err;
+
 }
 
 bool validateLoadInstruction(int x,int y,int z,vector<vector<vector<Container>>>& map){

@@ -6,7 +6,7 @@
 #include "stowage_algorithm.h"
 #include "lifo_algorithm.h"
 #include "Unsorted_Lifo_Algorithm.h"
-#include "OutPutHandler.h"
+#include "outputHandler.h"
 #include "common.h"
 
 /**
@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
     std::map<string,list<int>> outputResultsInfo;
     vector<pair<string,list<pair<string,list<string>>>>> outputErrorInfo;
     vector<string> travelNames;
-
+    int portNumber = -1;
     initListDirectories(path, directories);
     createOutputDirectories(directories, argv[1]);
 
@@ -67,11 +67,13 @@ int main(int argc, char** argv) {
         initAlgorithmList(algVec, mainShip);
         for (auto &alg : algVec) {
             for (size_t j = 2; j < travel_folder.size(); j++) {
+                portNumber++;
                 string outputPath = getFullOutPutPath(travel_folder.at(j), path, alg->getTypeName());
                 string inputPath = travel_folder[j].string();
                 (*alg)(inputPath, outputPath);
-                validateAlgorithm(outputPath,mainShip);
+                validateAlgorithm(outputPath,inputPath,mainShip,portNumber);
             }
+            portNumber = -1;
         }
         saveOutPutInformation(outputResultsInfo,outputErrorInfo, algVec,currTravel);
         delete mainShip;

@@ -39,6 +39,7 @@ using std::vector;
 using std::pair;
 namespace fs = std::filesystem;
 #define OP_MAIN_DIRECTORY "\\output"
+#define FAIL_TO_READ_PATH "Failed to read from this file path "
 
 
 int getPortNumFile(const string& file_name);
@@ -55,5 +56,7 @@ void setBlocksByLine(std::string &str, Ship* &ship);
 void getTravelRoute(Ship* &ship, std::istream &inFile);
 void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str);
 int portAlreadyExist(std::vector<Port*> &vec,string &str);
+void parseDataFromPortFile(std::map<string,Container*>& map, string &inputPath,Ship* simulatorShip);
+string* getPortNameFromFile(string &filePath);
 
 #endif // !PARSER_HEADER

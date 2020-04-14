@@ -99,6 +99,11 @@ std::vector<std::string>  Algorithm::stringSplit(std::string s, const char* deli
 
         start = end + 1;
         end = s.find_first_of(delimiter, start);
+
+        while(start == end){
+            start = end + 1;
+            end = s.find_first_of(delimiter, start);
+        }
     }
 
     return output;
