@@ -49,7 +49,7 @@ public:
 
     /***********WANT TO MOVE TO PARSER*********/
     bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream &output);
-    static void writeToOutput(std::ofstream &output, const string &command, const string &id,
+    static void writeToOutput(std::ofstream &output, const std::string &command, const std::string &id,
                     const std::tuple<int, int, int> &pos,
                     const std::tuple<int,int,int>& moved_to);
     void initContainersDistance(std::vector<Container> &vector);

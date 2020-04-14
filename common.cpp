@@ -1,17 +1,26 @@
 #include "common.h"
 
-void execute(Ship* ship, char command, Container* container, coordinate origin, coordinate dest){
-    switch(command){
-        case 'L': ship->addContainer(*container,origin); break;
-        case 'U': ship->removeContainer(origin);  break;
-        case 'M': ship->moveContainer(origin, dest);  break;
-        default: std::cout << "Invalid command, please insert L/U/M commands." << std::endl;
+void execute(Ship* ship, char command, Container* container, coordinate origin, coordinate dest) {
+    switch (command) {
+        case 'L':
+            ship->addContainer(*container, origin);
+            break;
+        case 'U':
+            ship->removeContainer(origin);
+            break;
+        case 'M':
+            ship->moveContainer(origin, dest);
+            break;
+        default:
+            std::cout << "Invalid command, please insert L/U/M commands." << std::endl;
+    }
+}
 
 void validateAlgorithm(std::string &path,Ship* simulatorShip){
     std::ifstream inFile;
-    string line,id,instruction;
+    std::string line,id,instruction;
     std::pair<string,string> idAndInstruction;
-    vector<int> coordinates;
+    std::vector<int> coordinates;
     inFile.open(path);
     if(inFile.fail()) {
         cout << "Failed to read from this file path - " + path << endl;
@@ -38,11 +47,10 @@ void validateAlgorithm(std::string &path,Ship* simulatorShip){
         }
 
     }
-
-
 }
+
 void parseInstruction(std::string &toParse,std::pair<std::string,std::string> &instruction,vector<int> &coordinates){
-    std::vector<string> parsedInfo = Algorithm::stringSplit(toParse,delim);
+    std::vector<string> parsedInfo = stringSplit(toParse,delim);
     for(int i = 0; i < parsedInfo.size(); i++){
         if(i == 0)
             std::get<0>(instruction) = parsedInfo.at(0);
@@ -90,22 +98,6 @@ bool validateMoveInstruction(std::vector<int> coordinates, std::vector<std::vect
     int x1 = coordinates[0], y1 = coordinates[1], z1 = coordinates[2];
     int x2 = coordinates[3], y2 = coordinates[4], z2 = coordinates[5];
     return !validateUnloadInstruction(x1, y1, z1, map) && !validateLoadInstruction(x2, y2, z2, map);
-}
-
-void execute(Ship* ship, char command, Container* container, coordinate origin, coordinate dest) {
-    switch (command) {
-        case 'L':
-            ship->addSimulationContainer(*container, origin);
-            break;
-        case 'U':
-            ship->removeContainer(origin);
-            break;
-        case 'M':
-            ship->moveContainer(origin, dest);
-            break;
-        default:
-            std::cout << "Invalid command, please insert L/U/M commands." << std::endl;
-    }
 }
 
 bool validateContainerData(const std::string& line, VALIDATION& reason, std::string& id, Ship* ship) {
