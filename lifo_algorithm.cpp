@@ -101,7 +101,6 @@ void Lifo_algorithm::load_containers(char list_category, std::ofstream& output){
         if(validate_id(con->get_id()) && isPortInRoute(con->get_dest()) && found){
             ship->add_container(*con, coor);
             Algorithm::write_to_output(output,"L", con->get_id(), ship->get_coordinate(*con), std::forward_as_tuple(-1,-1,-1));
-            //load->pop_back();
             load->erase(con);
             Algorithm::increase_instruction_counter();
         } else {

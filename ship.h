@@ -56,6 +56,7 @@ public:
         y = shipToCopy->getAxis("y");
         z = shipToCopy->getAxis("z");
         freeSpace = x*y*z;
+        calculator = shipToCopy->calculator;
         this->shipMap.resize(x);
         for(int i = 0; i < x; i++){
             this->shipMap[i].resize(y);
@@ -79,7 +80,6 @@ public:
             }
             found = false;
         }
-        calculator = shipToCopy->calculator;
     }
     ~Ship();
     std::tuple<int, int, int> get_coordinate(const Container& container);
@@ -97,6 +97,7 @@ public:
     void initContainersByPort(std::vector<Port *> &vector);
     void update_free_space(int num);
     std::tuple<int, int> find_min_floor();
+    std::map<Port*,std::vector<Container>>& getContainersByPort();
 
     void get_coordinates_to_handle(std::set<coordinate> &coordinates_to_handle, std::vector<Container>& containers_to_unload);
 

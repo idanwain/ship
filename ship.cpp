@@ -250,3 +250,7 @@ void Ship::capacitySizeCheck(){
         y = 0;
     }
 }
+
+std::map<Port*,std::vector<Container>>& Ship::getContainersByPort() {
+    return this->containersByPort;
+}
