@@ -29,7 +29,6 @@
 #include <filesystem>
 #include <iostream>
 #include "ship.h"
-#include "common.h"
 #include <fstream>
 
 using std::cout;
@@ -53,7 +52,6 @@ void setActualSize(std::vector<std::vector<fs::path>> &direct);
 Ship* extractArgsForShip(std::vector<fs::path> &folder);
 void extractArgsForBlocks(Ship* &ship, std::istream &inFile);
 void setBlocksByLine(std::string &str, Ship* &ship);
-void getTravelRoute(Ship* &ship, std::istream &inFile);
 void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str);
 int portAlreadyExist(std::vector<Port*> &vec,string &str);
 void parseDataFromPortFile(std::map<string,string>& map, string &inputPath,Ship* simulatorShip);

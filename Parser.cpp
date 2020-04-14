@@ -159,21 +159,6 @@ void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str){
 }
 
 
-void getTravelRoute(Ship* &ship, std::istream &inFile) {
-    std::vector<Port *> *vec = new std::vector<Port *>();
-    string line;
-    while (getline(inFile, line)) {
-        if (line.at(0) == '#') continue; //comment symbol
-        else if (isValidPortName(line)) {
-            if (!portAlreadyExist(*vec, line)) {
-                Port *p1 = new Port(line);
-                vec->emplace_back(p1);
-            }
-        }
-    }
-    ship->setRoute(*vec);
-}
-
 /**
  * This function gets a string(a line from the file) parse the line to get 3 ints (x,y,z) such ship.getMap()[x][y][z]
  * will be initialized to be block container.
@@ -250,7 +235,7 @@ void parseDataFromPortFile(std::map<string,string>& map, string& inputPath,Ship*
     }
     while(getline(inFile,line)){
         if(line.at(0) == '#')continue;
-        vector<string> parsedInfo = Algorithm::stringSplit(line,delim);
+        vector<string> parsedInfo = stringSplit(line,delim);
         if(parsedInfo.size() != 4)continue; /*case not enough information or too much*/
         string contID = parsedInfo.at(0);
         map.insert(make_pair(contID,line));

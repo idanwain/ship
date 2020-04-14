@@ -1,4 +1,3 @@
-
 #include "common.h"
 
 void execute(Ship* ship, char command, Container* container, coordinate origin, coordinate dest) {
@@ -17,7 +16,7 @@ void execute(Ship* ship, char command, Container* container, coordinate origin, 
     }
 }
 
-void validateAlgorithm(std::string &path,Ship* simulatorShip){
+
 void validateAlgorithm(string &outputPath,string &inputPath, Ship* simulatorShip, int portNumber){
     std::ifstream inFile;
     string line,id,instruction;
@@ -53,8 +52,9 @@ void validateAlgorithm(string &outputPath,string &inputPath, Ship* simulatorShip
 
     inFile.close();
 }
+
 void parseInstruction(string &toParse,std::pair<string,string> &instruction,vector<int> &coordinates){
-    auto parsedInfo = Algorithm::stringSplit(toParse,delim);
+    auto parsedInfo = stringSplit(toParse,delim);
     for(int i = 0; i < parsedInfo.size(); i++){
         if(i == 0)
             std::get<0>(instruction) = parsedInfo.at(0);
@@ -84,7 +84,7 @@ bool validateInstruction(string &instruction,string &id, vector<int> &coordinate
 bool validateRejectInstruction(std::map<string,string>& portContainers, string& id,Ship* ship){
     string line = portContainers[id];
     VALIDATION reason = VALIDATION::Valid;/*might be used in exercise 2 to be more specific*/
-    bool err = validate(line,reason,id,ship);//true == bad
+    bool err = validateContainerData(line,reason,id,ship);//true == bad
     if(err){
         /*need to add the error to the error general list*/
     }
@@ -252,4 +252,21 @@ bool isPortInRoute(Port *pPort, const std::vector<Port*>& route, int portNum) {
         }
     }
     return pPort->get_name() != "NOT_IN_ROUTE" && found;
+}
+
+
+
+void getTravelRoute(Ship* &ship, std::istream &inFile) {
+    std::vector<Port *> *vec = new std::vector<Port *>();
+    string line;
+    while (getline(inFile, line)) {
+        if (line.at(0) == '#') continue; //comment symbol
+        else if (isValidPortName(line)) {
+            if (!portAlreadyExist(*vec, line)) {
+                Port *p1 = new Port(line);
+                vec->emplace_back(p1);
+            }
+        }
+    }
+    ship->setRoute(*vec);
 }
