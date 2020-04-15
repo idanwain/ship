@@ -106,7 +106,7 @@ void Lifo_algorithm::loadContainers(char list_category, std::ofstream& output){
         coordinate coor;
         int weight = con->get_weight();
         ship->findColumnToLoad(coor, found, weight);
-        if(validateId(con->get_id()) && isPortInRoute(con->get_dest(), ship->getRoute(), getPortNum()) && found){
+        if(validateId(con->get_id()) && isPortInRoute(con->get_dest()->get_name(), ship->getRoute(), getPortNum()) && found){
             ship->addContainer(*con, coor);
             Algorithm::writeToOutput(output,"L", con->get_id(), ship->getCoordinate(*con), std::forward_as_tuple(-1,-1,-1));
             load->erase(con);

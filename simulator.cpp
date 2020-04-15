@@ -52,7 +52,8 @@ int main(int argc, char** argv) {
     vector<vector<fs::path>> directories;
     vector<Algorithm *> algVec;
     std::map<string,list<int>> outputResultsInfo;
-    vector<pair<string,list<pair<string,list<string>>>>> outputErrorInfo;
+    vector<pair<string,list<pair<string,list<string>>>>> outputAlgorithmErrors;
+    std::map<string,std::map<string,list<string>>> outputSimulatorErrors;
     vector<string> travelNames;
     int portNumber = -1;
     initListDirectories(path, directories);
@@ -65,20 +66,24 @@ int main(int argc, char** argv) {
         travelNames.push_back(currTravel);
         mainShip->initCalc();
         initAlgorithmList(algVec, mainShip);
+        std::map<string,list<string>> simCurrTravelErrors;
         for (auto &alg : algVec) {
+            list<string> simCurrAlgErrors;
             for (size_t j = 2; j < travel_folder.size(); j++) {
                 portNumber++;
                 string outputPath = getFullOutPutPath(travel_folder.at(j), path, alg->getTypeName());
-                string inputPath = travel_folder[j].string();
+                string inputPath = travel_folder.at(j).string();
                 (*alg)(inputPath, outputPath);
-                validateAlgorithm(outputPath,inputPath,mainShip,portNumber);
+                validateAlgorithm(outputPath, inputPath, mainShip, portNumber, simCurrAlgErrors);
             }
+            simCurrTravelErrors.insert(make_pair(alg->getTypeName(),simCurrAlgErrors));
             portNumber = -1;
         }
-        saveOutPutInformation(outputResultsInfo,outputErrorInfo, algVec,currTravel);
+        outputSimulatorErrors.insert(make_pair(currTravel,simCurrTravelErrors));
+        saveOutputInformation(outputResultsInfo, outputAlgorithmErrors, algVec, currTravel);
         delete mainShip;
         destroyAlgVec(algVec);
     }
     createResultsFile(outputResultsInfo, travelNames, path);
-    createErrorsFile(outputErrorInfo,path);
+    createErrorsFile(outputAlgorithmErrors,outputSimulatorErrors, path);
  }

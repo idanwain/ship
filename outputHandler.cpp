@@ -78,9 +78,9 @@ void saveErrorsInfo(vector<pair<string,list<pair<string,list<string>>>>> &errors
  * @param algVec - list of algorithms tested on
  * @param travelName - list of travel names tested on
  */
-void saveOutPutInformation(std::map<string,std::list<int>> &results_map,
+void saveOutputInformation(std::map<string,std::list<int>> &results_map,
                            vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,
-                           vector<Algorithm *> &algVec,string &travelName){
+                           vector<Algorithm *> &algVec, string &travelName){
 
     saveErrorsInfo(errors_vec,algVec,travelName);
     saveResultsInfo(results_map,algVec);
@@ -126,7 +126,7 @@ void createResultsFile(std::map<string,std::list<int>> &output_map,std::vector<s
  * @param errors_vec - stores errors information
  * @param path - the file path to create the file in
  */
-void createErrorsFile(vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,string path){
+void createErrorsFile(vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,std::map<string,std::map<string,list<string>>>& simErrors,string path){
     const string spaces = "     ";//6spaces
     std::ofstream inFile;
     path.append("\\simulation.errors");
@@ -135,12 +135,16 @@ void createErrorsFile(vector<pair<string,list<pair<string,list<string>>>>> &erro
         std::cout << "Failed to create errors file" << std::endl;
         exit(1);
     }
-    for(auto &outter_pair : errors_vec){//first:string, second:list<pair...
-        inFile << outter_pair.first << " Errors:" << '\n'; //travel name
-        for(pair<string,list<string>> &inner_pair : outter_pair.second){
-            inFile << spaces << inner_pair.first + ":" << '\n';
-            for(string &msg : inner_pair.second){//inner_pair.second is type list<string>
+
+    for(auto &outterPair : errors_vec){//first:string, second:list<pair...
+        inFile << outterPair.first << " Errors:" << '\n'; //travel name
+        for(pair<string,list<string>> &innerPair : outterPair.second){
+            inFile << spaces << innerPair.first + ":" << '\n';//algorithm name
+            for(string &msg : innerPair.second){//innerPair.second is type list<string>
                 inFile << spaces+spaces << msg << '\n';
+            }
+            for(string &simMsg : simErrors[outterPair.first][innerPair.first]){
+                inFile << spaces+spaces << simMsg << '\n';
             }
         }
     }

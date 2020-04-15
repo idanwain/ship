@@ -6,7 +6,7 @@
 * saveResultsInfo          - saves given information to the data structure that holds the results information
 * saveErrorsInfo           - saves given information to the data structure that holds the errors information
 * createAlgListOfErrors    - saves all errors occurred in an algorithm certain run to a list
-* saveOutPutInformation    - this is an manging function that calls save results and save info functions
+* saveOutputInformation    - this is an manging function that calls save results and save info functions
 * createResultsFile        - writes all the information that the above functions gathered through the simulation
 * createErrorsFile         - write all the information that the above functions gathered through the simulation
 * createOutPutDirectories  - creating the out put directories
@@ -36,11 +36,12 @@ void saveResultsInfo(std::map<string,std::list<int>> &results_map,std::vector<Al
 list<string> createAlgListOfErrors(Algorithm* alg);
 void saveErrorsInfo(vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,
                     vector<Algorithm *> &algVec,string &travelName);
-void saveOutPutInformation(std::map<string,std::list<int>> &results_map,
+void saveOutputInformation(std::map<string,std::list<int>> &results_map,
                            vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,
-                           vector<Algorithm *> &algVec,string &travelName);
+                           vector<Algorithm *> &algVec, string &travelName);
 void createResultsFile(std::map<string,std::list<int>> &output_map,std::vector<string> &travels,string path);
-void createErrorsFile(vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,string path);
+void createErrorsFile(vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,
+                      std::map<string,std::map<string,list<string>>> &simErrors,string path);
 void createOutputDirectories(std::vector<std::vector<fs::path>> &paths,char* mainDirectory);
 
 
