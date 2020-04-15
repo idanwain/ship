@@ -99,7 +99,7 @@ void extractCraneInstruction(string &toParse, std::pair<string,string> &instruct
  * @param ship
  * @param portContainers
  * @param portNum
- * @return true iff the validation of instruction went succesfully
+ * @return true iff the validation of instruction went successfully
  */
 bool validateInstruction(string &instruction,string &id, vector<int> &coordinates,Ship* ship,std::map<string,string>& portContainers,int portNum){
     auto map = ship->getMap();
