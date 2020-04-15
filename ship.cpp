@@ -96,7 +96,6 @@ Ship::~Ship() {
         Port *port = iter->first;
         delete port;
     }
-    std::cout << "in ship's d'tor" << std::endl;
 }
 
 void Ship::getCoordinatesToHandle(std::set<coordinate> &coordinates_to_handle, std::vector<Container>& containers_to_unload) {

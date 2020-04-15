@@ -94,27 +94,29 @@ void saveOutputInformation(std::map<string,std::list<int>> &results_map,
  */
 void createResultsFile(std::map<string,std::list<int>> &output_map,std::vector<string> &travels,string path){
     std::ofstream inFile;
-    const string spaces = "      ";
-    int sum = 0;
+    int sum = 0,longestName = 0;
+    const int spaces = 10;
     path.append("\\simulation.results");
     inFile.open(path); //Default mode is writing to a file
     if(inFile.fail()){
         std::cout << "Failed to create results file" << std::endl;
         exit(1);
     }
-    inFile << "RESULTS" << spaces+spaces;
+    for(const auto &p : output_map)
+        longestName = std::max(longestName,(int)p.first.size());
+    inFile << "RESULTS" << std::setw(longestName - 7 + spaces);/*results length is 7*/
     for(string &travel_name : travels)
-        inFile << travel_name << spaces;
+        inFile << travel_name << std::setw(spaces);
     inFile << "Sum" << '\n';
     //iterate over the algorithm names and iterate over them, note that p is a pair<string,list<int>>
     for(const auto &p : output_map){
         sum = 0;
-        inFile << p.first << spaces;
+        inFile << p.first << std::setw(longestName - (int)p.first.size() + spaces);
         for(int num : p.second){
-            inFile << num << spaces << spaces;
+            inFile  << num << std::setw(spaces);
             sum += num;
         }
-        inFile << sum << '\n';
+        inFile << std::setw(spaces) << sum << '\n';
     }
     inFile.close();
 }

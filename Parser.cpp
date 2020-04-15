@@ -2,29 +2,45 @@
 #include "stowage_algorithm.h"
 
 /**
- * This function gets the number from the <port_symbol>_<num>.<filetype> decleration
- * @param file_name
+ * This function gets the number from the <port_symbol>_<num>.<filetype> deceleration
+ * @param fileName
  * @return the number
  */
-int getPortNumFile(const string& file_name){
-    if(file_name.size() < 6) return 0;
-    int dot = file_name.find(".");
-    int dash = file_name.find("_") + 1;
-    string numPort = file_name.substr(dash,dot-dash);
+int getPortNumFile(const string& fileName){
+    if(fileName.size() < 6) return 0;
+    int dot = fileName.find(".");
+    int dash = fileName.find("_") + 1;
+    string numPort = fileName.substr(dash, dot - dash);
     return atoi(numPort.data());
 
 }
 
-bool isValidPortExpressionFile(const string& file_name){
+/**
+ * This function checks if the port file is valid aka <port_symbol>_<num>.<filetype>
+ * @param fileName
+ * @return true iff it's in the right format
+ */
+bool isValidPortExpressionFile(const string& fileName){
     std::regex reg("\\s*[A-Z]{2}\\s+[A-Z]{3}_[1-9]+.[a-z]*");
-    return std::regex_match(file_name,reg);
+    return std::regex_match(fileName, reg);
 }
 
-bool isValidTravelName(const string& name){
+/**
+ * This function checks if the travel name folder is in the right format aka "Travel" followed by any valid numbers
+ * @param travelName
+ * @return true iff it's in the right format
+ */
+bool isValidTravelName(const string& travelName){
     std::regex reg("Travel[1-9]*");
-    return std::regex_match(name,reg);
+    return std::regex_match(travelName, reg);
 }
 
+/**
+ * This function "sort" the given list of directories such that -
+ * first file in a sub folder list is ship_plan,second file is ship_route,then put the port_num files in order
+ * @param unOrdered - the unOrderd paths
+ * @return ordered paths
+ */
 std::vector<std::vector<fs::path>> orderListOfDir(std::list<std::list<fs::path>> &unOrdered){
     std::vector<std::vector<fs::path>> result(unOrdered.size());
     int ind = 0;
@@ -43,14 +59,14 @@ std::vector<std::vector<fs::path>> orderListOfDir(std::list<std::list<fs::path>>
             else if(isValidPortExpressionFile(file_name)){
                 numFile = getPortNumFile(file_name)+1; //as 0,1 places are for plan and route.
                 if(!result[ind][numFile].empty()){
-                    std::cout << "Error: there's already another port file with this number" << std::endl;
+                    std::cerr << "Error: there's already another port file with this number" << std::endl;
                 }
                 else{
                     result[ind][numFile] = path;
                 }
             }
             else{
-                std::cout << "Error:" + file_name + " doesn't match any file format" << std::endl;
+                std::cerr << "Error: " + file_name + " doesn't match any file format" << std::endl;
             }
         }
         result[ind].shrink_to_fit();
@@ -59,12 +75,17 @@ std::vector<std::vector<fs::path>> orderListOfDir(std::list<std::list<fs::path>>
     return result;
 
 }
+/**
+ * This function initlialzie the list of directories that the simulator is aiming to run the simulation on
+ * @param path - the path of the main directory that includes all travels sub folders
+ * @param vecOfPaths - the vectors of paths to save the information
+ */
 void initListDirectories(string &path,std::vector<std::vector<fs::path>> &vecOfPaths) {
-    string msg = " Only sub folders allowed in main folder, file won't be included in the program..";
+    string msg = " only sub folders allowed in main folder, file won't be included in the program";
     std::list<std::list<fs::path>> unOrderedList;
     for (const auto &entry : fs::directory_iterator(path)) {
         if (!entry.is_directory()) {
-            std::cout <<  entry.path().filename()  << msg << std::endl;
+            std::cerr << "Error: "  << entry.path().filename().string()  << msg << std::endl;
             continue;
         }
         if(!isValidTravelName(entry.path().filename().string())) continue;
@@ -93,7 +114,7 @@ void validateSequenceDirectories(vector<vector<fs::path>> &direct) {
                 if (j == 0) msg = "ship_plan";
                 else if (j == 1) msg = "ship_route";
                 else msg = ("port num " + std::to_string(j-1));
-                std::cout << "Folder Travel " << num << " lack of " << msg
+                std::cerr << "Error: Folder Travel " << num << " lack of " << msg
                           << " file, this travel folder isn't going to be tested" << std::endl;
                 direct[i].clear();
                 break;
@@ -136,6 +157,12 @@ int portAlreadyExist(std::vector<Port*> &vec,string &str){
     return 0;
 }
 
+/**
+ * This function parsing the dimensions of a ship/container location from file/string
+ * @param arr - the array to store the dimensions in
+ * @param inFile - the file we are working on to parse the data from
+ * @param str - byFile means we parse from file, otherwise parse from the str itself
+ */
 void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str){
     string line;
     char* input;
@@ -171,7 +198,7 @@ void setBlocksByLine(std::string &str, Ship* &ship) {
     std::array<int,3> dim{};
     getDimensions(dim,inFile,str);
     if(dim[0] > ship->getAxis("x") || dim[1] > ship->getAxis("y") || dim[2] > ship->getAxis("z")){
-        cout << "One of the provided ship plan constraints exceeding the dimensions of the ship, ignoring..." << endl;
+        cout << "Error: One of the provided ship plan constraints exceeding the dimensions of the ship, ignoring..." << endl;
         return;
     }
     else{
@@ -218,14 +245,20 @@ Ship* extractArgsForShip(std::vector<fs::path> &folder) {
             ship = new Ship(dimensions[0], dimensions[1], dimensions[2]);
             extractArgsForBlocks(ship, inFile);
         } else {
-            getTravelRoute(ship,inFile);
+            extractTravelRoute(ship, inFile);
         }
         inFile.close();
     }
+    ship->initCalc();
     return ship;
 }
 
-void parseDataFromPortFile(std::map<string,string>& map, string& inputPath,Ship* simulatorShip){
+/**
+ * This function parses the data from a port file, it saves it by container id and the data line of this id in a map
+ * @param map - the given map to save instruction by port id
+ * @param inputPath - the input path of the port file
+ */
+void parseDataFromPortFile(std::map<string,string>& map, string& inputPath){
     std::ifstream inFile;
     string line;
     inFile.open(inputPath);
@@ -243,8 +276,9 @@ void parseDataFromPortFile(std::map<string,string>& map, string& inputPath,Ship*
     inFile.close();
 }
 
-string* getPortNameFromFile(string filePath){
-    string* portName = new string();//TODO destroy it!!!
+//This function saved to usage in exercise 2
+/*string* getPortNameFromFile(string filePath){
+    string* portName = new string();
     int i = 0,j;
     for(i = filePath.size()-1; i > 0; i--){
         if(filePath.at(i) == '_'){
@@ -253,6 +287,6 @@ string* getPortNameFromFile(string filePath){
         if(filePath.at(i) == '\\')
             break;
     }
-    portName->append(filePath.substr(filePath.size() - i+1,j-i));//TODO check it
+    portName->append(filePath.substr(filePath.size() - i+1,j-i));
     return portName;
-}
+}*/

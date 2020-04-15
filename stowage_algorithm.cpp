@@ -199,7 +199,7 @@ void  Algorithm::extractContainersData(const std::string& line, std::string &id,
 //            }
 //        }
 //        if(i == 1) {
-//            bool weight = is_number(item);
+//            bool weight = isNumber(item);
 //            if(!weight){
 //                return false;
 //            }

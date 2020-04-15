@@ -20,6 +20,8 @@
 #include <list>
 #include <filesystem>
 #include <iostream>
+#include <algorithm>
+#include <iomanip>
 #include "ship.h"
 #include <fstream>
 #include "stowage_algorithm.h"

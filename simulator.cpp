@@ -1,5 +1,4 @@
 
-#include <iostream>
 #include <string>
 #include "ship.h"
 #include "Parser.h"
@@ -55,16 +54,15 @@ int main(int argc, char** argv) {
     vector<pair<string,list<pair<string,list<string>>>>> outputAlgorithmErrors;
     std::map<string,std::map<string,list<string>>> outputSimulatorErrors;
     vector<string> travelNames;
-    int portNumber = -1;
     initListDirectories(path, directories);
     createOutputDirectories(directories, argv[1]);
 
     for (auto &travel_folder : directories) {
+        int portNumber = -1;
         Ship* mainShip = extractArgsForShip(travel_folder);
         if(mainShip == nullptr) continue;
         string currTravel = travel_folder.at(0).parent_path().filename().string();
         travelNames.push_back(currTravel);
-        mainShip->initCalc();
         initAlgorithmList(algVec, mainShip);
         std::map<string,list<string>> simCurrTravelErrors;
         for (auto &alg : algVec) {
