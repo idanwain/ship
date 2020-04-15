@@ -10,7 +10,7 @@ void saveResultsInfo(std::map<string,std::list<int>> &results_map,std::vector<Al
     for(Algorithm* alg : algVec){
         int num = alg->getInstructionsCounter();
         string name = alg->getTypeName();
-        if(results_map.contains(name)){
+        if(results_map.find(name) != results_map.end()){
             results_map.at(name).emplace_back(num);
         }
         else{
@@ -34,7 +34,7 @@ list<string> createAlgListOfErrors(Algorithm* alg){
     string msg;
     /*Iterate on every port in the travel route, on each port check for any container left in it's dock*/
     for(Port* p : route){
-        if(visitedPorts.contains(p->get_name())) continue;
+        if(visitedPorts.find(p->get_name()) != visitedPorts.end()) continue;
         visitedPorts.emplace(p->get_name());
         vector<Container> containers_vec = *(p->getContainerVec("load"));
         for(Container &cont : containers_vec){
@@ -96,7 +96,7 @@ void createResultsFile(std::map<string,std::list<int>> &output_map,std::vector<s
     std::ofstream inFile;
     int sum = 0,longestName = 0;
     const int spaces = 10;
-    path.append("\\simulation.results");
+    path.append("/simulation.results");
     inFile.open(path); //Default mode is writing to a file
     if(inFile.fail()){
         std::cout << "Failed to create results file" << std::endl;
@@ -131,7 +131,7 @@ void createResultsFile(std::map<string,std::list<int>> &output_map,std::vector<s
 void createErrorsFile(vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,std::map<string,std::map<string,list<string>>>& simErrors,string path){
     const string spaces = "     ";//6spaces
     std::ofstream inFile;
-    path.append("\\simulation.errors");
+    path.append("/simulation.errors");
     inFile.open(path);
     if(inFile.fail()){
         std::cout << "Failed to create errors file" << std::endl;
@@ -169,7 +169,7 @@ void createOutputDirectories(std::vector<std::vector<fs::path>> &paths,char* mai
     }
     for(auto const &list : paths) {
         if (!list.empty()) {
-            string currOutputDir = outputDir + "\\" + list[0].parent_path().filename().string() + "Out";
+            string currOutputDir = outputDir + "/" + list[0].parent_path().filename().string() + "Out";
             fs::path dir(currOutputDir);
             fs::path root_path(outputDir);
             if (!fs::exists(dir)) {

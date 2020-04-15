@@ -5,7 +5,7 @@ CPP_COMP_FLAG = -std=c++2a -Wall -Wextra -Werror -pedantic-errors -DNDEBUG
 CPP_LINK_FLAG = -lstdc++fs
 
 $(EXEC): $(OBJS)
-	$(COMP) $(OBJS) $(CPP_LINK_FLAG) -o $@
+    $(COMP) $(OBJS) $(CPP_LINK_FLAG) -o $@
 simulator.o: simulator.cpp
 	$(COMP) $(CPP_COMP_FLAG) -c $*.cpp
 ship.o: ship.cpp ship.h

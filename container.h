@@ -30,6 +30,7 @@
 #include <string>
 #include <list> 
 #include <iterator>
+#include <climits>
 #include "port.h"
 
 class Port;

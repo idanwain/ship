@@ -12,12 +12,12 @@ bool Algorithm::operator()(const std::string& input_full_path_and_file_name,
     //init algorithm's port
     this->port = ship->getRoute().at(portNum);
      std::ofstream output(output_full_path_and_file_name);
-    //parse the input data into
+
+     //parse the input data into
     if(!parseDataToPort(input_full_path_and_file_name, output)){
         std::cout << CONTAINER_FILE_ERROR << std::endl;
         return false;
     };
-
     //write to output
     getInstructionsForCrane(output);
     output.close();
@@ -58,8 +58,7 @@ bool  Algorithm::parseDataToPort(const std::string& inputFullPathAndFileName, st
     while(getline(input,line)){
         std::string id; int weight; Port *dest = nullptr;
         VALIDATION reason = VALIDATION::Valid;
-        if(validateContainerData(line, reason, id, this->ship))
-        {
+        if(validateContainerData(line, reason, id, this->ship)) {
             extractContainersData(line, id, weight, &dest);
             if(dest == nullptr) {
                 std::cout << id << ": "<< CONTAINER_NOT_IN_ROUTE << std::endl;

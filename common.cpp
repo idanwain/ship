@@ -68,7 +68,6 @@ void validateAlgorithm(string &outputPath, string &inputPath, Ship* simShip, int
             string msg = "Error: container id: " + id + ", instruction: " + instruction;
             currAlgErrors.emplace_back(msg);
         }
-
     }
     inFile.close();
 }
@@ -81,6 +80,7 @@ void validateAlgorithm(string &outputPath, string &inputPath, Ship* simShip, int
  */
 void extractCraneInstruction(string &toParse, std::pair<string,string> &instruction, vector<int> &coordinates){
     auto parsedInfo = stringSplit(toParse,delim);
+
     for(int i = 0; i < (int)parsedInfo.size(); i++){
         if(i == 0)
             std::get<0>(instruction) = parsedInfo.at(0);
@@ -104,13 +104,16 @@ void extractCraneInstruction(string &toParse, std::pair<string,string> &instruct
 bool validateInstruction(string &instruction,string &id, vector<int> &coordinates,Ship* ship,std::map<string,string>& portContainers,int portNum){
     auto map = ship->getMap();
     bool isValid;
-    if(instruction == "L")
+    if(instruction == "L"){
         isValid =  validateLoadInstruction(coordinates, ship);
-    else if(instruction == "U")
+    }
+    else if(instruction == "U"){
         isValid =  validateUnloadInstruction(coordinates, ship);
-    else if(instruction == "R")
+    }
+    else if(instruction == "R"){
         isValid = validateRejectInstruction(portContainers, id, ship, portNum);
-    else{
+    }
+    else {
         isValid = validateMoveInstruction(coordinates, *map);
     }
     return isValid;
@@ -198,10 +201,8 @@ bool validateMoveInstruction(vector<int> &coordinates, vector<vector<vector<Cont
 bool validateContainerData(const std::string& line, VALIDATION& reason, std::string& id, Ship* ship) {
     int i=-1;
     auto data = stringSplit(line, delim);
-
     if(data.size() != 4)
         return false;
-
     std::string port_name;
 
     for(const std::string& item : data){
@@ -247,10 +248,9 @@ bool validateContainerData(const std::string& line, VALIDATION& reason, std::str
  * @return true iff it's valid port name
  */
 bool isValidPortName(const std::string& portName){
-    std::regex reg("\\s*[A-Z]{2}\\s+[A-Z]{3}s*$");
+    std::regex reg("\\s*[A-Z]{2}\\s+[A-Z]{3}\\s*");
     return std::regex_match(portName, reg);
 }
-
 /**
  * This function checks if a given string is a valid number aka include's only 0-9 chars
  * @param s
@@ -269,6 +269,9 @@ bool isNumber(const std::string& s) {
  * @return vector of words in s
  */
 std::vector<std::string> stringSplit(std::string s, const char* delimiter) {
+    if(iscntrl(s[s.length() - 1])){
+        s = s.substr(0, s.length() - 1);
+    }
     size_t start = 0;
     size_t end = s.find_first_of(delimiter);
 
@@ -300,8 +303,9 @@ std::vector<std::string> stringSplit(std::string s, const char* delimiter) {
  */
 bool validateId(const std::string& str) {
     int i = 0;
-    if (str.length() != 11)
+    if (str.length() != 11){
         return false;
+    }
     for(auto letter : str){
         if(i < 3){ // owner code
             if(!isupper(letter)){
@@ -350,15 +354,13 @@ bool idExistOnShip(const std::string& id, Ship* ship){
  * @param portNum
  * @return true iff it's in the following route
  */
-bool isPortInRoute(string portName, const std::vector<Port*>& route, int portNum) {
-    bool found = false;
+bool isPortInRoute(std::string portName, const std::vector<Port*>& route, int portNum) {
     for(auto port_it = route.begin() + portNum + 1; port_it != route.end(); ++port_it){
-        if((*port_it)->get_name() == portName){
-            found = true;
-            break;
+        if(((*port_it)->get_name()).compare(portName)){
+            return true;
         }
     }
-    return portName != "NOT_IN_ROUTE" && found;
+    return false;
 }
 
 
@@ -371,8 +373,13 @@ void extractTravelRoute(Ship* &ship, std::istream &inFile) {
     std::vector<Port *> *vec = new std::vector<Port *>();
     string line;
     while (getline(inFile, line)) {
+        std::cout << "line in extractTravelRoute: " << line << std::endl;
+        std::cout << "line length in extractTravelRoute: " << line.length() << std::endl;
         if (line.at(0) == '#') continue; //comment symbol
         else if (isValidPortName(line)) {
+            if(iscntrl(line[line.length() - 1])){
+                line = line.substr(0, line.length() - 1);
+            }
             if (!portAlreadyExist(*vec, line)) {
                 Port *p1 = new Port(line);
                 vec->emplace_back(p1);

@@ -24,6 +24,8 @@
 #include <iomanip>
 #include "ship.h"
 #include <fstream>
+#include <map>
+#include <set>
 #include "stowage_algorithm.h"
 #include "lifo_algorithm.h"
 

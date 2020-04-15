@@ -28,7 +28,7 @@ void initAlgorithmList(std::vector<Algorithm*> &algList,Ship* ship){
  * @return
  */
 string getFullOutPutPath(fs::path &path, string &root_path, const string &algName){
-    return root_path + OP_MAIN_DIRECTORY + "\\" + path.parent_path().filename().string() + "Out\\" +
+    return root_path + OP_MAIN_DIRECTORY + "/" + path.parent_path().filename().string() + "Out/" +
     algName + "- " + path.filename().string();
 
 }
@@ -60,7 +60,9 @@ int main(int argc, char** argv) {
     for (auto &travel_folder : directories) {
         int portNumber = -1;
         Ship* mainShip = extractArgsForShip(travel_folder);
-        if(mainShip == nullptr) continue;
+        if(mainShip == nullptr){
+            continue;
+        }
         string currTravel = travel_folder.at(0).parent_path().filename().string();
         travelNames.push_back(currTravel);
         initAlgorithmList(algVec, mainShip);
@@ -68,11 +70,14 @@ int main(int argc, char** argv) {
         for (auto &alg : algVec) {
             list<string> simCurrAlgErrors;
             for (size_t j = 2; j < travel_folder.size(); j++) {
+                cout << travel_folder.at(j).string() << endl;
                 portNumber++;
                 string outputPath = getFullOutPutPath(travel_folder.at(j), path, alg->getTypeName());
                 string inputPath = travel_folder.at(j).string();
+
                 (*alg)(inputPath, outputPath);
-                validateAlgorithm(outputPath, inputPath, mainShip, portNumber, simCurrAlgErrors);
+                std::cout << "after alg" << std::endl;
+//                validateAlgorithm(outputPath, inputPath, mainShip, portNumber, simCurrAlgErrors);
             }
             simCurrTravelErrors.insert(make_pair(alg->getTypeName(),simCurrAlgErrors));
             portNumber = -1;

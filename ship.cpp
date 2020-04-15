@@ -28,11 +28,13 @@ std::vector<Port*> Ship::getRoute() {
 }
 
 void Ship::addContainer(Container& container, std::tuple<int,int> coordinate) {
+    //containers by port add
     if(this->containersByPort.find(container.get_dest()) == containersByPort.end()){
         this->containersByPort.insert({container.get_dest(), std::vector<Container>{container}});
     } else {
         this->containersByPort[container.get_dest()].emplace_back(container);
     }
+    //ship map add
     shipMap[std::get<0>(coordinate)][std::get<1>(coordinate)].emplace_back(container);
     freeSpace--;
 }
@@ -42,14 +44,20 @@ std::vector<std::vector<std::vector<Container>>>* Ship::getMap() {
 }
 
 Port* Ship::getPortByName(const std::string &name) {
+    std::cout << "***************** getPortByName ******************"<< std::endl;
+
     Port* pPort = nullptr;
     for(auto port : this->route) {
+        auto routePortName = port->get_name();
+        std::cout << "curr port name: " << routePortName << " len: " << routePortName.length() << std::endl;
+        std::cout << "global name: " << name << " len: " << name.length() << std::endl;
         if(port->get_name() == name) {
             pPort = port;
+            break;
         }
     }
     if(pPort == nullptr){
-        pPort = new Port("NOT_IN_ROUTE");
+        pPort = new Port("NOT_IN_ROUTE"); //TODO need to create only once and point to it every other time
     }
     return pPort;
 }
@@ -143,6 +151,7 @@ bool Ship::findColumnToMoveTo(coordinate old_coor, coordinate& new_coor, std::ve
         ++x;
         y=0;
     }
+    return false;
 }
 
 void Ship::moveContainer(coordinate origin, coordinate dest) {
@@ -162,6 +171,7 @@ void Ship::findColumnToLoad(coordinate &coor, bool &found, int kg) {
     int x = 0; int y = 0;
     for(auto& coor_x : shipMap){
         for(auto& coor_y : coor_x){
+            if(coor_y.empty()){}
             int size = shipMap[x][y].size(); int capacity = shipMap[x][y].capacity();
             if(size < capacity &&
                     this->getCalc()->tryOperation('L', kg, x, y) == APPROVED && !found){

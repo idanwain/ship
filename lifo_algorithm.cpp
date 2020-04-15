@@ -25,10 +25,16 @@ void  Lifo_algorithm::getInstructionsForCrane(std::ofstream &output) {
  * @param output - output file to write instructions for crane
  */
 void Lifo_algorithm::unloadContainers(std::ofstream& output){
+    std::cout << "in unloadContainers" << std::endl;
     std::vector<Container>* containersToUnload = nullptr;
     ship->getContainersToUnload(port, &containersToUnload);
     std::set<coordinate> coordinates_to_handle;
     ship->getCoordinatesToHandle(coordinates_to_handle, *containersToUnload);
+
+    std::cout << "unloadContainers: port name: " << port->get_name() << std::endl;
+    std::cout << "unloadContainers: number of containers to unload = " << containersToUnload->size() << std::endl;
+    std::cout << "unloadContainers: number of columns to handle = " << coordinates_to_handle.size() << std::endl;
+
 
     for(coordinate coor : coordinates_to_handle){
         int lowest_floor = ship->getLowestFloorOfRelevantContainer(port, coor);
@@ -42,7 +48,6 @@ void Lifo_algorithm::unloadContainers(std::ofstream& output){
                 //calculator approved unload --> unload, record & move to next container
                 if(ship->getCalc()->tryOperation('U', con_iterator->get_weight(), std::get<0>(coor), std::get<1>(coor)) == APPROVED){
                     unloadSingleContainer(output, *con_iterator, 'A', coor);
-//                    column->pop_back(); // might destroy container -->check in port if exist
                     --con_iterator;
                 }
                 //calculator didnt approved unload --> record & move to next column
@@ -101,11 +106,12 @@ void Lifo_algorithm::loadContainers(char list_category, std::ofstream& output){
     std::sort(load->begin(), load->end());
 
     //validate by: data, port is'nt in route, space, weight
-    for(auto con = load->end() - 1; !load->empty() && con >= load->begin();){
+    for(auto con = load->end() - 1; !load->empty() && con >= load->begin();--con){
         bool found = false;
         coordinate coor;
         int weight = con->get_weight();
         ship->findColumnToLoad(coor, found, weight);
+
         if(validateId(con->get_id()) && isPortInRoute(con->get_dest()->get_name(), ship->getRoute(), getPortNum()) && found){
             ship->addContainer(*con, coor);
             Algorithm::writeToOutput(output,"L", con->get_id(), ship->getCoordinate(*con), std::forward_as_tuple(-1,-1,-1));
@@ -114,7 +120,6 @@ void Lifo_algorithm::loadContainers(char list_category, std::ofstream& output){
         } else {
             Algorithm::writeToOutput(output,"R", con->get_id(), std::forward_as_tuple(-1,-1,-1), std::forward_as_tuple(-1,-1,-1));
         }
-        --con;
     }
 }
 

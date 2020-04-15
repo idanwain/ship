@@ -26,13 +26,13 @@ BalanceStatus WeightBalanceCalculator::tryOperation(char loadUnload, int kg, int
 }
 
 void WeightBalanceCalculator::checkLoad(std::tuple<bool, bool> &x_y_imbalance, int kg, std::vector<Container> &column) {
-    if(kg >= 0 && column.size() >= 0){ //dummy use
+    if(kg >= 0 && !column.empty()){
         x_y_imbalance = std::pair(false, false);
     }
 }
 
 void WeightBalanceCalculator::checkUnload(std::tuple<bool, bool> &x_y_imbalance, int kg, std::vector<Container> &column) {
-    if(kg >= 0 && column.size() >= 0){ //dummy use
+    if(kg >= 0 && !column.empty()){ //dummy use
         x_y_imbalance = std::pair(false, false);
     }
 }
