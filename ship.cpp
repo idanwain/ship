@@ -214,6 +214,10 @@ void Ship::removeContainer(coordinate coor) {
     freeSpace++;
 }
 
+int Ship::getFreeSpace() {
+    return freeSpace;
+}
+
 //std::tuple<int,int> Ship::find_min_floor(){
 //    std::tuple<int, int> min_floor_coor;
 //    size_t min = INT_MAX;

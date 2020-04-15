@@ -109,6 +109,7 @@ public:
     void updateFreeSpace(int num);
     void capacitySizeCheck();
     //std::tuple<int, int> find_min_floor();
+    int getFreeSpace();
 };
 
 #endif // !SHIP_HEADER

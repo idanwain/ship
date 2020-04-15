@@ -105,6 +105,12 @@ void Lifo_algorithm::loadContainers(char list_category, std::ofstream& output){
     Algorithm::initContainersDistance(*load);
     std::sort(load->begin(), load->end());
 
+    //cut vector by free space on ship
+    while(ship->getFreeSpace() < load->size()){
+        Algorithm::writeToOutput(output,"R", load->back().get_id(), std::forward_as_tuple(-1,-1,-1), std::forward_as_tuple(-1,-1,-1));
+        load->pop_back();
+    }
+
     //validate by: data, port is'nt in route, space, weight
     for(auto con = load->end() - 1; !load->empty() && con >= load->begin();--con){
         bool found = false;
@@ -121,11 +127,11 @@ void Lifo_algorithm::loadContainers(char list_category, std::ofstream& output){
         if(validID && isInRoute && found){
             ship->addContainer(*con, coor);
             Algorithm::writeToOutput(output,"L", con->get_id(), ship->getCoordinate(*con), std::forward_as_tuple(-1,-1,-1));
-            load->erase(con);
             Algorithm::increaseInstructionCounter();
         } else {
             Algorithm::writeToOutput(output,"R", con->get_id(), std::forward_as_tuple(-1,-1,-1), std::forward_as_tuple(-1,-1,-1));
         }
+        load->erase(con);
     }
 }
 

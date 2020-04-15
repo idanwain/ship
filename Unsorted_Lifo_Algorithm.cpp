@@ -96,7 +96,7 @@ void Unsorted_Lifo_Algorithm::loadContainers(char list_category, std::ofstream& 
     port->getContainersToLoad(&load, list_category);
 
     //validate by: data, port is'nt in route, space, weight
-    for(auto con = load->end() - 1; !load->empty() && con >= load->begin();){
+    for(auto con = load->end() - 1; !load->empty() && con >= load->begin();--con){
         bool found = false;
         coordinate coor;
         int weight = con->get_weight();
@@ -104,12 +104,11 @@ void Unsorted_Lifo_Algorithm::loadContainers(char list_category, std::ofstream& 
         if(validateId(con->get_id()) && isPortInRoute(con->get_dest()->get_name(), ship->getRoute(), getPortNum()) && found){
             ship->addContainer(*con, coor);
             Algorithm::writeToOutput(output,"L", con->get_id(), ship->getCoordinate(*con), std::forward_as_tuple(-1,-1,-1));
-            load->erase(con);
             Algorithm::increaseInstructionCounter();
         } else {
             Algorithm::writeToOutput(output,"R", con->get_id(), std::forward_as_tuple(-1,-1,-1), std::forward_as_tuple(-1,-1,-1));
         }
-        --con;
+        load->erase(con);
     }
 }
 
