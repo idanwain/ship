@@ -355,12 +355,14 @@ bool idExistOnShip(const std::string& id, Ship* ship){
  * @return true iff it's in the following route
  */
 bool isPortInRoute(std::string portName, const std::vector<Port*>& route, int portNum) {
+    bool found = false;
     for(auto port_it = route.begin() + portNum + 1; port_it != route.end(); ++port_it){
-        if(((*port_it)->get_name()).compare(portName)){
-            return true;
+        if(((*port_it)->get_name()) == portName){
+            found = true;
+            break;
         }
     }
-    return false;
+    return found && portName != "NOT_IN_ROUTE";
 }
 
 

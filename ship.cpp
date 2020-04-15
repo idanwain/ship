@@ -53,10 +53,12 @@ Port* Ship::getPortByName(const std::string &name) {
         std::cout << "global name: " << name << " len: " << name.length() << std::endl;
         if(port->get_name() == name) {
             pPort = port;
+            std::cout << "same port" << std::endl;
             break;
         }
     }
     if(pPort == nullptr){
+        std::cout << "havent found" << std::endl;
         pPort = new Port("NOT_IN_ROUTE"); //TODO need to create only once and point to it every other time
     }
     return pPort;
