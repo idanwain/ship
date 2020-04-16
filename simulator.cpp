@@ -71,17 +71,18 @@ int main(int argc, char** argv) {
         initAlgorithmList(algVec, mainShip);
         std::map<string,list<string>> simCurrTravelErrors;
         for (auto &alg : algVec) {
+            Ship* simShip = new Ship(mainShip);
             list<string> simCurrAlgErrors;
             for (size_t j = 2; j < travel_folder.size(); j++) {
                 portNumber++;
                 string outputPath = getFullOutPutPath(travel_folder.at(j), path, alg->getTypeName());
                 string inputPath = travel_folder.at(j).string();
                 (*alg)(inputPath, outputPath);
-                std::cout << "after alg" << std::endl;
-                validateAlgorithm(outputPath, inputPath, mainShip, portNumber, simCurrAlgErrors);
+                validateAlgorithm(outputPath, inputPath, simShip, portNumber, simCurrAlgErrors);
             }
             simCurrTravelErrors.insert(make_pair(alg->getTypeName(),simCurrAlgErrors));
             portNumber = -1;
+            delete simShip;
         }
         outputSimulatorErrors.insert(make_pair(currTravel,simCurrTravelErrors));
         saveOutputInformation(outputResultsInfo, outputAlgorithmErrors, algVec, currTravel);

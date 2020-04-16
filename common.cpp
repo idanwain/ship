@@ -375,8 +375,6 @@ void extractTravelRoute(Ship* &ship, std::istream &inFile) {
     std::vector<Port *> *vec = new std::vector<Port *>();
     string line;
     while (getline(inFile, line)) {
-        std::cout << "line in extractTravelRoute: " << line << std::endl;
-        std::cout << "line length in extractTravelRoute: " << line.length() << std::endl;
         if (line.at(0) == '#') continue; //comment symbol
         else if (isValidPortName(line)) {
             if(iscntrl(line[line.length() - 1])){

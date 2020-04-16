@@ -241,22 +241,17 @@ Ship* extractArgsForShip(std::vector<fs::path> &folder) {
             std::cerr << FAIL_TO_READ_PATH + file_path << endl;
             return nullptr;
         } else if (i == 0) {
-            std::cout << "in extractArgsForShip i==0" << std::endl;
             getDimensions(dimensions, inFile,"byFile");
             ship = new Ship(dimensions[0], dimensions[1], dimensions[2]);
             extractArgsForBlocks(ship, inFile);
         } else {
-            std::cout << "in extractArgsForShip else" << std::endl;
             extractTravelRoute(ship, inFile);
         }
         inFile.close();
     }
-    std::cout << "in extractArgsForShip" << std::endl;
     ship->initCalc();
     auto route = ship->getRoute();
-    for(auto &p : route){
-        cout << (*p).get_name() << endl;
-    }
+
     return ship;
 }
 

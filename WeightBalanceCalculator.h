@@ -1,7 +1,8 @@
 #ifndef SHIP1_WEIGHTBALANCECALCULATOR_H
 #define SHIP1_WEIGHTBALANCECALCULATOR_H
 
-/*The calculator shall be initiated by the simulation with the ship plan file:
+/**
+ * The calculator shall be initiated by the simulation with the ship plan file:
   readShipPlan(const std::string& full_path_and_file_name)
 It shall preserve the state of all loaded cargo (thus, requiring a calculator instance per ship).
 It shall have the following methods:
@@ -32,7 +33,7 @@ enum BalanceStatus {APPROVED, X_IMBALANCED, Y_IMBALANCED, X_Y_IMBALANCED, FAILED
 class WeightBalanceCalculator {
     Ship* ship = nullptr;
 public:
-    explicit WeightBalanceCalculator(Ship* pShip): ship(pShip){};
+    explicit WeightBalanceCalculator(Ship* shipToCopy): ship(shipToCopy) {};
 
     BalanceStatus  tryOperation(char loadUnload, int kg, int X, int Y);
     void checkLoad(std::tuple<bool, bool> &tuple, int kg, std::vector<Container> &vector);

@@ -1,4 +1,11 @@
-
+/**
+ * This module represents an erroneous algorithm.
+ * The algorithm rejects every container needed to be load.
+ * First, it unloads all the containers needed to port;
+ * Second, it rejects all the containers that were unloaded from the ship but their destination != this port.
+ * Finally, it rejects the containers as mentioned in input file.
+ * this type of action creates errors in algorithm and lets "validation algorithm" find errors in algorithm.
+ */
 #ifndef ERRONEUOS_ALGORITHM_H
 #define ERRONEUOS_ALGORITHM_H
 

@@ -1,4 +1,3 @@
-
 #include "erroneous_algorithm.h"
 #include "port.h"
 
@@ -26,16 +25,10 @@ void  Erroneous_algorithm::getInstructionsForCrane(std::ofstream &output) {
  * @param output - output file to write instructions for crane
  */
 void Erroneous_algorithm::unloadContainers(std::ofstream& output){
-    std::cout << "in unloadContainers" << std::endl;
     std::vector<Container>* containersToUnload = nullptr;
     ship->getContainersToUnload(port, &containersToUnload);
     std::set<coordinate> coordinates_to_handle;
     ship->getCoordinatesToHandle(coordinates_to_handle, *containersToUnload);
-
-    std::cout << "unloadContainers: port name: " << port->get_name() << std::endl;
-    std::cout << "unloadContainers: number of containers to unload = " << containersToUnload->size() << std::endl;
-    std::cout << "unloadContainers: number of columns to handle = " << coordinates_to_handle.size() << std::endl;
-
 
     for(coordinate coor : coordinates_to_handle){
         int lowest_floor = ship->getLowestFloorOfRelevantContainer(port, coor);
@@ -51,13 +44,13 @@ void Erroneous_algorithm::unloadContainers(std::ofstream& output){
                     unloadSingleContainer(output, *con_iterator, 'A', coor);
                     --con_iterator;
                 }
-                    //calculator didnt approved unload --> record & move to next column
+                //calculator didnt approved unload --> record & move to next column
                 else{
                     Algorithm::writeToOutput(output,"R", con_iterator->get_id(), ship->getCoordinate(*con_iterator), std::forward_as_tuple(-1,-1,-1));
                     break; //next column
                 }
             }
-                //container's destination != this port
+            //container's destination != this port
             else {
                 coordinate new_spot;
                 //checks weight, space and efficiency.
@@ -67,7 +60,6 @@ void Erroneous_algorithm::unloadContainers(std::ofstream& output){
                     //if cant move, maybe can at least unload it, calculator approved unload --> unload, record & move to next container
                     if(ship->getCalc()->tryOperation('U', con_iterator->get_weight(), std::get<0>(coor), std::get<1>(coor)) == APPROVED){
                         unloadSingleContainer(output, *con_iterator, 'P', coor);
-//                        column->pop_back();
                         --con_iterator;
                     }
                     else{
@@ -76,7 +68,7 @@ void Erroneous_algorithm::unloadContainers(std::ofstream& output){
                         break; //next column
                     }
                 }
-                    //found a proper coordinate to move the container to
+                //found a proper coordinate to move the container to
                 else {
                     std::tuple<int,int,int> old_coor = ship->getCoordinate(*con_iterator);
                     std::string id = con_iterator->get_id();
@@ -92,15 +84,13 @@ void Erroneous_algorithm::unloadContainers(std::ofstream& output){
 }
 
 /**
- * This function loads port's containers to ship by this scheme:
- * for every port in route (in reverse order) load all containers
- * to lowest free spot in the ship.
+ * This function rejects every given container.
  * @param output - output file to write instructions for crane
  */
 void Erroneous_algorithm::loadContainers(char list_category, std::ofstream& output){
     //get proper container's vector
-    std::vector<Container>* load = nullptr;
-    port->getContainersToLoad(&load, list_category);
+    std::vector<Container>* load = port->getContainerVec(list_category);
+    if(load == nullptr) return;
 
     // sort by reverse order of ports in route
     Algorithm::initContainersDistance(*load);
@@ -126,7 +116,6 @@ const std::string Erroneous_algorithm::getTypeName() const {
 void Erroneous_algorithm::unloadSingleContainer(std::ofstream &output,Container& con, char vecType, coordinate coor){
     port->addContainer(con, vecType);
     Algorithm::writeToOutput(output,"U", con.get_id(), ship->getCoordinate(con), std::forward_as_tuple(-1,-1,-1));
-//    ship->removeFromContainersByPort(con, port);
     ship->removeContainer(coor);
     Algorithm::increaseInstructionCounter();
 }

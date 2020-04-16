@@ -25,4 +25,5 @@ add_executable(ship1
         WeightBalanceCalculator.cpp WeightBalanceCalculator.h
         outputHandler.cpp outputHandler.h
         common.cpp common.h
+        erroneous_algorithm.cpp erroneous_algorithm.h
         )

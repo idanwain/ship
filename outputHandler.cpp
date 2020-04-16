@@ -36,7 +36,7 @@ list<string> createAlgListOfErrors(Algorithm* alg){
     for(Port* p : route){
         if(visitedPorts.find(p->get_name()) != visitedPorts.end()) continue;
         visitedPorts.emplace(p->get_name());
-        vector<Container> containers_vec = *(p->getContainerVec("load"));
+        vector<Container> containers_vec = *(p->getContainerVec('L'));
         for(Container &cont : containers_vec){
             msg = "Error: container id: " + cont.get_id();
             if(cont.get_dest()->get_name() == "NOT_IN_ROUTE")

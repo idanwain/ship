@@ -21,20 +21,13 @@ void  Lifo_algorithm::getInstructionsForCrane(std::ofstream &output) {
  *      - find the columns of those containers inside the ship
  *      - unload containers that are in those columns to port
  *      - stop unload when hits the port's container
- *
  * @param output - output file to write instructions for crane
  */
 void Lifo_algorithm::unloadContainers(std::ofstream& output){
-    std::cout << "in unloadContainers" << std::endl;
     std::vector<Container>* containersToUnload = nullptr;
     ship->getContainersToUnload(port, &containersToUnload);
     std::set<coordinate> coordinates_to_handle;
     ship->getCoordinatesToHandle(coordinates_to_handle, *containersToUnload);
-
-    std::cout << "unloadContainers: port name: " << port->get_name() << std::endl;
-    std::cout << "unloadContainers: number of containers to unload = " << containersToUnload->size() << std::endl;
-    std::cout << "unloadContainers: number of columns to handle = " << coordinates_to_handle.size() << std::endl;
-
 
     for(coordinate coor : coordinates_to_handle){
         int lowest_floor = ship->getLowestFloorOfRelevantContainer(port, coor);
@@ -66,7 +59,6 @@ void Lifo_algorithm::unloadContainers(std::ofstream& output){
                     //if cant move, maybe can at least unload it, calculator approved unload --> unload, record & move to next container
                     if(ship->getCalc()->tryOperation('U', con_iterator->get_weight(), std::get<0>(coor), std::get<1>(coor)) == APPROVED){
                         unloadSingleContainer(output, *con_iterator, 'P', coor);
-//                        column->pop_back();
                         --con_iterator;
                     }
                     else{
@@ -92,14 +84,15 @@ void Lifo_algorithm::unloadContainers(std::ofstream& output){
 
 /**
  * This function loads port's containers to ship by this scheme:
- * for every port in route (in reverse order) load all containers
- * to lowest free spot in the ship.
+ *      -sort containers by distance from destination.
+ *      -cut containers from load list according to free space in ship.
+ *      -load containers in reverse order: far destination == lower spot on ship.
  * @param output - output file to write instructions for crane
  */
 void Lifo_algorithm::loadContainers(char list_category, std::ofstream& output){
     //get proper container's vector
-    std::vector<Container>* load = nullptr;
-    port->getContainersToLoad(&load, list_category);
+    std::vector<Container>* load = port->getContainerVec(list_category);
+    if(load == nullptr) return;
 
     // sort by reverse order of ports in route
     Algorithm::initContainersDistance(*load);
@@ -142,7 +135,6 @@ const std::string Lifo_algorithm::getTypeName() const {
 void Lifo_algorithm::unloadSingleContainer(std::ofstream &output,Container& con, char vecType, coordinate coor){
     port->addContainer(con, vecType);
     Algorithm::writeToOutput(output,"U", con.get_id(), ship->getCoordinate(con), std::forward_as_tuple(-1,-1,-1));
-//    ship->removeFromContainersByPort(con, port);
     ship->removeContainer(coor);
     Algorithm::increaseInstructionCounter();
 }

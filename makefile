@@ -1,11 +1,11 @@
 COMP = g++-8.3.0
-OBJS = simulator.o ship.o container.o port.o common.o Parser.o outputHandler.o stowage_algorithm.o lifo_algorithm.o Unsorted_Lifo_Algorithm.o WeightBalanceCalculator.o
+OBJS = simulator.o ship.o container.o port.o common.o Parser.o outputHandler.o stowage_algorithm.o lifo_algorithm.o Unsorted_Lifo_Algorithm.o WeightBalanceCalculator.o erroneous_algorithm.o
 EXEC = ex1
 CPP_COMP_FLAG = -std=c++2a -Wall -Wextra -Werror -pedantic-errors -DNDEBUG
 CPP_LINK_FLAG = -lstdc++fs
 
 $(EXEC): $(OBJS)
-    $(COMP) $(OBJS) $(CPP_LINK_FLAG) -o $@
+	$(COMP) $(OBJS) $(CPP_LINK_FLAG) -o $@
 simulator.o: simulator.cpp
 	$(COMP) $(CPP_COMP_FLAG) -c $*.cpp
 ship.o: ship.cpp ship.h
@@ -28,6 +28,9 @@ Unsorted_Lifo_Algorithm.o: Unsorted_Lifo_Algorithm.cpp Unsorted_Lifo_Algorithm.h
 	$(COMP) $(CPP_COMP_FLAG) -c $*.cpp
 WeightBalanceCalculator.o: WeightBalanceCalculator.cpp WeightBalanceCalculator.h
 	$(COMP) $(CPP_COMP_FLAG) -c $*.cpp
+erroneous_algorithm.o: erroneous_algorithm.cpp erroneous_algorithm.h
+	$(COMP) $(CPP_COMP_FLAG) -c $*.cpp
+
 
 clean:
 	rm -f $(OBJS) $(EXEC)

@@ -44,21 +44,16 @@ std::vector<std::vector<std::vector<Container>>>* Ship::getMap() {
 }
 
 Port* Ship::getPortByName(const std::string &name) {
-    std::cout << "***************** getPortByName ******************"<< std::endl;
 
     Port* pPort = nullptr;
     for(auto port : this->route) {
         auto routePortName = port->get_name();
-        std::cout << "curr port name: " << routePortName << " len: " << routePortName.length() << std::endl;
-        std::cout << "global name: " << name << " len: " << name.length() << std::endl;
         if(port->get_name() == name) {
             pPort = port;
-            std::cout << "same port" << std::endl;
             break;
         }
     }
     if(pPort == nullptr){
-        std::cout << "havent found" << std::endl;
         pPort = new Port("NOT_IN_ROUTE");
     }
     return pPort;
@@ -185,18 +180,6 @@ void Ship::findColumnToLoad(coordinate &coor, bool &found, int kg) {
         }
         if(found){
             break;
-        }
-        ++x;
-        y = 0;
-    }
-}
-
-void Ship::capacitySizeCheck(){
-    int x = 0; int y = 0;
-    for(auto coor_x : shipMap){
-        for(auto coor_y : coor_x){
-            std::cout << "(" << x << "," << y << "): Size: " << shipMap[x][y].size() << ", Capacity: " << shipMap[x][y].capacity() << std::endl;
-            ++y;
         }
         ++x;
         y = 0;

@@ -17,16 +17,7 @@ const std::string&  Port::get_name() {
     return name;
 }
 
-void Port::getContainersToLoad(std::vector<Container>** vec, char list_category){
-    if(list_category == 'L'){
-        *vec = &load;
-    } else if(list_category == 'P'){
-        *vec = &priority;
-    }
-}
-
-bool Port::operator==(const Port& p)
-{
+bool Port::operator==(const Port& p){
     return this->get_name() == p.name;
 }
 
@@ -36,29 +27,14 @@ Port::~Port(){
     arrived.clear();
 }
 
-/* for debugging purpose only */
-void Port::printContainers() {
-
-    std::cout << "Containers to unload from port " << this->name << ":" << std::endl;
-
-    for (auto & it : unload) {
-        std::cout << it;
-    };
-
-    std::cout << "Containers to load from port " << this->name << ":" << std::endl;
-    for (auto & it : load) {
-        std::cout << it;
-    };
-}
-
-std::vector<Container>* Port::getContainerVec(const std::string &type){
-    if(type == "load")
+std::vector<Container>* Port::getContainerVec(char type){
+    if(type == 'L')
         return &this->load;
-    else if(type == "unload")
+    else if(type == 'U')
         return &this->unload;
-    else if(type == "priority")
+    else if(type == 'P')
         return &this->priority;
-    else if(type == "arrived")
+    else if(type == 'A')
         return &this->arrived;
 
     return nullptr;

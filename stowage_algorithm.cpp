@@ -11,8 +11,7 @@ bool Algorithm::operator()(const std::string& input_full_path_and_file_name,
                 const std::string& output_full_path_and_file_name) {
     //init algorithm's port
     this->port = ship->getRoute().at(portNum);
-     std::ofstream output(output_full_path_and_file_name);
-     std::cout << output_full_path_and_file_name << std::endl;
+    std::ofstream output(output_full_path_and_file_name);
      //parse the input data into
     if(!parseDataToPort(input_full_path_and_file_name, output)){
         std::cout << CONTAINER_FILE_ERROR << std::endl;
@@ -56,6 +55,7 @@ bool  Algorithm::parseDataToPort(const std::string& inputFullPathAndFileName, st
     }
 
     while(getline(input,line)){
+        if (line.at(0) == '#') continue; //comment symbol
         std::string id; int weight; Port *dest = nullptr;
         VALIDATION reason = VALIDATION::Valid;
         if(validateContainerData(line, reason, id, this->ship)) {

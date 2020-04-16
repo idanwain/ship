@@ -41,10 +41,9 @@ void Unsorted_Lifo_Algorithm::unloadContainers(std::ofstream& output){
                 //calculator approved unload --> unload, record & move to next container
                 if(ship->getCalc()->tryOperation('U', con_iterator->get_weight(), std::get<0>(coor), std::get<1>(coor)) == APPROVED){
                     unloadSingleContainer(output, *con_iterator, 'A', coor);
-//                    column->pop_back(); // might destroy container -->check in port if exist
                     --con_iterator;
                 }
-                    //calculator didnt approved unload --> record & move to next column
+                //calculator didnt approved unload --> record & move to next column
                 else{
                     Algorithm::writeToOutput(output,"R", con_iterator->get_id(), ship->getCoordinate(*con_iterator), std::forward_as_tuple(-1,-1,-1));
                     break; //next column
@@ -60,7 +59,6 @@ void Unsorted_Lifo_Algorithm::unloadContainers(std::ofstream& output){
                     //if cant move, maybe can at least unload it, calculator approved unload --> unload, record & move to next container
                     if(ship->getCalc()->tryOperation('U', con_iterator->get_weight(), std::get<0>(coor), std::get<1>(coor)) == APPROVED){
                         unloadSingleContainer(output, *con_iterator, 'P', coor);
-//                        column->pop_back();
                         --con_iterator;
                     }
                     else{
@@ -69,7 +67,7 @@ void Unsorted_Lifo_Algorithm::unloadContainers(std::ofstream& output){
                         break; //next column
                     }
                 }
-                    //found a proper coordinate to move the container to
+                //found a proper coordinate to move the container to
                 else {
                     std::tuple<int,int,int> old_coor = ship->getCoordinate(*con_iterator);
                     std::string id = con_iterator->get_id();
@@ -87,13 +85,13 @@ void Unsorted_Lifo_Algorithm::unloadContainers(std::ofstream& output){
 /**
  * This function loads port's containers to ship by this scheme:
  * for every port in route (in reverse order) load all containers
- * to lowest free spot in the ship.
+ * by order of the given input file to the first free & valid spot found on ship.
  * @param output - output file to write instructions for crane
  */
 void Unsorted_Lifo_Algorithm::loadContainers(char list_category, std::ofstream& output){
     //get proper container's vector
-    std::vector<Container>* load = nullptr;
-    port->getContainersToLoad(&load, list_category);
+    std::vector<Container>* load = port->getContainerVec(list_category);
+    if(load == nullptr) return;
 
     //validate by: data, port is'nt in route, space, weight
     for(auto con = load->end() - 1; !load->empty() && con >= load->begin();--con){
@@ -119,7 +117,6 @@ const std::string Unsorted_Lifo_Algorithm::getTypeName() const {
 void Unsorted_Lifo_Algorithm::unloadSingleContainer(std::ofstream &output,Container& con, char vecType, coordinate coor){
     port->addContainer(con, vecType);
     Algorithm::writeToOutput(output,"U", con.get_id(), ship->getCoordinate(con), std::forward_as_tuple(-1,-1,-1));
-//    ship->removeFromContainersByPort(con, port);
     ship->removeContainer(coor);
     Algorithm::increaseInstructionCounter();
 }

@@ -99,17 +99,15 @@ public:
     int getTopFloor(coordinate coor);
     void getColumn(coordinate coor, std::vector<Container>** column);
     WeightBalanceCalculator* getCalc();
+    int getFreeSpace();
     void getContainersToUnload(Port* port, std::vector<Container>** unload);
     bool findColumnToMoveTo(coordinate old_coor, coordinate& new_coor, std::vector<Container>& containersToUnload, int weight);
-    void findColumnToLoad(coordinate &coor, bool &found, int kg);
 
+    void findColumnToLoad(coordinate &coor, bool &found, int kg);
     void addContainer(Container& container, std::tuple<int,int> coordinate);
     void removeContainer(coordinate coor);
     void moveContainer(coordinate origin, coordinate dest);
     void updateFreeSpace(int num);
-    void capacitySizeCheck();
-    //std::tuple<int, int> find_min_floor();
-    int getFreeSpace();
 };
 
 #endif // !SHIP_HEADER

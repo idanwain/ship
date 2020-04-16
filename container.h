@@ -8,17 +8,19 @@
 * -Ports:
 *	#source port.
 *	#destination port.
-* -status:
-*	represents the current status of a container.
+* -distanceFromDest:
+*   distance from its closest destination port; if port is not in route, distanceFromDest == INT_MAX
 *
 *      *******      Functions      ******
 *
-* change_status - given a state, changes the status of the container
-* get_weight - returns the weight of the container
-* get_id - return the ID of the container
-* get_source - returns a pointer to the container's source port
-* get_dest - returns a pointer to the container's destination port
-* operator<< - returns an ostream that descripts the container
+* get_weight - returns the weight of the container.
+* get_id - return the ID of the container.
+* get_dest - returns a pointer to the container's destination port.
+* operator<< - returns an ostream that describes the container.
+* bool operator== - return true if both IDs are equal, false otherwise.
+* bool operator!= - return !(operator==).
+* bool operator < - return true if this->distanceToDest is less then other->distanceToDest, false otherwise.
+* void setDistance - sets distanceFromDest.
 *
 */
 
@@ -57,7 +59,6 @@ public:
 	    this->source = contToCopy->source;
 	    this->destination = contToCopy->destination;
 	    this->distanceFromDest = contToCopy->distanceFromDest;
-	    std::cout << "in container c'tor" + this->id << std::endl;
 	}
 
 	Container(const std::string& id1): id(id1), weight(-1), source(nullptr), destination(nullptr){}

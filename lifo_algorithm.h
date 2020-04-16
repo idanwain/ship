@@ -1,9 +1,10 @@
 /**
- * This module represents a Lifo Algorithm: Last In First Out.
- * First, we UNLOAD all the containers needed to be UNLOADED, with probably some extra unrelated containers, to port.
- * All the containers that this port is not their destination would be pushed into a STACK,
- * according to the order of their destination port init the ship's route.
- * Then, the containers in the stack would pop one by one into the ship until there is no space or weight problems.
+ * This module represents a Lifo Algorithm.
+ * That means, according to ship's space constrains, a container with farther destination
+ * will be loaded to lower spot on deck.
+ * First, it unloads containers relative with this port.
+ * Second, it loads containers with destination != this port.
+ * Finally, it loads containers given in input file.
  */
 
 #ifndef SHIP1_LIFO_ALGORITHM_H

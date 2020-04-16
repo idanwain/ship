@@ -3,20 +3,19 @@
 * each port has a:
 * -name
 * -containers:
-*	# to load
+*	# to load:
+*       -priority load
+*       -regular load
 *	# to unload
-* -Instructions:
-*	the number of crane moves executed at this port
+*	# arrived
 *
 *
 *      *******      Functions      ******
 *
-* add_container - adds a container to port's list mentioned (containers to load / unload)
-* remove_container - removes a container from port's list mentioned (containers to load / unload)
-* print_containers - print all containers to load & unload assigned to this port
-* add_instruction - adds +1 to instructions counter for crane move
-* * get_name - returns the name of the port
-* get_containers - returns a list of all the containers assigned to a port
+* void addContainer(Container& container,char command) - adds container to port by the command char.
+* const std::string & get_name() - returns the name of the port.
+* bool operator==(const Port& p) - returns true if this->name == p->name.
+* std::vector<Container>* getContainerVec(char type) - returns pointer to the type vector(load, priority, unload or arrived) of port.
 *
 */
 #ifndef PORT_HEADER
@@ -39,18 +38,13 @@ class Port {
     std::vector<Container> load;
     std::vector<Container> unload;
     std::vector<Container> arrived;
-    int instructions;
 public:
-
     /*C'tor*/
-    Port(const std::string& name) : name(name), instructions(0){}
+    Port(const std::string& name) : name(name){}
     ~Port();
     void addContainer(Container& container,char command);
     const std::string & get_name();
     bool operator==(const Port& p);
-    void getContainersToLoad(std::vector<Container>** vec, char list_category);
-    std::vector<Container>* getContainerVec(const std::string &type);
-
-    void printContainers(); //debugging purpose
+    std::vector<Container>* getContainerVec(char type);
 };
 #endif
