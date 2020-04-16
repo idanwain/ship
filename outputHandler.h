@@ -29,6 +29,14 @@
 #include "stowage_algorithm.h"
 #include "lifo_algorithm.h"
 
+#if defined(WIN32) || defined(_WIN32)
+#define PATH_SEPARATOR "\\"
+#else
+#define PATH_SEPARATOR "/"
+#endif
+
+#define OP_MAIN_DIRECTORY "output"
+
 using std::cout;
 using std::endl;
 using std::string;

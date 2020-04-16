@@ -96,7 +96,8 @@ void createResultsFile(std::map<string,std::list<int>> &output_map,std::vector<s
     std::ofstream inFile;
     int sum = 0,longestName = 0;
     const int spaces = 10;
-    path.append("/simulation.results");
+    path.append(PATH_SEPARATOR);
+    path.append("simulation.results");
     inFile.open(path); //Default mode is writing to a file
     if(inFile.fail()){
         std::cout << "Failed to create results file" << std::endl;
@@ -131,7 +132,8 @@ void createResultsFile(std::map<string,std::list<int>> &output_map,std::vector<s
 void createErrorsFile(vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,std::map<string,std::map<string,list<string>>>& simErrors,string path){
     const string spaces = "     ";//6spaces
     std::ofstream inFile;
-    path.append("/simulation.errors");
+    path.append(PATH_SEPARATOR);
+    path.append("simulation.errors");
     inFile.open(path);
     if(inFile.fail()){
         std::cout << "Failed to create errors file" << std::endl;
@@ -160,16 +162,17 @@ void createErrorsFile(vector<pair<string,list<pair<string,list<string>>>>> &erro
  */
 void createOutputDirectories(std::vector<std::vector<fs::path>> &paths,char* mainDirectory){
     string outputDir(mainDirectory);
+    outputDir.append(PATH_SEPARATOR);
     outputDir.append(OP_MAIN_DIRECTORY);
     fs::path dir(outputDir);
     fs::path root_path(mainDirectory);
     if(!fs::exists(dir) && !fs::create_directory(dir,root_path)){//Case we failed to create output directory.
-        std::cout << "Failed to create output directory, exists program" << std::endl;
+        std::cout << "Failed to create output directory, exits program" << std::endl;
         exit(EXIT_FAILURE);
     }
     for(auto const &list : paths) {
         if (!list.empty()) {
-            string currOutputDir = outputDir + "/" + list[0].parent_path().filename().string() + "Out";
+            string currOutputDir = outputDir + PATH_SEPARATOR + list[0].parent_path().filename().string() + "Out";
             fs::path dir(currOutputDir);
             fs::path root_path(outputDir);
             if (!fs::exists(dir)) {

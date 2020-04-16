@@ -34,7 +34,6 @@ using std::list;
 using std::vector;
 using std::pair;
 namespace fs = std::filesystem;
-#define OP_MAIN_DIRECTORY "/output"
 #define FAIL_TO_READ_PATH "Failed to read from this file path "
 
 
