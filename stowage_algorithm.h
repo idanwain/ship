@@ -23,7 +23,6 @@
 class Algorithm {
     int portNum = 0;
     int instructions = 0;
-    //std::map<std::string, Error> errors; //TODO create a map of containers ID and Error
 
 protected:
     Port* port = nullptr;

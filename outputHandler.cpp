@@ -100,7 +100,7 @@ void createResultsFile(std::map<string,std::list<int>> &output_map,std::vector<s
     path.append("simulation.results");
     inFile.open(path); //Default mode is writing to a file
     if(inFile.fail()){
-        std::cout << "Failed to create results file" << std::endl;
+        std::cerr << "Error: failed to create results file" << std::endl;
         exit(1);
     }
     for(const auto &p : output_map)
@@ -136,7 +136,7 @@ void createErrorsFile(vector<pair<string,list<pair<string,list<string>>>>> &erro
     path.append("simulation.errors");
     inFile.open(path);
     if(inFile.fail()){
-        std::cout << "Failed to create errors file" << std::endl;
+        std::cerr << "Error: failed to create errors file" << std::endl;
         exit(1);
     }
 
@@ -167,7 +167,7 @@ void createOutputDirectories(std::vector<std::vector<fs::path>> &paths,char* mai
     fs::path dir(outputDir);
     fs::path root_path(mainDirectory);
     if(!fs::exists(dir) && !fs::create_directory(dir,root_path)){//Case we failed to create output directory.
-        std::cout << "Failed to create output directory, exits program" << std::endl;
+        std::cerr << "Error: failed to create output directory, exits program" << std::endl;
         exit(EXIT_FAILURE);
     }
     for(auto const &list : paths) {
