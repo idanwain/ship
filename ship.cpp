@@ -195,8 +195,17 @@ void Ship::removeContainer(coordinate coor) {
     freeSpace++;
 }
 
-int Ship::getFreeSpace() {
+int Ship::getFreeSpace() const {
     return freeSpace;
+}
+
+bool Ship::isOnShip(Container &con) {
+    if ( containersByPort.find(con.getDest()) == containersByPort.end() ) {
+        return false;
+    } else {
+        auto pos = std::find(containersByPort[con.getDest()].begin(),containersByPort[con.getDest()].end(), con);
+        return pos != containersByPort[con.getDest()].end();
+    }
 }
 
 /*This function for ex2 purposes*/

@@ -99,10 +99,11 @@ void Lifo_algorithm::loadContainers(char list_category, std::ofstream& output){
     std::sort(load->begin(), load->end());
 
     //cut vector by free space on ship
-    while(ship->getFreeSpace() < (int)load->size()){
-        Algorithm::writeToOutput(output, "R", load->back().getId(), std::forward_as_tuple(-1, -1, -1), std::forward_as_tuple(-1, -1, -1));
-        load->pop_back();
-    }
+    /*for exercise 2*/
+//    while(ship->getFreeSpace() < (int)load->size()){
+//        Algorithm::writeToOutput(output, "R", load->back().getId(), std::forward_as_tuple(-1, -1, -1), std::forward_as_tuple(-1, -1, -1));
+//        load->pop_back();
+//    }
 
     //validate by: data, port is'nt in route, space, weight
     for(auto con = load->end() - 1; !load->empty() && con >= load->begin();--con){
@@ -116,8 +117,9 @@ void Lifo_algorithm::loadContainers(char list_category, std::ofstream& output){
         auto destName = con->getDest()->get_name();
         auto currPortNum = getPortNum();
         bool isInRoute = isPortInRoute(destName, route, currPortNum);
+        bool uniqueIdOnShip = !ship->isOnShip(*con);
 
-        if(validID && isInRoute && found){
+        if(uniqueIdOnShip && validID && isInRoute && found){
             ship->addContainer(*con, coor);
             Algorithm::writeToOutput(output, "L", con->getId(), ship->getCoordinate(*con), std::forward_as_tuple(-1, -1, -1));
             Algorithm::increaseInstructionCounter();

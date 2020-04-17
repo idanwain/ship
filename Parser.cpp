@@ -21,7 +21,7 @@ int getPortNumFile(const string& fileName){
  * @return true iff it's in the right format
  */
 bool isValidPortExpressionFile(const string& fileName){
-    std::regex reg("\\s*[A-Z]{2}\\s+[A-Z]{3}_[1-9]+.[a-z]*");
+    std::regex reg("\\s*[A-Z]{2}\\s+[A-Z]{3}_[1-9]+.[a-z]*_[a-z]*");
     return std::regex_match(fileName, reg);
 }
 
@@ -168,7 +168,7 @@ void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str){
     char* input;
     if(str == "byFile"){
         while(getline(inFile,line)) {
-            if(line.at(0) != '#') break; //comment symbol
+            if(!line.empty() && line.at(0) != '#') break; //comment symbol
         }
         input = strtok(line.data(),delim);
         for(int i = 0; i < 3; i++) {
@@ -201,11 +201,14 @@ void setBlocksByLine(string &str, Ship* &ship) {
         std::cerr << "Error: One of the provided ship plan constraints exceeding the dimensions of the ship, ignoring..." << endl;
         return;
     }
+    else if(!(*map)[dim[0]][dim[1]].empty()){
+        std::cerr << "Error: This constraint at (" << dim[0] << "," << dim[1] <<") already been handled,ignoring..." << endl;
+    }
     else{
         for(int i = 0; i < ship->getAxis("z")-dim[2]; i++){
             (*map)[dim[0]][dim[1]].emplace_back(Block());
+            ship->updateFreeSpace(-1);
         }
-        ship->updateFreeSpace(-(ship->getAxis("z") - dim[2]));
     }
 }
 
@@ -217,7 +220,7 @@ void setBlocksByLine(string &str, Ship* &ship) {
 void extractArgsForBlocks(Ship* &ship, std::istream &inFile) {
     string line;
     while (getline(inFile, line)){
-        if(line.at(0) == '#') continue;
+        if(!line.empty() && line.at(0) == '#') continue;
         setBlocksByLine(line, ship);
     }
 }
@@ -267,7 +270,7 @@ void parseDataFromPortFile(std::map<string,string>& map, string& inputPath){
         return;
     }
     while(getline(inFile,line)){
-        if(line.at(0) == '#')continue;
+        if(!line.empty() && line.at(0) == '#')continue;
         vector<string> parsedInfo = stringSplit(line,delim);
         if(parsedInfo.size() != 4)continue; /*case not enough information or too much*/
         string contID = parsedInfo.at(0);

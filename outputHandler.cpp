@@ -133,7 +133,7 @@ void createResultsFile(std::map<string,list<int>> &output_map,vector<string> &tr
  * @param path - the file path to create the file in
  */
 void createErrorsFile(vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,std::map<string,std::map<string,list<string>>>& simErrors,string path){
-    const int spaces = 6;//6spaces
+    const string spaces = "      ";//6spaces
     std::ofstream inFile;
     path.append(PATH_SEPARATOR);
     path.append("simulation.errors");
@@ -146,12 +146,12 @@ void createErrorsFile(vector<pair<string,list<pair<string,list<string>>>>> &erro
     for(auto &outterPair : errors_vec){//first:string, second:list<pair...
         inFile << outterPair.first << " Errors:" << '\n'; //travel name
         for(pair<string,list<string>> &innerPair : outterPair.second){
-            inFile << std::setw(spaces) << innerPair.first + ":" << '\n';//algorithm name
+            inFile << spaces << innerPair.first + ":" << '\n';//algorithm name
             for(string &msg : innerPair.second){//innerPair.second is type list<string>
-                inFile << std::setw(spaces+spaces) << msg << '\n';
+                inFile << spaces << msg << '\n';
             }
             for(string &simMsg : simErrors[outterPair.first][innerPair.first]){
-                inFile << std::setw(spaces+spaces) << simMsg << '\n';
+                inFile << spaces+spaces << simMsg << '\n';
             }
         }
     }

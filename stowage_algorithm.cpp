@@ -55,7 +55,7 @@ bool  Algorithm::parseDataToPort(const std::string& inputFullPathAndFileName, st
     }
 
     while(getline(input,line)){
-        if (line.at(0) == '#') continue; //comment symbol
+        if (!line.empty() && line.at(0) == '#') continue; //comment symbol
         std::string id; int weight; Port *dest = nullptr;
         VALIDATION reason = VALIDATION::Valid;
         if(validateContainerData(line, reason, id, this->ship)) {
