@@ -29,10 +29,10 @@ std::vector<Port*> Ship::getRoute() {
 
 void Ship::addContainer(Container& container, std::tuple<int,int> coordinate) {
     //containers by port add
-    if(this->containersByPort.find(container.get_dest()) == containersByPort.end()){
-        this->containersByPort.insert({container.get_dest(), std::vector<Container>{container}});
+    if(this->containersByPort.find(container.getDest()) == containersByPort.end()){
+        this->containersByPort.insert({container.getDest(), std::vector<Container>{container}});
     } else {
-        this->containersByPort[container.get_dest()].emplace_back(container);
+        this->containersByPort[container.getDest()].emplace_back(container);
     }
     //ship map add
     shipMap[std::get<0>(coordinate)][std::get<1>(coordinate)].emplace_back(container);
@@ -70,7 +70,6 @@ int Ship::getAxis(const std::string &str) const {
     else if(str == "y") return this->y;
     else if(str == "z") return this->z;
     else return -1;
-
 }
 
 void Ship::getContainersToUnload(Port *pPort, std::vector<Container>** unload) {
@@ -96,8 +95,7 @@ Ship::~Ship() {
         mat.clear();
     }
 
-    for(std::map<Port *, std::vector<Container >>::iterator iter = containersByPort.begin();
-         iter != containersByPort.end(); ++iter) {
+    for(auto iter = containersByPort.begin(); iter != containersByPort.end(); ++iter) {
         Port *port = iter->first;
         delete port;
     }
@@ -112,7 +110,7 @@ void Ship::getCoordinatesToHandle(std::set<coordinate> &coordinates_to_handle, s
 int Ship::getLowestFloorOfRelevantContainer(Port *pPort, coordinate coor){
     int lowest = 0;
     for(Container& con : this->shipMap[std::get<0>(coor)][std::get<1>(coor)]){
-        if(*(con.get_dest()) == (*pPort)){
+        if(con.getId() != "block" && *(con.getDest()) == (*pPort)){
             break;
         }
         ++lowest;
@@ -192,7 +190,7 @@ std::map<Port*,std::vector<Container>>& Ship::getContainersByPort() {
 
 void Ship::removeContainer(coordinate coor) {
     Container* con = &shipMap[std::get<0>(coor)][std::get<1>(coor)].back();
-    containersByPort[con->get_dest()].erase(std::find(containersByPort[con->get_dest()].begin(), containersByPort[con->get_dest()].end(), *con));
+    containersByPort[con->getDest()].erase(std::find(containersByPort[con->getDest()].begin(), containersByPort[con->getDest()].end(), *con));
     shipMap[std::get<0>(coor)][std::get<1>(coor)].pop_back();
     freeSpace++;
 }
@@ -201,6 +199,7 @@ int Ship::getFreeSpace() {
     return freeSpace;
 }
 
+/*This function for ex2 purposes*/
 //std::tuple<int,int> Ship::find_min_floor(){
 //    std::tuple<int, int> min_floor_coor;
 //    size_t min = INT_MAX;

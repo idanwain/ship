@@ -17,12 +17,6 @@ class WeightBalanceCalculator; class Container; class Port;
 #include "WeightBalanceCalculator.h"
 
 typedef std::tuple<int,int> coordinate;
-
-#define ON_BOARD 1
-#define WIDTH
-#define HEIGHT
-#define DEPTH
-
 const char delim[] = {',','\t','\r',' ', '\n'};
 
 class Ship {
@@ -31,9 +25,7 @@ class Ship {
     std::vector<Port*> route;
     WeightBalanceCalculator* calculator = nullptr;
     int freeSpace;
-    int x;
-    int y;
-    int z;
+    int x, y, z;
 public:
     /*given a route of ports, the C'tor parses the containers of any port to a map*/
     Ship(int x, int y, int z) {
@@ -83,31 +75,28 @@ public:
         }
     }
     ~Ship();
-
-    void initContainersByPort(std::vector<Port *> &vector);
-    void setRoute(std::vector<Port*> &route);
-    void initCalc();
-
     std::tuple<int, int, int> getCoordinate(const Container& container);
     std::vector<Port*> getRoute();
     std::vector<std::vector<std::vector<Container>>>* getMap();
     Port* getPortByName(const std::string &name);
-    int getAxis(const std::string& str) const;
     std::map<Port*,std::vector<Container>>& getContainersByPort();
+    void initContainersByPort(std::vector<Port *> &vector);
+    void setRoute(std::vector<Port*> &route);
+    void initCalc();
+    int getAxis(const std::string& str) const;
     void getCoordinatesToHandle(std::set<coordinate> &coordinates_to_handle, std::vector<Container>& containers_to_unload);
     int getLowestFloorOfRelevantContainer(Port *pPort, coordinate coor);
     int getTopFloor(coordinate coor);
     void getColumn(coordinate coor, std::vector<Container>** column);
-    WeightBalanceCalculator* getCalc();
     int getFreeSpace();
     void getContainersToUnload(Port* port, std::vector<Container>** unload);
     bool findColumnToMoveTo(coordinate old_coor, coordinate& new_coor, std::vector<Container>& containersToUnload, int weight);
-
     void findColumnToLoad(coordinate &coor, bool &found, int kg);
     void addContainer(Container& container, std::tuple<int,int> coordinate);
     void removeContainer(coordinate coor);
     void moveContainer(coordinate origin, coordinate dest);
     void updateFreeSpace(int num);
+    WeightBalanceCalculator* getCalc();
 };
 
-#endif // !SHIP_HEADER
+#endif

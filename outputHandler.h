@@ -44,17 +44,17 @@ using std::list;
 using std::vector;
 using std::pair;
 
-void saveResultsInfo(std::map<string,std::list<int>> &results_map,std::vector<Algorithm*> &algVec);
+void saveResultsInfo(std::map<string,list<int>> &results_map,vector<Algorithm*> &algVec);
 list<string> createAlgListOfErrors(Algorithm* alg);
+void createResultsFile(std::map<string,list<int>> &output_map,vector<string> &travels,string path);
+void createOutputDirectories(vector<vector<fs::path>> &paths,char* mainDirectory);
 void saveErrorsInfo(vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,
                     vector<Algorithm *> &algVec,string &travelName);
-void saveOutputInformation(std::map<string,std::list<int>> &results_map,
+void saveOutputInformation(std::map<string,list<int>> &results_map,
                            vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,
                            vector<Algorithm *> &algVec, string &travelName);
-void createResultsFile(std::map<string,std::list<int>> &output_map,std::vector<string> &travels,string path);
 void createErrorsFile(vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,
                       std::map<string,std::map<string,list<string>>> &simErrors,string path);
-void createOutputDirectories(std::vector<std::vector<fs::path>> &paths,char* mainDirectory);
 
 
 #endif

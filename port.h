@@ -11,11 +11,10 @@
 *
 *
 *      *******      Functions      ******
-*
-* void addContainer(Container& container,char command) - adds container to port by the command char.
-* const std::string & get_name() - returns the name of the port.
-* bool operator==(const Port& p) - returns true if this->name == p->name.
-* std::vector<Container>* getContainerVec(char type) - returns pointer to the type vector(load, priority, unload or arrived) of port.
+* addContainer      - adds container to port by the command char.
+* get_name          - returns the name of the port.
+* operator==        - returns true if this->name == p->name.
+* getContainerVec   - returns pointer to the type vector(load, priority, unload or arrived) of port.
 *
 */
 #ifndef PORT_HEADER
@@ -42,6 +41,7 @@ public:
     /*C'tor*/
     Port(const std::string& name) : name(name){}
     ~Port();
+
     void addContainer(Container& container,char command);
     const std::string & get_name();
     bool operator==(const Port& p);

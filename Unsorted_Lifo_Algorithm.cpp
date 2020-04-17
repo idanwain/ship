@@ -37,15 +37,15 @@ void Unsorted_Lifo_Algorithm::unloadContainers(std::ofstream& output){
         for(auto con_iterator = column->end() - 1; !column->empty() && con_iterator >= column->begin();){
             if(con_iterator - column->begin() == lowest_floor - 1) break;
             //container's destination == this port
-            if(*(con_iterator->get_dest()) == *port){
+            if(*(con_iterator->getDest()) == *port){
                 //calculator approved unload --> unload, record & move to next container
-                if(ship->getCalc()->tryOperation('U', con_iterator->get_weight(), std::get<0>(coor), std::get<1>(coor)) == APPROVED){
+                if(ship->getCalc()->tryOperation('U', con_iterator->getWeight(), std::get<0>(coor), std::get<1>(coor)) == APPROVED){
                     unloadSingleContainer(output, *con_iterator, 'A', coor);
                     --con_iterator;
                 }
                 //calculator didnt approved unload --> record & move to next column
                 else{
-                    Algorithm::writeToOutput(output,"R", con_iterator->get_id(), ship->getCoordinate(*con_iterator), std::forward_as_tuple(-1,-1,-1));
+                    Algorithm::writeToOutput(output, "R", con_iterator->getId(), ship->getCoordinate(*con_iterator), std::forward_as_tuple(-1, -1, -1));
                     break; //next column
                 }
             }
@@ -53,24 +53,24 @@ void Unsorted_Lifo_Algorithm::unloadContainers(std::ofstream& output){
             else {
                 coordinate new_spot;
                 //checks weight, space and efficiency.
-                bool found = ship->findColumnToMoveTo(coor, new_spot, *containersToUnload, con_iterator->get_weight());
+                bool found = ship->findColumnToMoveTo(coor, new_spot, *containersToUnload, con_iterator->getWeight());
                 //didn't found a proper coordinate to move the container to
                 if(!found){
                     //if cant move, maybe can at least unload it, calculator approved unload --> unload, record & move to next container
-                    if(ship->getCalc()->tryOperation('U', con_iterator->get_weight(), std::get<0>(coor), std::get<1>(coor)) == APPROVED){
+                    if(ship->getCalc()->tryOperation('U', con_iterator->getWeight(), std::get<0>(coor), std::get<1>(coor)) == APPROVED){
                         unloadSingleContainer(output, *con_iterator, 'P', coor);
                         --con_iterator;
                     }
                     else{
                         //calculator didnt approved unload --> record & move to next column
-                        Algorithm::writeToOutput(output,"R", con_iterator->get_id(), ship->getCoordinate(*con_iterator), std::forward_as_tuple(-1,-1,-1));
+                        Algorithm::writeToOutput(output, "R", con_iterator->getId(), ship->getCoordinate(*con_iterator), std::forward_as_tuple(-1, -1, -1));
                         break; //next column
                     }
                 }
                 //found a proper coordinate to move the container to
                 else {
                     std::tuple<int,int,int> old_coor = ship->getCoordinate(*con_iterator);
-                    std::string id = con_iterator->get_id();
+                    std::string id = con_iterator->getId();
                     ship->moveContainer(coor, new_spot);
                     std::tuple<int,int,int> new_coor(std::get<0>(new_spot),std::get<1>(new_spot),ship->getTopFloor(new_spot) - 1);
                     Algorithm::writeToOutput(output,"M", id, old_coor, new_coor);
@@ -97,14 +97,14 @@ void Unsorted_Lifo_Algorithm::loadContainers(char list_category, std::ofstream& 
     for(auto con = load->end() - 1; !load->empty() && con >= load->begin();--con){
         bool found = false;
         coordinate coor;
-        int weight = con->get_weight();
+        int weight = con->getWeight();
         ship->findColumnToLoad(coor, found, weight);
-        if(validateId(con->get_id()) && isPortInRoute(con->get_dest()->get_name(), ship->getRoute(), getPortNum()) && found){
+        if(validateId(con->getId()) && isPortInRoute(con->getDest()->get_name(), ship->getRoute(), getPortNum()) && found){
             ship->addContainer(*con, coor);
-            Algorithm::writeToOutput(output,"L", con->get_id(), ship->getCoordinate(*con), std::forward_as_tuple(-1,-1,-1));
+            Algorithm::writeToOutput(output, "L", con->getId(), ship->getCoordinate(*con), std::forward_as_tuple(-1, -1, -1));
             Algorithm::increaseInstructionCounter();
         } else {
-            Algorithm::writeToOutput(output,"R", con->get_id(), std::forward_as_tuple(-1,-1,-1), std::forward_as_tuple(-1,-1,-1));
+            Algorithm::writeToOutput(output, "R", con->getId(), std::forward_as_tuple(-1, -1, -1), std::forward_as_tuple(-1, -1, -1));
         }
         load->erase(con);
     }
@@ -116,7 +116,7 @@ const std::string Unsorted_Lifo_Algorithm::getTypeName() const {
 
 void Unsorted_Lifo_Algorithm::unloadSingleContainer(std::ofstream &output,Container& con, char vecType, coordinate coor){
     port->addContainer(con, vecType);
-    Algorithm::writeToOutput(output,"U", con.get_id(), ship->getCoordinate(con), std::forward_as_tuple(-1,-1,-1));
+    Algorithm::writeToOutput(output, "U", con.getId(), ship->getCoordinate(con), std::forward_as_tuple(-1, -1, -1));
     ship->removeContainer(coor);
     Algorithm::increaseInstructionCounter();
 }

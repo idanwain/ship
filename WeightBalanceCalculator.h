@@ -41,4 +41,4 @@ public:
 };
 
 
-#endif //SHIP1_WEIGHTBALANCECALCULATOR_H
+#endif

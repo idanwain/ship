@@ -6,7 +6,7 @@
  * @param results_map - the data structure to save on the information
  * @param algVec - the algorithms that been tested in the simulation
  */
-void saveResultsInfo(std::map<string,std::list<int>> &results_map,std::vector<Algorithm*> &algVec){
+void saveResultsInfo(std::map<string,list<int>> &results_map,vector<Algorithm*> &algVec){
     for(Algorithm* alg : algVec){
         int num = alg->getInstructionsCounter();
         string name = alg->getTypeName();
@@ -22,15 +22,15 @@ void saveResultsInfo(std::map<string,std::list<int>> &results_map,std::vector<Al
 }
 
 /**
- * This function saves all the error occured in an algorithm into a list and returns it
- * errors exists in all ports that have containers left in thier dock, and on the ship
+ * This function saves all the error occurred in an algorithm into a list and returns it
+ * errors exists in all ports that have containers left in their dock, and on the ship
  * @param alg - the algorithm to extract the errors from
  * @return - list of strings , each string is an informative error message
  */
 list<string> createAlgListOfErrors(Algorithm* alg){
     auto route = alg->getShip()->getRoute();
     std::set<string> visitedPorts;
-    std::list<string> res;
+    list<string> res;
     string msg;
     /*Iterate on every port in the travel route, on each port check for any container left in it's dock*/
     for(Port* p : route){
@@ -38,19 +38,19 @@ list<string> createAlgListOfErrors(Algorithm* alg){
         visitedPorts.emplace(p->get_name());
         vector<Container> containers_vec = *(p->getContainerVec('L'));
         for(Container &cont : containers_vec){
-            msg = "Error: container id: " + cont.get_id();
-            if(cont.get_dest()->get_name() == "NOT_IN_ROUTE")
+            msg = "Error: container id: " + cont.getId();
+            if(cont.getDest()->get_name() == "NOT_IN_ROUTE")
                 msg += " is not in ship's route";
             else
-                msg += ", destPort: " + cont.get_dest()->get_name() + ", currPort: " + p->get_name();
+                msg += ", destPort: " + cont.getDest()->get_name() + ", currPort: " + p->get_name();
             res.emplace_back(msg);
         }
     }
     /*Iterate over the containers that left on the shipMap at the end of the travel*/
     for(const auto &pair: alg->getShip()->getContainersByPort()){
-        std::vector<Container> vec = pair.second;
+        vector<Container> vec = pair.second;
         for(Container &cont : vec){
-            msg = "Error: container id: " + cont.get_id() + ", destPort: " + cont.get_dest()->get_name()
+            msg = "Error: container id: " + cont.getId() + ", destPort: " + cont.getDest()->get_name()
                   + " on ship";
             res.emplace_back(msg);
         }
@@ -78,7 +78,7 @@ void saveErrorsInfo(vector<pair<string,list<pair<string,list<string>>>>> &errors
  * @param algVec - list of algorithms tested on
  * @param travelName - list of travel names tested on
  */
-void saveOutputInformation(std::map<string,std::list<int>> &results_map,
+void saveOutputInformation(std::map<string,list<int>> &results_map,
                            vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,
                            vector<Algorithm *> &algVec, string &travelName){
 
@@ -92,23 +92,26 @@ void saveOutputInformation(std::map<string,std::list<int>> &results_map,
  * @param travels - list of travel names
  * @param path - the file path to create the file in
  */
-void createResultsFile(std::map<string,std::list<int>> &output_map,std::vector<string> &travels,string path){
+void createResultsFile(std::map<string,list<int>> &output_map,vector<string> &travels,string path){
     std::ofstream inFile;
     int sum = 0,longestName = 0;
     const int spaces = 10;
     path.append(PATH_SEPARATOR);
     path.append("simulation.results");
+
     inFile.open(path); //Default mode is writing to a file
     if(inFile.fail()){
         std::cerr << "Error: failed to create results file" << std::endl;
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     for(const auto &p : output_map)
         longestName = std::max(longestName,(int)p.first.size());
+
     inFile << "RESULTS" << std::setw(longestName - 7 + spaces);/*results length is 7*/
     for(string &travel_name : travels)
         inFile << travel_name << std::setw(spaces);
     inFile << "Sum" << '\n';
+
     //iterate over the algorithm names and iterate over them, note that p is a pair<string,list<int>>
     for(const auto &p : output_map){
         sum = 0;
@@ -130,25 +133,25 @@ void createResultsFile(std::map<string,std::list<int>> &output_map,std::vector<s
  * @param path - the file path to create the file in
  */
 void createErrorsFile(vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,std::map<string,std::map<string,list<string>>>& simErrors,string path){
-    const string spaces = "     ";//6spaces
+    const int spaces = 6;//6spaces
     std::ofstream inFile;
     path.append(PATH_SEPARATOR);
     path.append("simulation.errors");
     inFile.open(path);
     if(inFile.fail()){
         std::cerr << "Error: failed to create errors file" << std::endl;
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     for(auto &outterPair : errors_vec){//first:string, second:list<pair...
         inFile << outterPair.first << " Errors:" << '\n'; //travel name
         for(pair<string,list<string>> &innerPair : outterPair.second){
-            inFile << spaces << innerPair.first + ":" << '\n';//algorithm name
+            inFile << std::setw(spaces) << innerPair.first + ":" << '\n';//algorithm name
             for(string &msg : innerPair.second){//innerPair.second is type list<string>
-                inFile << spaces+spaces << msg << '\n';
+                inFile << std::setw(spaces+spaces) << msg << '\n';
             }
             for(string &simMsg : simErrors[outterPair.first][innerPair.first]){
-                inFile << spaces+spaces << simMsg << '\n';
+                inFile << std::setw(spaces+spaces) << simMsg << '\n';
             }
         }
     }
