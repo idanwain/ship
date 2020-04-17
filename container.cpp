@@ -1,15 +1,15 @@
 #include "port.h"
 #include "container.h"
 
-int Container::get_weight() {
+int Container::getWeight() {
 	return weight;
 }
 
-std::string Container::get_id() {
+std::string Container::getId() {
 	return id;
 }
 
-Port*  Container::get_dest() {
+Port*  Container::getDest() {
 	return destination;
 }
 
@@ -24,7 +24,7 @@ std::ostream& operator<<(std::ostream& os, const Container& c)
 }
 
 bool Container::operator ==(const Container& c) {
-    return this->get_id() == c.id;
+    return this->getId() == c.id;
 }
 
 bool Container::operator!=(const Container& c) {

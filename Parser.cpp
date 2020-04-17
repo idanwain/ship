@@ -38,11 +38,11 @@ bool isValidTravelName(const string& travelName){
 /**
  * This function "sort" the given list of directories such that -
  * first file in a sub folder list is ship_plan,second file is ship_route,then put the port_num files in order
- * @param unOrdered - the unOrderd paths
+ * @param unOrdered - the unOrdered paths
  * @return ordered paths
  */
-std::vector<std::vector<fs::path>> orderListOfDir(std::list<std::list<fs::path>> &unOrdered){
-    std::vector<std::vector<fs::path>> result(unOrdered.size());
+vector<vector<fs::path>> orderListOfDir(list<list<fs::path>> &unOrdered){
+    vector<vector<fs::path>> result(unOrdered.size());
     int ind = 0;
     int numFile = 0;
     string file_name;
@@ -80,16 +80,16 @@ std::vector<std::vector<fs::path>> orderListOfDir(std::list<std::list<fs::path>>
  * @param path - the path of the main directory that includes all travels sub folders
  * @param vecOfPaths - the vectors of paths to save the information
  */
-void initListDirectories(string &path,std::vector<std::vector<fs::path>> &vecOfPaths) {
+void initListDirectories(string &path,vector<vector<fs::path>> &vecOfPaths) {
     string msg = " only sub folders allowed in main folder, file won't be included in the program";
-    std::list<std::list<fs::path>> unOrderedList;
+    list<list<fs::path>> unOrderedList;
     for (const auto &entry : fs::directory_iterator(path)) {
         if (!entry.is_directory()) {
             std::cerr << "Error: "  << entry.path().filename().string()  << msg << std::endl;
             continue;
         }
         if(!isValidTravelName(entry.path().filename().string())) continue;
-        unOrderedList.emplace_back(std::list<fs::path>());
+        unOrderedList.emplace_back(list<fs::path>());
         for (const auto &deep_entry : fs::directory_iterator(entry.path())) {
             unOrderedList.back().emplace_back((deep_entry.path()));
         }
@@ -128,7 +128,7 @@ void validateSequenceDirectories(vector<vector<fs::path>> &direct) {
  * @post vec[i][vec[i].size()-1] != empty for every i=0..direct.size()-1
  * @param direct
  */
-void setActualSize(std::vector<std::vector<fs::path>> &direct){
+void setActualSize(vector<vector<fs::path>> &direct){
     for(size_t i = 0; i < direct.size(); i++){
         for(size_t j = direct[i].size()-1; !direct[i].empty() && j > 0; j--){
             if(!direct[i][j].empty()){
@@ -147,7 +147,7 @@ void setActualSize(std::vector<std::vector<fs::path>> &direct){
  * @param str - the string of the port to be check
  * @return 0 iff exist already port with same name
  */
-int portAlreadyExist(std::vector<Port*> &vec,string &str){
+int portAlreadyExist(vector<Port*> &vec,string &str){
     for(const auto &element : vec ){
         if(element->get_name() == str){
             vec.emplace_back(element);
@@ -192,13 +192,13 @@ void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str){
  * @param str - the string to parse
  * @param ship - the ship to get it's map from.
  */
-void setBlocksByLine(std::string &str, Ship* &ship) {
+void setBlocksByLine(string &str, Ship* &ship) {
     auto map = ship->getMap();
     std::ifstream inFile;
     std::array<int,3> dim{};
     getDimensions(dim,inFile,str);
     if(dim[0] > ship->getAxis("x") || dim[1] > ship->getAxis("y") || dim[2] > ship->getAxis("z")){
-        cout << "Error: One of the provided ship plan constraints exceeding the dimensions of the ship, ignoring..." << endl;
+        std::cerr << "Error: One of the provided ship plan constraints exceeding the dimensions of the ship, ignoring..." << endl;
         return;
     }
     else{
@@ -227,11 +227,11 @@ void extractArgsForBlocks(Ship* &ship, std::istream &inFile) {
  * @param folder - the folder that contains ship_route, ship_plan files
  * @return the constructed ship iff folder is not empty.
  */
-Ship* extractArgsForShip(std::vector<fs::path> &folder) {
+Ship* extractArgsForShip(vector<fs::path> &folder) {
     std::ifstream inFile;
     string line, file_path;
     std::array<int, 3> dimensions{};
-    std::vector<Port *> travelRoute;
+    vector<Port *> travelRoute;
     Ship* ship = nullptr;
     if(folder.empty()) return nullptr;
     for (int i = 0; i < 2; i++) {
@@ -242,7 +242,7 @@ Ship* extractArgsForShip(std::vector<fs::path> &folder) {
             return nullptr;
         } else if (i == 0) {
             getDimensions(dimensions, inFile,"byFile");
-            ship = new Ship(dimensions[0], dimensions[1], dimensions[2]);
+            ship = new Ship(dimensions[0]+1, dimensions[1]+1, dimensions[2]+1);
             extractArgsForBlocks(ship, inFile);
         } else {
             extractTravelRoute(ship, inFile);
@@ -250,8 +250,6 @@ Ship* extractArgsForShip(std::vector<fs::path> &folder) {
         inFile.close();
     }
     ship->initCalc();
-    auto route = ship->getRoute();
-
     return ship;
 }
 

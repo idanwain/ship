@@ -30,12 +30,12 @@
 enum class VALIDATION {InvalidID, ExistID, InvalidPort, Valid};
 
 void execute(Ship* ship, char command,Container* container, coordinate origin, coordinate dest);
-bool validateContainerData(const std::string& line, VALIDATION& reason, std::string& id, Ship* ship);
+bool validateContainerData(const string& line, VALIDATION& reason, string& id, Ship* ship);
 bool isNumber(const std::string& s);
-bool isValidPortName(const std::string& portName);
-bool validateId(const std::string& str);
-bool idExistOnShip(const std::string& id, Ship* ship);
-bool isPortInRoute(string portName, const std::vector<Port*>& route, int portNum);
+bool isValidPortName(const string& portName);
+bool validateId(const string& str);
+bool idExistOnShip(const string& id, Ship* ship);
+bool isPortInRoute(string portName, const vector<Port*>& route, int portNum);
 void validateAlgorithm(string &outputPath, string &inputPath, Ship* simShip, int portNumber, list<string>& currAlgErrors);
 bool validateInstruction(string &instruction,string &id,vector<int> &coordinates,Ship* ship,std::map<string,string> &portContainers,int portNum);
 bool validateLoadInstruction(vector<int> &coordinates,Ship* ship);
@@ -44,6 +44,6 @@ bool validateMoveInstruction(vector<int> &coordinates, vector<vector<vector<Cont
 bool validateRejectInstruction(std::map<string,string>& portContainers, string& id,Ship* ship,int portNum);
 void extractTravelRoute(Ship* &ship, std::istream &inFile);
 void extractCraneInstruction(string &toParse, std::pair<string,string>& instruction, vector<int> &coordinates);
-std::vector<std::string> stringSplit(std::string s, const char* delimiter);
+vector<string> stringSplit(string s, const char* delimiter);
 
 #endif

@@ -15,6 +15,7 @@ void execute(Ship* ship, char command, Container* container, coordinate origin, 
             break;
         case 'U':
             ship->removeContainer(origin);
+            delete container;
             break;
         case 'M':
             ship->moveContainer(origin, dest);
@@ -121,6 +122,7 @@ bool validateInstruction(string &instruction,string &id, vector<int> &coordinate
 
 /**
  * This function validates reject crane instruction given by the algorithm
+ * @pre assuming this function can't be reached if it's the last port in the route validation
  * @param portContainers - this list contains the current port file data(raw data)
  * @param id - the container id we want to check why rejected
  * @param ship - to get the ship map
@@ -168,7 +170,7 @@ bool validateUnloadInstruction(vector<int> &coordinates,Ship* ship){
     auto map = ship->getMap();
     if((x < 0 || x > ship->getAxis("x")) && (y < 0 || y > ship->getAxis("y"))) return false;
     else if((int)(*map).at(x).at(y).size() != z+1) return false;
-    else if((*map).at(x).at(y).at(z).get_id() == "block") return false;
+    else if((*map).at(x).at(y).at(z).getId() == "block") return false;
     /*if z is not the top floor available container then we can't unload from this position
       if position (x,y,z) at map is block container then we can't move them*/
     /*else if(check weight calculator)
@@ -337,7 +339,7 @@ bool idExistOnShip(const std::string& id, Ship* ship){
     auto map = ship->getContainersByPort();
     for(auto & pPort : map){
         for(auto con_it : pPort.second) {
-            if(con_it.get_id() == id){
+            if(con_it.getId() == id){
                 return true;
             }
         }

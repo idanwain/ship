@@ -12,15 +12,14 @@
 *   distance from its closest destination port; if port is not in route, distanceFromDest == INT_MAX
 *
 *      *******      Functions      ******
-*
-* get_weight - returns the weight of the container.
-* get_id - return the ID of the container.
-* get_dest - returns a pointer to the container's destination port.
-* operator<< - returns an ostream that describes the container.
-* bool operator== - return true if both IDs are equal, false otherwise.
-* bool operator!= - return !(operator==).
-* bool operator < - return true if this->distanceToDest is less then other->distanceToDest, false otherwise.
-* void setDistance - sets distanceFromDest.
+* getWeight         - returns the weight of the container.
+* getId             - return the ID of the container.
+* getDest           - returns a pointer to the container's destination port.
+* operator<<        - returns an ostream that describes the container.
+* bool operator==   - return true if both IDs are equal, false otherwise.
+* bool operator!=   - return !(operator==).
+* bool operator <   - return true if this->distanceToDest is less then other->distanceToDest, false otherwise.
+* void setDistance  - sets distanceFromDest.
 *
 */
 
@@ -61,11 +60,11 @@ public:
 	    this->distanceFromDest = contToCopy->distanceFromDest;
 	}
 
-	Container(const std::string& id1): id(id1), weight(-1), source(nullptr), destination(nullptr){}
-    ~Container();
-	int get_weight();
-	std::string get_id();
-	Port* get_dest();
+	Container(const std::string& id1): id(id1), weight(-1), source(nullptr), destination(nullptr),distanceFromDest(-1){}
+    virtual ~Container();
+	int getWeight();
+	std::string getId();
+	Port* getDest();
     friend std::ostream& operator<<(std::ostream& os, const Container& c);
 	bool operator==(const Container& c);
 	bool operator!=(const Container& c);
@@ -74,9 +73,12 @@ public:
 
 };
 
+/*Block is a sub class of Container class, this should be used only for setting the ship
+ * map at the initialization*/
 class Block : public Container{
 public:
     explicit Block(const std::string &id1 = "block") : Container(id1){}
+    ~Block() override= default;
 };
 
-#endif // !1
+#endif
