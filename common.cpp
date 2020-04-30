@@ -127,7 +127,7 @@ bool validateInstruction(string &instruction,string &id, vector<int> &coordinate
  * @param id - the container id we want to check why rejected
  * @param ship - to get the ship map
  * @param portNum - the current port number
- * @return true iff one of the tests failed
+ * @return true iff one of the tests failes
  */
 bool validateRejectInstruction(std::map<string,string>& portContainers, string& id,Ship* ship,int portNum){
     string line = portContainers[id];
@@ -137,9 +137,9 @@ bool validateRejectInstruction(std::map<string,string>& portContainers, string& 
     bool test1 = !validateContainerData(line,reason,id,ship);
     bool test3 = (ship->getRoute().at(portNum)->get_name() == portName);
     bool test2 = !isPortInRoute(portName,ship->getRoute(),portNum);
+    bool test4 = ship->getFreeSpace() == 0; /*if != 0 that means this test didn't passed --> reject at this test failed*/
     /*if one of the test fails, that means --> that reject at this instruction is necessary*/
-    return (test1 || test2 || test3);
-
+    return (test1 || test2 || test3 || test4);
 }
 
 /**
@@ -250,7 +250,7 @@ bool validateContainerData(const std::string& line, VALIDATION& reason, std::str
  * @return true iff it's valid port name
  */
 bool isValidPortName(const std::string& portName){
-    std::regex reg("\\s*[A-Z]{2}\\s+[A-Z]{3}\\s*");
+    std::regex reg("\\s*[A-Za-z]{5}\\s*");
     return std::regex_match(portName, reg);
 }
 /**
@@ -373,7 +373,7 @@ bool isPortInRoute(std::string portName, const std::vector<Port*>& route, int po
  * @param ship
  * @param inFile
  */
-void extractTravelRoute(Ship* &ship, std::istream &inFile) {
+void extractTravelRoute(Ship* &ship, std::istream &inFile,list<string> &generalErrors) {
     std::vector<Port *> *vec = new std::vector<Port *>();
     string line;
     while (getline(inFile, line)) {
@@ -382,7 +382,10 @@ void extractTravelRoute(Ship* &ship, std::istream &inFile) {
             if(iscntrl(line[line.length() - 1])){
                 line = line.substr(0, line.length() - 1);
             }
-            if (!portAlreadyExist(*vec, line)) {
+            if(vec->at(vec->size()-1) && vec->at(vec->size()-1)->get_name() == line){
+                generalErrors.emplace_back("Port " + line + " 2 or more consecutive times");
+            }
+            else if (!portAlreadyExist(*vec, line)) {
                 Port *p1 = new Port(line);
                 vec->emplace_back(p1);
             }

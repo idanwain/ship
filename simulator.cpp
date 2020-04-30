@@ -61,8 +61,10 @@ int main(int argc, char** argv) {
     createOutputDirectories(directories, argv[1]);
     /*Cartesian Loop*/
     for (auto &travel_folder : directories) {
-        Ship* mainShip = extractArgsForShip(travel_folder);
-        if(mainShip == nullptr) continue; /* can happen if either route/map files are erroneous*/
+        list<string> currTravelGeneralErrors;
+        Ship* mainShip = extractArgsForShip(travel_folder,currTravelGeneralErrors);
+        if(mainShip == nullptr)
+            continue; /* can happen if either route/map files are erroneous*/
         string currTravel = travel_folder.at(0).parent_path().filename().string();
         travelNames.push_back(currTravel);
         initAlgorithmList(algVec, mainShip);

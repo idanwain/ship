@@ -48,7 +48,7 @@ public:
         x = shipToCopy->getAxis("x");
         y = shipToCopy->getAxis("y");
         z = shipToCopy->getAxis("z");
-        freeSpace = x*y*z;
+        freeSpace = shipToCopy->getFreeSpace();
         calculator = shipToCopy->calculator;
         this->shipMap.resize(x);
         for(int i = 0; i < x; i++){
@@ -88,7 +88,7 @@ public:
     int getLowestFloorOfRelevantContainer(Port *pPort, coordinate coor);
     int getTopFloor(coordinate coor);
     void getColumn(coordinate coor, std::vector<Container>** column);
-    int getFreeSpace();
+    int getFreeSpace() const;
     void getContainersToUnload(Port* port, std::vector<Container>** unload);
     bool findColumnToMoveTo(coordinate old_coor, coordinate& new_coor, std::vector<Container>& containersToUnload, int weight);
     void findColumnToLoad(coordinate &coor, bool &found, int kg);
@@ -96,8 +96,9 @@ public:
     void removeContainer(coordinate coor);
     void moveContainer(coordinate origin, coordinate dest);
     void updateFreeSpace(int num);
+    bool isOnShip(Container &con);
     WeightBalanceCalculator* getCalc();
-    bool isOnShip(Container& con);
+
 };
 
 #endif

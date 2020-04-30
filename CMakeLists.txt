@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
-project(ship1)
+project(ship3)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(GCC_COVERAGE_COMPILE_FLAGS "-std=c++2a -Wall -Wextra -pedantic-errors -DNDEBUG")
 set(GCC_COVERAGE_LINK_FLAGS    "-lstdc++fs")
 
@@ -9,7 +9,7 @@ add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
 
 include_directories(.)
 
-add_executable(ship1
+add_executable(ship3
         container.cpp
         container.h
         port.cpp

@@ -7,7 +7,7 @@
  * @return the number
  */
 int getPortNumFile(const string& fileName){
-    if(fileName.size() < 6) return 0;
+    if(fileName.size() < 5) return 0;
     int dot = fileName.find(".");
     int dash = fileName.find("_") + 1;
     string numPort = fileName.substr(dash, dot - dash);
@@ -21,7 +21,7 @@ int getPortNumFile(const string& fileName){
  * @return true iff it's in the right format
  */
 bool isValidPortExpressionFile(const string& fileName){
-    std::regex reg("\\s*[A-Z]{2}\\s+[A-Z]{3}_[1-9]+.[a-z]*");
+    std::regex reg("[A-Za-z]{5}_[1-9]+.cargo_data");
     return std::regex_match(fileName, reg);
 }
 
@@ -31,7 +31,7 @@ bool isValidPortExpressionFile(const string& fileName){
  * @return true iff it's in the right format
  */
 bool isValidTravelName(const string& travelName){
-    std::regex reg("Travel[1-9]*");
+    std::regex reg("Travel[1-9]+");
     return std::regex_match(travelName, reg);
 }
 
@@ -46,9 +46,9 @@ vector<vector<fs::path>> orderListOfDir(list<list<fs::path>> &unOrdered){
     int ind = 0;
     int numFile = 0;
     string file_name;
-    for(auto &list : unOrdered){
+    for(auto &list : unOrdered){/*Each list is a Travel folder containing cargo_data route, map etc..*/
         result[ind].resize(list.size());
-        for(auto &path : list){
+        for(auto &path : list){/*path is a file in a Travel folder*/
             file_name = path.filename().string();
             if(file_name == "ship_plan.txt"){
                 result[ind][0] = path;
@@ -59,7 +59,7 @@ vector<vector<fs::path>> orderListOfDir(list<list<fs::path>> &unOrdered){
             else if(isValidPortExpressionFile(file_name)){
                 numFile = getPortNumFile(file_name)+1; //as 0,1 places are for plan and route.
                 if(!result[ind][numFile].empty()){
-                    std::cerr << "Error: there's already another port file with this number" << std::endl;
+                    std::cerr << "Error: there's already another port file with this number, ignoring later one" << std::endl;
                 }
                 else{
                     result[ind][numFile] = path;
@@ -95,7 +95,8 @@ void initListDirectories(string &path,vector<vector<fs::path>> &vecOfPaths) {
         }
     }
     vecOfPaths = orderListOfDir(unOrderedList);
-    validateSequenceDirectories(vecOfPaths);
+    setActualSize(vecOfPaths);
+    //validateSequenceDirectories(vecOfPaths);
 }
 
 /**
@@ -164,11 +165,12 @@ int portAlreadyExist(vector<Port*> &vec,string &str){
  * @param str - byFile means we parse from file, otherwise parse from the str itself
  */
 void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str){
+    //TODO need to check if the input is a number, might be symbols, idan made a function need to ask
     string line;
     char* input;
     if(str == "byFile"){
         while(getline(inFile,line)) {
-            if(line.at(0) != '#') break; //comment symbol
+            if(!line.empty() && line.at(0) != '#') break; //comment symbol
         }
         input = strtok(line.data(),delim);
         for(int i = 0; i < 3; i++) {
@@ -191,22 +193,27 @@ void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str){
  * will be initialized to be block container.
  * @param str - the string to parse
  * @param ship - the ship to get it's map from.
+ * @param lineNumber - current line number reading from file optional --> algorithm might
+ * @return returns empty string iff no error happened
  */
-void setBlocksByLine(string &str, Ship* &ship) {
+string setBlocksByLine(string &str, Ship* &ship,int lineNumber) {
     auto map = ship->getMap();
     std::ifstream inFile;
     std::array<int,3> dim{};
     getDimensions(dim,inFile,str);
     if(dim[0] > ship->getAxis("x") || dim[1] > ship->getAxis("y") || dim[2] > ship->getAxis("z")){
-        std::cerr << "Error: One of the provided ship plan constraints exceeding the dimensions of the ship, ignoring..." << endl;
-        return;
+        return "Error: at line number " + std::to_string(lineNumber) + " One of the provided ship plan constraints exceeding the dimensions of the ship,ignoring";
+    }
+    else if(!(*map)[dim[0]][dim[1]].empty()){
+        return "Error: at line number " + std::to_string(lineNumber) + " constraint at (" +std::to_string(dim[0]) + ","+ std::to_string(dim[1]) +") already given,ignoring...";
     }
     else{
         for(int i = 0; i < ship->getAxis("z")-dim[2]; i++){
             (*map)[dim[0]][dim[1]].emplace_back(Block());
+            ship->updateFreeSpace(-1);
         }
-        ship->updateFreeSpace(-(ship->getAxis("z") - dim[2]));
     }
+    return "";
 }
 
 /**
@@ -214,11 +221,18 @@ void setBlocksByLine(string &str, Ship* &ship) {
  * @param ship - the ship object to get it's shipMap and update it
  * @param inFile - the file pointer
  */
-void extractArgsForBlocks(Ship* &ship, std::istream &inFile) {
+void extractArgsForBlocks(Ship* &ship, std::istream &inFile,list<string> &generalErrors){
     string line;
+    int lineNumber = 2;
     while (getline(inFile, line)){
-        if(line.at(0) == '#') continue;
-        setBlocksByLine(line, ship);
+        if(!line.empty() && line.at(0) == '#') {
+            lineNumber++;
+            continue;
+        }
+        string error = setBlocksByLine(line, ship,lineNumber);
+        if(!error.empty())
+            generalErrors.emplace_back(error);
+        lineNumber++;
     }
 }
 /**
@@ -227,7 +241,7 @@ void extractArgsForBlocks(Ship* &ship, std::istream &inFile) {
  * @param folder - the folder that contains ship_route, ship_plan files
  * @return the constructed ship iff folder is not empty.
  */
-Ship* extractArgsForShip(vector<fs::path> &folder) {
+Ship* extractArgsForShip(vector<fs::path> &folder,list<string> &generalErrors) {
     std::ifstream inFile;
     string line, file_path;
     std::array<int, 3> dimensions{};
@@ -242,10 +256,14 @@ Ship* extractArgsForShip(vector<fs::path> &folder) {
             return nullptr;
         } else if (i == 0) {
             getDimensions(dimensions, inFile,"byFile");
+            if(dimensions[0] < 0 || dimensions[1] < 0 || dimensions[2] < 0) {
+                generalErrors.emplace_back("Error: one of the ship map dimensions is negative");
+                return nullptr;
+            }
             ship = new Ship(dimensions[0]+1, dimensions[1]+1, dimensions[2]+1);
-            extractArgsForBlocks(ship, inFile);
+            extractArgsForBlocks(ship, inFile,generalErrors);
         } else {
-            extractTravelRoute(ship, inFile);
+            extractTravelRoute(ship, inFile,generalErrors);
         }
         inFile.close();
     }
@@ -267,7 +285,7 @@ void parseDataFromPortFile(std::map<string,string>& map, string& inputPath){
         return;
     }
     while(getline(inFile,line)){
-        if(line.at(0) == '#')continue;
+        if(!line.empty() && line.at(0) == '#')continue;
         vector<string> parsedInfo = stringSplit(line,delim);
         if(parsedInfo.size() != 4)continue; /*case not enough information or too much*/
         string contID = parsedInfo.at(0);

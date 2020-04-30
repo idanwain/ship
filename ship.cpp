@@ -195,7 +195,7 @@ void Ship::removeContainer(coordinate coor) {
     freeSpace++;
 }
 
-int Ship::getFreeSpace() {
+int Ship::getFreeSpace() const {
     return freeSpace;
 }
 
