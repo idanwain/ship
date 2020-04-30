@@ -35,6 +35,9 @@ using std::vector;
 using std::pair;
 namespace fs = std::filesystem;
 #define FAIL_TO_READ_PATH "Failed to read from this file path "
+#define FAIL_TO_READ_PATH_CODE 7
+#define NEGETIVE_DIMENSION_PARAM 6
+
 
 
 int getPortNumFile(const string& fileName);
@@ -44,9 +47,10 @@ void initListDirectories(string &path,std::vector<std::vector<fs::path>> &vecOfP
 void validateSequenceDirectories(std::vector<std::vector<fs::path>> &direct);
 bool isValidTravelName(const string& travelName);
 void setActualSize(std::vector<std::vector<fs::path>> &direct);
-Ship* extractArgsForShip(vector<fs::path> &folder,list<string> &generalErrors);
-void extractArgsForBlocks(Ship* &ship, std::istream &inFile,list<string> &generalErrors);
-string setBlocksByLine(std::string &str, Ship* &ship,int lineNumber);
+std::unique_ptr<Ship> extractArgsForShip(vector<fs::path> &folder,list<string> &generalErrors);
+int extractArgsForBlocks(std::unique_ptr<Ship>& ship, const std::string& file_path,list<string> &generalErrors);
+int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const std::string& filePath);
+string setBlocksByLine(std::string &str, std::unique_ptr<Ship> &ship,int lineNumber);
 void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str);
 int portAlreadyExist(std::vector<Port*> &vec,string &str);
 void parseDataFromPortFile(std::map<string,string>& map, string &inputPath);

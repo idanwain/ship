@@ -35,14 +35,15 @@ bool isNumber(const std::string& s);
 bool isValidPortName(const string& portName);
 bool validateId(const string& str);
 bool idExistOnShip(const string& id, Ship* ship);
-bool isPortInRoute(string portName, const vector<Port*>& route, int portNum);
+bool isPortInRoute(const string& portName, const vector<Port*>& route, int portNum);
 void validateAlgorithm(string &outputPath, string &inputPath, Ship* simShip, int portNumber, list<string>& currAlgErrors);
 bool validateInstruction(string &instruction,string &id,vector<int> &coordinates,Ship* ship,std::map<string,string> &portContainers,int portNum);
 bool validateLoadInstruction(vector<int> &coordinates,Ship* ship);
 bool validateUnloadInstruction(vector<int> &coordinates,Ship* ship);
 bool validateMoveInstruction(vector<int> &coordinates, vector<vector<vector<Container>>>& map);
 bool validateRejectInstruction(std::map<string,string>& portContainers, string& id,Ship* ship,int portNum);
-void extractTravelRoute(Ship* &ship, std::istream &inFile,list<string> &generalErrors);
+int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,list<string> &generalErrors);
+int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath);
 void extractCraneInstruction(string &toParse, std::pair<string,string>& instruction, vector<int> &coordinates);
 vector<string> stringSplit(string s, const char* delimiter);
 

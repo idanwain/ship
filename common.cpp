@@ -356,7 +356,7 @@ bool idExistOnShip(const std::string& id, Ship* ship){
  * @param portNum
  * @return true iff it's in the following route
  */
-bool isPortInRoute(std::string portName, const std::vector<Port*>& route, int portNum) {
+bool isPortInRoute(const std::string& portName, const std::vector<Port*>& route, int portNum) {
     bool found = false;
     for(auto port_it = route.begin() + portNum + 1; port_it != route.end(); ++port_it){
         if(((*port_it)->get_name()) == portName){
@@ -373,23 +373,44 @@ bool isPortInRoute(std::string portName, const std::vector<Port*>& route, int po
  * @param ship
  * @param inFile
  */
-void extractTravelRoute(Ship* &ship, std::istream &inFile,list<string> &generalErrors) {
-    std::vector<Port *> *vec = new std::vector<Port *>();
+int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,list<string> &generalErrors) {
+    std::vector<Port *> *vec = new std::vector<Port *>(); //TODO change to smart pointer
     string line;
-    while (getline(inFile, line)) {
-        if (line.at(0) == '#') continue; //comment symbol
-        else if (isValidPortName(line)) {
-            if(iscntrl(line[line.length() - 1])){
-                line = line.substr(0, line.length() - 1);
-            }
-            if(vec->at(vec->size()-1) && vec->at(vec->size()-1)->get_name() == line){
-                generalErrors.emplace_back("Port " + line + " 2 or more consecutive times");
-            }
-            else if (!portAlreadyExist(*vec, line)) {
-                Port *p1 = new Port(line);
-                vec->emplace_back(p1);
+    std::ifstream inFile;
+    int returnStatement = 0;
+
+    inFile.open(filePath);
+    if (inFile.fail()) {
+        std::cerr << FAIL_TO_READ_PATH + filePath << endl;
+        returnStatement = FAIL_TO_READ_PATH_CODE;
+    }
+    else {
+        while (getline(inFile, line)) {
+            if (line.at(0) == '#') continue; //comment symbol
+            else if (isValidPortName(line)) {
+                if(iscntrl(line[line.length() - 1])){
+                    line = line.substr(0, line.length() - 1);
+                }
+                if(vec->at(vec->size()-1) && vec->at(vec->size()-1)->get_name() == line){
+                    generalErrors.emplace_back("Port " + line + " 2 or more consecutive times");
+                }
+                else if (!portAlreadyExist(*vec, line)) {
+                    Port *p1 = new Port(line);
+                    vec->emplace_back(p1);
+                }
             }
         }
+        ship->setRoute(*vec);
     }
-    ship->setRoute(*vec);
+
+    inFile.close();
+    return returnStatement;
+}
+
+/**
+ * overloaded function without error log for algorithm usage
+ */
+int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath){
+    list<string> tempListForAlg;
+    return extractTravelRoute(ship, filePath, tempListForAlg);
 }
