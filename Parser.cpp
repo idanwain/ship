@@ -7,7 +7,7 @@
  * @return the number
  */
 int getPortNumFile(const string& fileName){
-    if(fileName.size() < 6) return 0;
+    if(fileName.size() < 5) return 0;
     int dot = fileName.find(".");
     int dash = fileName.find("_") + 1;
     string numPort = fileName.substr(dash, dot - dash);
