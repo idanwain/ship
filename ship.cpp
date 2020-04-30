@@ -199,6 +199,15 @@ int Ship::getFreeSpace() {
     return freeSpace;
 }
 
+bool Ship::isOnShip(Container &con) {
+    if ( containersByPort.find(con.getDest()) == containersByPort.end() ) {
+        return false;
+    } else {
+        auto pos = std::find(containersByPort[con.getDest()].begin(),containersByPort[con.getDest()].end(), con);
+        return pos != containersByPort[con.getDest()].end();
+    }
+}
+
 /*This function for ex2 purposes*/
 //std::tuple<int,int> Ship::find_min_floor(){
 //    std::tuple<int, int> min_floor_coor;

@@ -115,9 +115,10 @@ void Lifo_algorithm::loadContainers(char list_category, std::ofstream& output){
         auto route = ship->getRoute();
         auto destName = con->getDest()->get_name();
         auto currPortNum = getPortNum();
+        bool uniqueIdOnShip = !ship->isOnShip(*con);
         bool isInRoute = isPortInRoute(destName, route, currPortNum);
 
-        if(validID && isInRoute && found){
+        if(validID && isInRoute && uniqueIdOnShip && found){
             ship->addContainer(*con, coor);
             Algorithm::writeToOutput(output, "L", con->getId(), ship->getCoordinate(*con), std::forward_as_tuple(-1, -1, -1));
             Algorithm::increaseInstructionCounter();
