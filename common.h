@@ -42,7 +42,7 @@ bool validateLoadInstruction(vector<int> &coordinates,Ship* ship);
 bool validateUnloadInstruction(vector<int> &coordinates,Ship* ship);
 bool validateMoveInstruction(vector<int> &coordinates, vector<vector<vector<Container>>>& map);
 bool validateRejectInstruction(std::map<string,string>& portContainers, string& id,Ship* ship,int portNum);
-void extractTravelRoute(Ship* &ship, std::istream &inFile);
+void extractTravelRoute(Ship* &ship, std::istream &inFile,list<string> &generalErrors);
 void extractCraneInstruction(string &toParse, std::pair<string,string>& instruction, vector<int> &coordinates);
 vector<string> stringSplit(string s, const char* delimiter);
 

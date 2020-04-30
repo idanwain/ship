@@ -44,9 +44,9 @@ void initListDirectories(string &path,std::vector<std::vector<fs::path>> &vecOfP
 void validateSequenceDirectories(std::vector<std::vector<fs::path>> &direct);
 bool isValidTravelName(const string& travelName);
 void setActualSize(std::vector<std::vector<fs::path>> &direct);
-Ship* extractArgsForShip(std::vector<fs::path> &folder);
-void extractArgsForBlocks(Ship* &ship, std::istream &inFile);
-void setBlocksByLine(std::string &str, Ship* &ship);
+Ship* extractArgsForShip(vector<fs::path> &folder,list<string> &generalErrors);
+void extractArgsForBlocks(Ship* &ship, std::istream &inFile,list<string> &generalErrors);
+string setBlocksByLine(std::string &str, Ship* &ship,int lineNumber);
 void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str);
 int portAlreadyExist(std::vector<Port*> &vec,string &str);
 void parseDataFromPortFile(std::map<string,string>& map, string &inputPath);
