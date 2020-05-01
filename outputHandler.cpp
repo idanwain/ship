@@ -6,71 +6,71 @@
  * @param results_map - the data structure to save on the information
  * @param algVec - the algorithms that been tested in the simulation
  */
-void saveResultsInfo(std::map<string,list<int>> &results_map,vector<Algorithm*> &algVec){
-    for(Algorithm* alg : algVec){
-        int num = alg->getInstructionsCounter();
-        string name = alg->getTypeName();
+void saveResultsInfo(std::map<string,list<int>> &results_map,vector<std::unique_ptr<AbstractAlgorithm>> &algVec){
+    for(auto& alg : algVec){
+        //int num = alg->getInstructionsCounter(); //no such thing
+        string name = typeid(*alg).name();
         if(results_map.find(name) != results_map.end()){
-            results_map.at(name).emplace_back(num);
+            //results_map.at(name).emplace_back(num);
         }
         else{
             std::list<int> ls;
-            ls.emplace_back(num);
+            //ls.emplace_back(num);
             results_map.emplace(make_pair(name, ls));
         }
     }
 }
-
+//TODO: need to not rely on alg data such as route or functions & change to unique_ptr of AbsAlg
 /**
  * This function saves all the error occurred in an algorithm into a list and returns it
  * errors exists in all ports that have containers left in their dock, and on the ship
  * @param alg - the algorithm to extract the errors from
  * @return - list of strings , each string is an informative error message
  */
-list<string> createAlgListOfErrors(Algorithm* alg){
-    auto route = alg->getShip()->getRoute();
-    std::set<string> visitedPorts;
-    list<string> res;
-    string msg;
-    /*Iterate on every port in the travel route, on each port check for any container left in it's dock*/
-    for(Port* p : route){
-        if(visitedPorts.find(p->get_name()) != visitedPorts.end()) continue;
-        visitedPorts.emplace(p->get_name());
-        vector<Container> containers_vec = *(p->getContainerVec('L'));
-        for(Container &cont : containers_vec){
-            msg = "Error: container id: " + cont.getId();
-            if(cont.getDest()->get_name() == "NOT_IN_ROUTE")
-                msg += " is not in ship's route";
-            else
-                msg += ", destPort: " + cont.getDest()->get_name() + ", currPort: " + p->get_name();
-            res.emplace_back(msg);
-        }
-    }
-    /*Iterate over the containers that left on the shipMap at the end of the travel*/
-    for(const auto &pair: alg->getShip()->getContainersByPort()){
-        vector<Container> vec = pair.second;
-        for(Container &cont : vec){
-            msg = "Error: container id: " + cont.getId() + ", destPort: " + cont.getDest()->get_name()
-                  + " on ship";
-            res.emplace_back(msg);
-        }
-    }
-    return res;
-
-}
+//list<string> createAlgListOfErrors(std::unique_ptr<AbstractAlgorithm>& alg){
+//    auto route = alg->getShip()->getRoute();
+//    std::set<string> visitedPorts;
+//    list<string> res;
+//    string msg;
+//    /*Iterate on every port in the travel route, on each port check for any container left in it's dock*/
+//    for(auto& p : route){
+//        if(visitedPorts.find(p->get_name()) != visitedPorts.end()) continue;
+//        visitedPorts.emplace(p->get_name());
+//        vector<Container> containers_vec = *(p->getContainerVec('L'));
+//        for(Container &cont : containers_vec){
+//            msg = "Error: container id: " + cont.getId();
+//            if(cont.getDest()->get_name() == "NOT_IN_ROUTE")
+//                msg += " is not in ship's route";
+//            else
+//                msg += ", destPort: " + cont.getDest()->get_name() + ", currPort: " + p->get_name();
+//            res.emplace_back(msg);
+//        }
+//    }
+//    /*Iterate over the containers that left on the shipMap at the end of the travel*/
+//    for(const auto &pair: alg->getShip()->getContainersByPort()){
+//        vector<Container> vec = pair.second;
+//        for(Container &cont : vec){
+//            msg = "Error: container id: " + cont.getId() + ", destPort: " + cont.getDest()->get_name()
+//                  + " on ship";
+//            res.emplace_back(msg);
+//        }
+//    }
+//    return res;
+//
+//}
 /**
  * This function stores the Errors information
  */
-void saveErrorsInfo(vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,
-                    vector<Algorithm *> &algVec,string &travelName){
-    list<pair<string,list<string>>> list_errors;
-    for(Algorithm* alg : algVec){
-        string name = alg->getTypeName();
-        list<string> alg_errorsList = createAlgListOfErrors(alg);
-        list_errors.emplace_back(make_pair(name,alg_errorsList));
-    }
-    errors_vec.emplace_back(make_pair(travelName,list_errors));
-}
+//void saveErrorsInfo(vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,
+//                    vector<std::unique_ptr<AbstractAlgorithm>> &algVec,string &travelName){
+//    list<pair<string,list<string>>> list_errors;
+//    for(auto& alg : algVec){
+//        string name = typeid(alg).name();
+//        list<string> alg_errorsList = createAlgListOfErrors(alg);
+//        list_errors.emplace_back(make_pair(name,alg_errorsList));
+//    }
+//    errors_vec.emplace_back(make_pair(travelName,list_errors));
+//}
 /**
  * This function manges to save the errors and the results information in below data structures
  * @param results_map - stores results information
@@ -78,13 +78,13 @@ void saveErrorsInfo(vector<pair<string,list<pair<string,list<string>>>>> &errors
  * @param algVec - list of algorithms tested on
  * @param travelName - list of travel names tested on
  */
-void saveOutputInformation(std::map<string,list<int>> &results_map,
-                           vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,
-                           vector<Algorithm *> &algVec, string &travelName){
-
-    saveErrorsInfo(errors_vec,algVec,travelName);
-    saveResultsInfo(results_map,algVec);
-}
+//void saveOutputInformation(std::map<string,list<int>> &results_map,
+//                           vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,
+//                           vector<std::unique_ptr<AbstractAlgorithm>> &algVec, string &travelName){
+//
+//    saveErrorsInfo(errors_vec,algVec,travelName);
+//    saveResultsInfo(results_map,algVec);
+//}
 
 /**
  * This function creates a file that shows the result of the cartesian multiplication of the simulator

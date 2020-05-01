@@ -2,7 +2,7 @@
 #include <string>
 #include "ship.h"
 #include "Parser.h"
-#include "stowage_algorithm.h"
+#include "AbstractAlgorithm.h"
 #include "lifo_algorithm.h"
 #include "Unsorted_Lifo_Algorithm.h"
 #include "erroneous_algorithm.h"
@@ -14,13 +14,23 @@
  * @param algList
  * @param ship
  */
-void initAlgorithmList(std::vector<Algorithm*> &algList,Ship* ship){
-    Algorithm* lifoAlgorithm = new Lifo_algorithm(new Ship(ship));
-    Algorithm* unsortedLifoAlgorithm = new Unsorted_Lifo_Algorithm(new Ship(ship));
-    Algorithm* erroneousAlgorithm = new Erroneous_algorithm(new Ship(ship));
-    algList.emplace_back(lifoAlgorithm);
-    algList.emplace_back(unsortedLifoAlgorithm);
-    algList.emplace_back(erroneousAlgorithm);
+void initAlgorithmList(std::vector<std::unique_ptr<AbstractAlgorithm>>& algList, vector<fs::path> &folder){
+    std::string ship_plan_file_path = folder[0].string();
+    std::string route_file_path = folder[1].string();
+
+    //TODO make polymorphic algorithm factory & change to smart pointers
+    std::unique_ptr<AbstractAlgorithm> lifoAlgorithm = std::make_unique<Lifo_algorithm>();
+//    std::unique_ptr<AbstractAlgorithm> unsortedLifoAlgorithm = std::make_unique<Unsorted_Lifo_Algorithm>();
+//    std::unique_ptr<AbstractAlgorithm> erroneousAlgorithm = std::make_unique<Erroneous_algorithm>();
+    algList.emplace_back(std::move(lifoAlgorithm));
+//    algList.emplace_back(unsortedLifoAlgorithm);
+//    algList.emplace_back(erroneousAlgorithm);
+    //init alg data
+    for(auto& alg : algList){
+        alg->readShipPlan(ship_plan_file_path);
+        alg->readShipRoute(route_file_path);
+        //alg->setWeightBalanceCalculator(); //TODO deal with the calc
+    }
 }
 
 /**
@@ -39,9 +49,9 @@ string getFullOutPutPath(fs::path &path, string &root_path, const string &algNam
  * This function iterate through the vector and delete each algorithm
  * @param algVec
  */
-void destroyAlgVec(std::vector<Algorithm*> &algVec){
+void destroyAlgVec(std::vector<std::unique_ptr<AbstractAlgorithm>> &algVec){
     for(auto &alg : algVec)
-        delete alg;
+        alg.reset(nullptr);
 
     algVec.clear();
 }
@@ -51,7 +61,7 @@ int main(int argc, char** argv) {
 
     string path = argv[argc - 1];
     vector<vector<fs::path>> directories;
-    vector<Algorithm *> algVec;
+    vector<std::unique_ptr<AbstractAlgorithm>> algVec;
     vector<string> travelNames;
     std::map<string,list<int>> outputResultsInfo;
     vector<pair<string,list<pair<string,list<string>>>>> outputAlgorithmErrors;
@@ -62,31 +72,38 @@ int main(int argc, char** argv) {
     /*Cartesian Loop*/
     for (auto &travel_folder : directories) {
         list<string> currTravelGeneralErrors;
-        Ship* mainShip = extractArgsForShip(travel_folder,currTravelGeneralErrors);
+        std::unique_ptr<Ship> mainShip = extractArgsForShip(travel_folder,currTravelGeneralErrors);
         if(mainShip == nullptr)
             continue; /* can happen if either route/map files are erroneous*/
+        mainShip->initCalc();
         string currTravel = travel_folder.at(0).parent_path().filename().string();
         travelNames.push_back(currTravel);
-        initAlgorithmList(algVec, mainShip);
+        initAlgorithmList(algVec, travel_folder);
         std::map<string,list<string>> simCurrTravelErrors;
         for (auto &alg : algVec) {
             int portNumber = -1;
-            Ship* simShip = new Ship(mainShip);
+            std::unique_ptr<Ship> simShip = std::make_unique<Ship>(*mainShip);
             list<string> simCurrAlgErrors;
             for (size_t j = 2; j < travel_folder.size(); j++) {
                 portNumber++;
-                string outputPath = getFullOutPutPath(travel_folder.at(j), path, alg->getTypeName());
+                string outputPath = getFullOutPutPath(travel_folder.at(j), path, typeid(alg).name()); //no getName function in AbsAlg class
                 string inputPath = travel_folder.at(j).string();
-                (*alg)(inputPath, outputPath);
+                alg->getInstructionsForCargo(inputPath, outputPath);
                 validateAlgorithm(outputPath, inputPath, simShip, portNumber, simCurrAlgErrors);
             }
-            simCurrTravelErrors.insert(make_pair(alg->getTypeName(),simCurrAlgErrors));
-            delete simShip;
+            simCurrTravelErrors.insert(make_pair(typeid(alg).name(),simCurrAlgErrors));
+            simShip.reset(nullptr);
         }
         outputSimulatorErrors.insert(make_pair(currTravel,simCurrTravelErrors));
-        saveOutputInformation(outputResultsInfo, outputAlgorithmErrors, algVec, currTravel);
+        //TODO: need to pass a ship param to saveOutputInfo function in purpose of data separation & ownership
+        /**
+         * Info about containers that didnt end up at their destination (on board / other port)
+         * should be derived from mainShip / simShip
+         * We need not to rely on algorithm data (members or functions) at all except from the output of it.
+         */
+        //saveOutputInformation(outputResultsInfo, outputAlgorithmErrors, algVec, currTravel);
         destroyAlgVec(algVec);
-        delete mainShip;
+        mainShip.reset(nullptr);
     }
     createResultsFile(outputResultsInfo, travelNames, path);
     createErrorsFile(outputAlgorithmErrors,outputSimulatorErrors, path);

@@ -34,6 +34,8 @@ using std::list;
 using std::vector;
 using std::pair;
 namespace fs = std::filesystem;
+
+#define CONTAINER_NOT_IN_ROUTE "This container's destination is not in the ship's route"
 #define FAIL_TO_READ_PATH "Failed to read from this file path "
 #define FAIL_TO_READ_PATH_CODE 7
 #define NEGETIVE_DIMENSION_PARAM 6
@@ -52,8 +54,10 @@ int extractArgsForBlocks(std::unique_ptr<Ship>& ship, const std::string& file_pa
 int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const std::string& filePath);
 string setBlocksByLine(std::string &str, std::unique_ptr<Ship> &ship,int lineNumber);
 void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str);
-int portAlreadyExist(std::vector<Port*> &vec,string &str);
+int portAlreadyExist(std::vector<std::shared_ptr<Port>>& vec,string &str);
 void parseDataFromPortFile(std::map<string,string>& map, string &inputPath);
+int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship);
+
 //string* getPortNameFromFile(string &filePath);
 
 #endif

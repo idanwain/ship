@@ -148,7 +148,7 @@ void setActualSize(vector<vector<fs::path>> &direct){
  * @param str - the string of the port to be check
  * @return 0 iff exist already port with same name
  */
-int portAlreadyExist(vector<Port*> &vec,string &str){
+int portAlreadyExist(std::vector<std::shared_ptr<Port>>& vec,string &str){
     for(const auto &element : vec ){
         if(element->get_name() == str){
             vec.emplace_back(element);
@@ -257,7 +257,7 @@ int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const std::string& filePath
     return extractArgsForBlocks(ship, filePath, tempListForAlg);
 }
 
-int readShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship){
+int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship){
     std::array<int, 3> dimensions{};
     std::ifstream inFile;
     int returnStatement = 0;
@@ -294,7 +294,7 @@ std::unique_ptr<Ship> extractArgsForShip(vector<fs::path> &folder,list<string> &
     for (int i = 0; i < 2; ++i) {
         file_path = folder[i].string();
         if (i == 0) {
-            switch (readShipPlan(file_path, ship)) {
+            switch (extractShipPlan(file_path, ship)) {
                 case 0:
                     if(extractArgsForBlocks(ship, file_path, generalErrors) == FAIL_TO_READ_PATH_CODE) return nullptr;
                     break;
@@ -314,7 +314,7 @@ std::unique_ptr<Ship> extractArgsForShip(vector<fs::path> &folder,list<string> &
         }
     }
 
-    ship->initCalc();
+//    ship->initCalc();
     return ship;
 }
 

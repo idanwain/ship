@@ -9,7 +9,7 @@ std::string Container::getId() {
 	return id;
 }
 
-Port*  Container::getDest() {
+std::shared_ptr<Port>& Container::getDest() {
 	return destination;
 }
 
