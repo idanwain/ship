@@ -93,13 +93,12 @@ void saveOutputInformation(std::map<string,list<int>> &results_map,
  */
 void createResultsFile(map<string,map<string,pair<int,int>>>& output_map,string path){
     std::ofstream inFile;
-    int sumInstructions = 0,sumErrors = 0,longestName = 0;
-    const int spaces = 10;
+    int sumInstructions = 0,sumErrors = 0;
+    const char comma = ',';
     list<string> travels;
     list<string> algNames;
     path.append(PATH_SEPARATOR);
     path.append("simulation.results");
-    //TODO need to make this file csv type with commas
     inFile.open(path); //Default mode is writing to a file
     if(inFile.fail()){
         std::cerr << "Error: failed to create results file" << std::endl;
@@ -111,24 +110,41 @@ void createResultsFile(map<string,map<string,pair<int,int>>>& output_map,string 
     for(auto &outterPair : output_map[travels.front()])//Get algNames
         algNames.emplace_back(outterPair.first);
 
-    inFile << "RESULTS" << std::setw(longestName - 7 + spaces);/*results length is 7*/
+    inFile << "RESULTS" << comma;
     for(string &travel_name : travels)
-        inFile << travel_name << std::setw(spaces);
-    inFile << "Sum" << std::setw(spaces) << "Errors" <<  '\n';
+        inFile << travel_name << comma;
+    inFile << "Sum" << comma << "Errors" <<  '\n';
 
     for(auto& algName : algNames){
-        inFile << algName << std::setw(spaces);
+        inFile << algName << comma;
         for(auto &travelName : travels){
             sumInstructions += output_map[travelName][algName].first;
             sumErrors += output_map[travelName][algName].second;
-            inFile << output_map[travelName][algName].first << std::setw(spaces);
+            inFile << output_map[travelName][algName].first << comma;
         }
-        inFile << sumInstructions << std::setw(spaces) << sumErrors << '\n';
+        inFile << sumInstructions << comma << sumErrors << '\n';
         sumInstructions = 0;
         sumErrors = 0;
     }
 
     inFile.close();
+}
+
+/**
+ * This function create an algorithm output directory per algorithm and travel in the main output directory
+ * @param algName
+ * @param outputDirectory
+ * @param travelName
+ * @return the full path of this directory
+ */
+string createAlgorithmOutDirectory(const string &algName,const string &outputDirectory,const string &travelName){
+    string algOutDirectory = outputDirectory + PATH_SEPARATOR + algName + "_" + travelName + "_" + "crane_instructions";
+    fs::path directoryPath(algOutDirectory);
+    fs::path parentDirectory(outputDirectory);
+    if(!fs::exists(directoryPath)){
+        fs::create_directory(directoryPath,parentDirectory);
+    }
+    return algOutDirectory;
 }
 
 /**
@@ -160,47 +176,30 @@ void createErrorsFile(std::map<string,std::map<string,list<string>>>& simErrors,
     }
     inFile.close();
 }
+///**
+// * This function creates the outPutDirectories from list of paths.
+// * @param paths
+// * @param mainDirectory
+// */
+//void createOutputDirectories(std::vector<std::vector<fs::path>> &paths,char* mainDirectory){
+//    string outputDir(mainDirectory);
+//    outputDir.append(PATH_SEPARATOR);
+//    outputDir.append(OP_MAIN_DIRECTORY);
+//    fs::path dir(outputDir);
+//    fs::path root_path(mainDirectory);
+//    if(!fs::exists(dir) && !fs::create_directory(dir,root_path)){//Case we failed to create output directory.
+//        std::cerr << "Error: failed to create output directory, exits program" << std::endl;
+//        exit(EXIT_FAILURE);
+//    }
+//    for(auto const &list : paths) {
+//        if (!list.empty()) {
+//            string currOutputDir = outputDir + PATH_SEPARATOR + list[0].parent_path().filename().string() + "Out";
+//            fs::path dir(currOutputDir);
+//            fs::path root_path(outputDir);
+//            if (!fs::exists(dir)) {
+//                fs::create_directory(currOutputDir, outputDir);
+//            }
+//        }
+//    }
 
-/**
- * This function creates the outPutDirectories from list of paths.
- * @param paths
- * @param mainDirectory
- */
-void createOutputDirectories(std::vector<std::vector<fs::path>> &paths,char* mainDirectory){
-    string outputDir(mainDirectory);
-    outputDir.append(PATH_SEPARATOR);
-    outputDir.append(OP_MAIN_DIRECTORY);
-    fs::path dir(outputDir);
-    fs::path root_path(mainDirectory);
-    if(!fs::exists(dir) && !fs::create_directory(dir,root_path)){//Case we failed to create output directory.
-        std::cerr << "Error: failed to create output directory, exits program" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-    for(auto const &list : paths) {
-        if (!list.empty()) {
-            string currOutputDir = outputDir + PATH_SEPARATOR + list[0].parent_path().filename().string() + "Out";
-            fs::path dir(currOutputDir);
-            fs::path root_path(outputDir);
-            if (!fs::exists(dir)) {
-                fs::create_directory(currOutputDir, outputDir);
-            }
-        }
-    }
-}
-
-/**
- * This function create an algorithm output directory per algorithm and travel in the main output directory
- * @param algName
- * @param outputDirectory
- * @param travelName
- * @return the full path of this directory
- */
-string createAlgorithmOutDirectory(const string &algName,const string outputDirectory,const string &travelName){
-    string algOutDirectory = outputDirectory + PATH_SEPARATOR + algName + "_" + travelName + "_" + "crane_instructions";
-    fs::path directoryPath(algOutDirectory);
-    fs::path parentDirectory(outputDirectory);
-    if(!fs::exists(directoryPath)){
-        fs::create_directory(directoryPath,parentDirectory);
-    }
-    return algOutDirectory;
-}
+//}

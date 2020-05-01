@@ -380,7 +380,7 @@ bool isPortInRoute(const std::string& portName, const std::vector<std::shared_pt
  * @param inFile
  */
 int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,list<string> &generalErrors) {
-    std::unique_ptr<std::vector<std::shared_ptr<Port>>> vec = std::make_unique<std::vector<std::shared_ptr<Port>>>(); //TODO change to smart pointer
+    std::unique_ptr<std::vector<std::shared_ptr<Port>>> vec = std::make_unique<std::vector<std::shared_ptr<Port>>>();
     string line;
     std::ifstream inFile;
     int returnStatement = 0;

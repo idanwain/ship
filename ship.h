@@ -99,7 +99,7 @@ public:
     void updateFreeSpace(int num);
     bool isOnShip(Container &con);
     std::shared_ptr<WeightBalanceCalculator> getCalc();
-    Port* getPortByNumber(const int num);
+    std::shared_ptr<Port> getPortByNumber(int num);
 
 
 };

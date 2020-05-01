@@ -29,23 +29,26 @@
 
 enum class VALIDATION {InvalidID, ExistID, InvalidPort, Valid};
 
-void execute(std::unique_ptr<Ship>& ship, char command,std::unique_ptr<Container>& container, coordinate origin, coordinate dest);
-bool validateContainerData(const string& line, VALIDATION& reason, string& id, std::unique_ptr<Ship>& ship);
-void extractContainersData(const std::string& line, std::string &id, int &weight, std::shared_ptr<Port>& dest, std::unique_ptr<Ship>& ship);
-bool isNumber(const std::string& s);
+/*----------------------Validate functions-------------------*/
 bool isValidPortName(const string& portName);
 bool validateId(const string& str);
-bool idExistOnShip(const string& id, std::unique_ptr<Ship>& ship);
-bool isPortInRoute(const string& portName, const vector<std::shared_ptr<Port>>& route, int portNum);
 std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &inputPath, std::unique_ptr<Ship>& simShip, int portNumber, list<string>& currAlgErrors);
 bool validateInstruction(string &instruction,string &id,vector<int> &coordinates,std::unique_ptr<Ship>& ship,std::map<string,string> &portContainers,int portNum);
 bool validateLoadInstruction(vector<int> &coordinates,std::unique_ptr<Ship>& ship);
 bool validateUnloadInstruction(vector<int> &coordinates,std::unique_ptr<Ship>& ship);
 bool validateMoveInstruction(vector<int> &coordinates, vector<vector<vector<Container>>>& map);
 bool validateRejectInstruction(std::map<string,string>& portContainers, string& id,std::unique_ptr<Ship>& ship,int portNum);
+bool validateContainerData(const string& line, VALIDATION& reason, string& id, std::unique_ptr<Ship>& ship);
+/*----------------------Extract functions-------------------*/
 int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,list<string> &generalErrors);
-int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath);
+int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath);//Overload
+void extractContainersData(const std::string& line, std::string &id, int &weight, std::shared_ptr<Port>& dest, std::unique_ptr<Ship>& ship);
 void extractCraneInstruction(string &toParse, std::pair<string,string>& instruction, vector<int> &coordinates);
+/*----------------------Rest of the functions-------------------*/
+void execute(std::unique_ptr<Ship>& ship, char command,std::unique_ptr<Container>& container, coordinate origin, coordinate dest);
+bool isNumber(const std::string& s);
+bool idExistOnShip(const string& id, std::unique_ptr<Ship>& ship);
+bool isPortInRoute(const string& portName, const vector<std::shared_ptr<Port>>& route, int portNum);
 bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream &output,
                      std::unique_ptr<Ship>& ship, std::shared_ptr<Port>& port);
 vector<string> stringSplit(string s, const char* delimiter);

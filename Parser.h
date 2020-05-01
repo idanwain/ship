@@ -48,15 +48,10 @@ int extractPortNumFromFile(const string& fileName);
 bool isValidPortFileName(const string& fileName);
 bool isValidShipMapFileName(const string& fileName);
 bool isValidShipRouteFileName(const string& fileName);
-std::vector<std::vector<fs::path>> orderListOfDir(std::list<std::list<fs::path>> &unOrdered);
-void initListDirectories(string &path,std::vector<std::vector<fs::path>> &vecOfPaths);
-void validateSequenceDirectories(std::vector<std::vector<fs::path>> &direct);
 bool isValidTravelName(const string& travelName);
-void setActualSize(std::vector<std::vector<fs::path>> &direct);
-std::unique_ptr<Ship> extractArgsForShip(vector<fs::path> &folder,list<string> &generalErrors);
 int extractArgsForBlocks(std::unique_ptr<Ship>& ship, const std::string& file_path,list<string> &generalErrors);
 int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const std::string& filePath);
-Ship* extractArgsForShip(map<string,vector<fs::path>> &travelFolder,list<string> &generalErrors);//TODO OMRI'S FUNCTION
+std::unique_ptr<Ship> extractArgsForShip(map<string,vector<fs::path>> &travelFolder,list<string> &generalErrors);
 string setBlocksByLine(std::string &str, std::unique_ptr<Ship> &ship,int lineNumber);
 void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str);
 int portAlreadyExist(std::vector<std::shared_ptr<Port>>& vec,string &str);

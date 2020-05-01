@@ -45,70 +45,6 @@ bool isValidTravelName(const string& travelName){
     return std::regex_match(travelName, reg);
 }
 
-/**
- * This function "sort" the given list of directories such that -
- * first file in a sub folder list is ship_plan,second file is ship_route,then put the port_num files in order
- * @param unOrdered - the unOrdered paths
- * @return ordered paths
- */
-vector<vector<fs::path>> orderListOfDir(list<list<fs::path>> &unOrdered){
-    vector<vector<fs::path>> result(unOrdered.size());
-    int ind = 0;
-    int numFile = 0;
-    string file_name;
-    for(auto &list : unOrdered){/*Each list is a Travel folder containing cargo_data route, map etc..*/
-        result[ind].resize(list.size());
-        for(auto &path : list){/*path is a file in a Travel folder*/
-            file_name = path.filename().string();
-            if(file_name == "ship_plan.txt"){
-                result[ind][0] = path;
-            }
-            else if(file_name == "ship_route.txt"){
-                result[ind][1] = path;
-            }
-            else if(isValidPortFileName(file_name)){
-                numFile = extractPortNumFromFile(file_name) + 1; //as 0,1 places are for plan and route.
-                if(!result[ind][numFile].empty()){
-                    std::cerr << "Error: there's already another port file with this number, ignoring later one" << std::endl;
-                }
-                else{
-                    result[ind][numFile] = path;
-                }
-            }
-            else{
-                std::cerr << "Error: " + file_name + " doesn't match any file format" << std::endl;
-            }
-        }
-        result[ind].shrink_to_fit();
-        ind++;
-    }
-    return result;
-
-}
-/**
- * This function initlialzie the list of directories that the simulator is aiming to run the simulation on
- * @param path - the path of the main directory that includes all travels sub folders
- * @param vecOfPaths - the vectors of paths to save the information
- */
-void initListDirectories(string &path,vector<vector<fs::path>> &vecOfPaths) {
-    string msg = " only sub folders allowed in main folder, file won't be included in the program";
-    list<list<fs::path>> unOrderedList;
-    for (const auto &entry : fs::directory_iterator(path)) {
-        if (!entry.is_directory()) {
-            std::cerr << "Error: "  << entry.path().filename().string()  << msg << std::endl;
-            continue;
-        }
-        if(!isValidTravelName(entry.path().filename().string())) continue;
-        unOrderedList.emplace_back(list<fs::path>());
-        for (const auto &deep_entry : fs::directory_iterator(entry.path())) {
-            unOrderedList.back().emplace_back((deep_entry.path()));
-        }
-    }
-    vecOfPaths = orderListOfDir(unOrderedList);
-    setActualSize(vecOfPaths);
-    //validateSequenceDirectories(vecOfPaths);
-}
-
 void initListDirectories(string &path,map<string,map<string,vector<fs::path>>> &directories){
     string msg = " only sub folders allowed in main folder, file won't be included in the program";
     for(const auto &entry : fs::directory_iterator(path)){
@@ -169,48 +105,6 @@ string extractPortNameFromFile(string fileName){
     string portName = fileName.substr(0,index);
     return portName;
 }
-
-/**
- * This function gets the paths matrix and validate that files exist.
- * @param direct
- */
-void validateSequenceDirectories(vector<vector<fs::path>> &direct) {
-    string msg;
-    int num = 0;
-    setActualSize(direct);
-    for (size_t i = 0; i < direct.size(); i++) {
-        num++;
-        for (size_t j = 0; j < direct[i].size(); j++) {
-            if (direct[i][j].empty()) {
-                msg.clear();
-                if (j == 0) msg = "ship_plan";
-                else if (j == 1) msg = "ship_route";
-                else msg = ("port num " + std::to_string(j-1));
-                std::cerr << "Error: Folder Travel " << num << " lack of " << msg
-                          << " file, this travel folder isn't going to be tested" << std::endl;
-                direct[i].clear();
-                break;
-            }
-        }
-    }
-}
-
-/**
- * This function sets each sub folder to it's actual size vector
- * @post vec[i][vec[i].size()-1] != empty for every i=0..direct.size()-1
- * @param direct
- */
-void setActualSize(vector<vector<fs::path>> &direct){
-    for(size_t i = 0; i < direct.size(); i++){
-        for(size_t j = direct[i].size()-1; !direct[i].empty() && j > 0; j--){
-            if(!direct[i][j].empty()){
-                direct[i].resize(j+1);
-                break;
-            }
-        }
-    }
-}
-
 
 /**
  * This function checks if port already exist in the vector list, if exists it return 0 but
@@ -357,44 +251,11 @@ int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship){
  * @param folder - the folder that contains ship_route, ship_plan files
  * @return the constructed ship iff folder is not empty.
  */
-std::unique_ptr<Ship> extractArgsForShip(vector<fs::path> &folder,list<string> &generalErrors) {
+std::unique_ptr<Ship> extractArgsForShip(map<string,vector<fs::path>> &travelFolder,list<string> &generalErrors) {
     string file_path;
-    vector<Port *> travelRoute;
+    vector<std::shared_ptr<Port>> travelRoute;
     std::unique_ptr<Ship> ship;
-    if(folder.empty()) return nullptr;
-    for (int i = 0; i < 2; ++i) {
-        file_path = folder[i].string();
-        if (i == 0) {
-            switch (extractShipPlan(file_path, ship)) {
-                case 0:
-                    if(extractArgsForBlocks(ship, file_path, generalErrors) == FAIL_TO_READ_PATH_CODE) return nullptr;
-                    break;
-                case NEGETIVE_DIMENSION_PARAM:
-                    generalErrors.emplace_back("Error: one of the ship map dimensions is negative");
-                    return nullptr;
-                case FAIL_TO_READ_PATH_CODE:
-                    return nullptr;
-            }
-        } else {
-            switch(extractTravelRoute(ship, file_path, generalErrors)) {
-                case 0:
-                    break; // do nothing
-                case FAIL_TO_READ_PATH_CODE:
-                    return nullptr;
-            }
-        }
-    }
 
-//    ship->initCalc();
-    return ship;
-}
-
-Ship* extractArgsForShip(map<string,vector<fs::path>> &travelFolder,list<string> &generalErrors){
-    std::ifstream inFile;
-    string line, file_path;
-    std::array<int, 3> dimensions{};
-    vector<Port *> travelRoute;
-    Ship* ship = nullptr;
     if(travelFolder.find(ROUTE) == travelFolder.end()){
         generalErrors.emplace_back("Error: Lack of route file, ignoring this travel folder");
         return ship;
@@ -404,30 +265,73 @@ Ship* extractArgsForShip(map<string,vector<fs::path>> &travelFolder,list<string>
         return ship;
     }
     file_path = travelFolder[PLAN].at(0).string();
-    inFile.open(file_path);
-    if(inFile.fail()){
-        generalErrors.emplace_back("Error: opening plan file failed, ignoring this travel folder");
-        return ship;
+    switch (extractShipPlan(file_path, ship)) {
+        case 0:
+            if(extractArgsForBlocks(ship, file_path, generalErrors) == FAIL_TO_READ_PATH_CODE) return nullptr;
+            break;
+        case NEGETIVE_DIMENSION_PARAM:
+            generalErrors.emplace_back("Error: one of the ship map dimensions is negative");
+            return nullptr;
+        case FAIL_TO_READ_PATH_CODE:
+            generalErrors.emplace_back("Error: opening plan file failed, ignoring this travel folder");
+            return nullptr;
     }
-    else{
-        //TODO handle creating a ship from the plan file.
-    }
-    inFile.close();
     file_path = travelFolder[ROUTE].at(0).string();
-    inFile.open(file_path);
-    if(inFile.fail()){
-        generalErrors.emplace_back("Error: opening route file failed, ignoring this travel folder");
-        delete ship;
+    switch(extractTravelRoute(ship, file_path, generalErrors)) {
+        case 0:
+            break; // success
+        case FAIL_TO_READ_PATH_CODE:
+            generalErrors.emplace_back("Error: opening route file failed, ignoring this travel folder");
+            return nullptr;
+}
+    if(ship->getRoute().size() <= 1){
+        generalErrors.emplace_back("Error: route file contains less then 2 valid ports, ignoring this travel folder");
         return nullptr;
     }
-    else{
-        //TODO handle creating route vector from route file.
-    }
-    inFile.close();
-    ship->initCalc();
-    return ship;
 
+    return ship;
 }
+
+//TODO walkthrough todo's and update in above function
+//Ship* extractArgsForShip(map<string,vector<fs::path>> &travelFolder,list<string> &generalErrors){
+//    std::ifstream inFile;
+//    string line, file_path;
+//    std::array<int, 3> dimensions{};
+//    vector<Port *> travelRoute;
+//    Ship* ship = nullptr;
+//    if(travelFolder.find(ROUTE) == travelFolder.end()){
+//        generalErrors.emplace_back("Error: Lack of route file, ignoring this travel folder");
+//        return ship;
+//    }
+//    else if(travelFolder.find(PLAN) == travelFolder.end()){
+//        generalErrors.emplace_back("Error: Lack of plan file, ignoring this travel folder");
+//        return ship;
+//    }
+//    file_path = travelFolder[PLAN].at(0).string();
+//    inFile.open(file_path);
+//    if(inFile.fail()){
+//        generalErrors.emplace_back("Error: opening plan file failed, ignoring this travel folder");
+//        return ship;
+//    }
+//    else{
+//        //TODO handle creating a ship from the plan file.
+//    }
+//    inFile.close();
+//    file_path = travelFolder[ROUTE].at(0).string();
+//    inFile.open(file_path);
+//    if(inFile.fail()){
+//        generalErrors.emplace_back("Error: opening route file failed, ignoring this travel folder");
+//        delete ship;
+//        return nullptr;
+//    }
+//    else{
+//        //TODO handle creating route vector from route file.
+//    }
+//    inFile.close();
+//    ship->initCalc();
+//    return ship;
+//
+//}
 
 /**
  * This function parses the data from a port file, it saves it by container id and the data line of this id in a map

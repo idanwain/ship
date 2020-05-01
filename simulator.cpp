@@ -23,6 +23,7 @@
 #include "erroneous_algorithm.h"
 #include "outputHandler.h"
 #include "common.h"
+#include <memory>
 
 
 /*------------------------------Global Variables---------------------------*/
@@ -38,22 +39,20 @@ string mainOutputPath;
  * @param algList
  * @param ship
  */
-void initAlgorithmList(std::vector<std::unique_ptr<AbstractAlgorithm>>& algList, vector<fs::path> &folder){
-    std::string ship_plan_file_path = folder[0].string();
-    std::string route_file_path = folder[1].string();
-
-    //TODO make polymorphic algorithm factory & change to smart pointers
-    std::unique_ptr<AbstractAlgorithm> lifoAlgorithm = std::make_unique<Lifo_algorithm>();
-//    std::unique_ptr<AbstractAlgorithm> unsortedLifoAlgorithm = std::make_unique<Unsorted_Lifo_Algorithm>();
-//    std::unique_ptr<AbstractAlgorithm> erroneousAlgorithm = std::make_unique<Erroneous_algorithm>();
-    algList.emplace_back(std::move(lifoAlgorithm));
-//    algList.emplace_back(unsortedLifoAlgorithm);
-//    algList.emplace_back(erroneousAlgorithm);
-    //init alg data
-    for(auto& alg : algList){
-        alg->readShipPlan(ship_plan_file_path);
-        alg->readShipRoute(route_file_path);
-        //alg->setWeightBalanceCalculator(); //TODO deal with the calc
+void initAlgorithmList(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algList,map<string,vector<fs::path>> &travelFolder){
+        string routePath = travelFolder.at(ROUTE).at(0).string();
+        string planPath = travelFolder.at(PLAN).at(0).string();
+//    //TODO make polymorphic algorithm factory & change to smart pointers
+//    std::unique_ptr<AbstractAlgorithm> lifoAlgorithm = std::make_unique<Lifo_algorithm>();
+////    std::unique_ptr<AbstractAlgorithm> unsortedLifoAlgorithm = std::make_unique<Unsorted_Lifo_Algorithm>();
+////    std::unique_ptr<AbstractAlgorithm> erroneousAlgorithm = std::make_unique<Erroneous_algorithm>();
+//    algList.emplace_back(std::move(lifoAlgorithm));
+////    algList.emplace_back(unsortedLifoAlgorithm);
+////    algList.emplace_back(erroneousAlgorithm);
+//    //init alg data
+    for(auto &alg : algList){
+        alg.second->readShipPlan(planPath);
+        alg.second->readShipRoute(routePath);
     }
 }
 
@@ -61,9 +60,9 @@ void initAlgorithmList(std::vector<std::unique_ptr<AbstractAlgorithm>>& algList,
  * This function iterate through the vector and delete each algorithm
  * @param algVec
  */
-void destroyAlgVec(std::vector<std::unique_ptr<AbstractAlgorithm>> &algVec){
+void destroyAlgVec(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algVec){
     for(auto &alg : algVec)
-        alg.reset(nullptr);
+        alg.second.reset(nullptr);
 
     algVec.clear();
 }
@@ -102,7 +101,7 @@ void initPaths(int argc,char** argv){
  * @param visitNumber       - current port visit number
  * @param algInfo           - stores the data of instructions count and errors count
  */
-void runCurrentPort(string &portName,fs::path &portPath,int portNum,Algorithm* &alg,Ship* &simShip,
+void runCurrentPort(string &portName,fs::path &portPath,int portNum,pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,std::unique_ptr<Ship> &simShip,
         list<string> &simCurrAlgErrors,string &algOutputFolder,int visitNumber,map<string,pair<int,int>> &algInfo){
 
     string inputPath,outputPath;
@@ -116,7 +115,7 @@ void runCurrentPort(string &portName,fs::path &portPath,int portNum,Algorithm* &
         inputPath =  portPath.string();
 
     outputPath = algOutputFolder + PATH_SEPARATOR + portName + "_" + std::to_string(visitNumber) + ".crane_instructions";
-    (*alg)(inputPath,outputPath);
+    alg.second->getInstructionsForCargo(inputPath,outputPath);
 
     result = validateAlgorithm(outputPath,inputPath,simShip,portNum,simCurrAlgErrors);
     if(!result) return; //case there was an error in validateAlgorithm
@@ -124,22 +123,21 @@ void runCurrentPort(string &portName,fs::path &portPath,int portNum,Algorithm* &
     intAndError = result.value();
     instructionsCount = std::get<0>(intAndError);
     errorsCount = std::get<1>(intAndError);
-    if(algInfo.find(alg->getTypeName()) == algInfo.end()){
-        algInfo.insert(make_pair(alg->getTypeName(),pair<int,int>()));
+    if(algInfo.find(alg.first) == algInfo.end()){
+        algInfo.insert(make_pair(alg.first,pair<int,int>()));
     }
-    std::get<0>(algInfo[alg->getTypeName()]) += instructionsCount;
-    std::get<1>(algInfo[alg->getTypeName()]) += errorsCount;
+    std::get<0>(algInfo[alg.first]) += instructionsCount;
+    std::get<1>(algInfo[alg.first]) += errorsCount;
 }
 
 int main(int argc, char** argv) {
 
-    vector<std::unique_ptr<AbstractAlgorithm>> algVec;
+    vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec;
     map<string,map<string,pair<int,int>>> outputResultsInfo;
     map<string,map<string,list<string>>> outputSimulatorErrors;
     map<string,map<string,vector<fs::path>>> inputFiles;
     initPaths(argc,argv);
     initListDirectories(mainTravelPath, inputFiles);
-    //createOutputDirectories(directories, argv[1]); //TODO this might be ommitted as we get the path.
 
     /*Cartesian Loop*/
     for (auto &travel_folder : inputFiles) {
@@ -153,7 +151,7 @@ int main(int argc, char** argv) {
             continue; /* can happen if either route/map files are erroneous*/
         }
         mainShip->initCalc();
-        initAlgorithmList(algVec, mainShip);
+        initAlgorithmList(algVec,travel_folder.second);
         map<string,pair<int,int>> algInfo; /*This is a list of algorithms and counting their errors and instruction per travel*/
         for (auto &alg : algVec) {
             std::unique_ptr<Ship> simShip = std::make_unique<Ship>(*mainShip);
@@ -163,10 +161,10 @@ int main(int argc, char** argv) {
                 string portName = simShip->getRoute()[portNum]->get_name();
                 int visitNumber = visitNumbersByPort[portName];
                 fs::path portPath(travel_folder.second[portName][visitNumber]);
-                string algOpFolder = createAlgorithmOutDirectory(alg->getTypeName(),mainOutputPath,currTravelName);
+                string algOpFolder = createAlgorithmOutDirectory(alg.first,mainOutputPath,currTravelName);
                 runCurrentPort(portName,portPath,portNum,alg,simShip,simCurrAlgErrors,algOpFolder,++visitNumbersByPort[portName],algInfo);
             }
-            simCurrTravelErrors.insert(make_pair(alg->getTypeName(),simCurrAlgErrors));
+            simCurrTravelErrors.insert(make_pair(typeid(alg).name(),simCurrAlgErrors));
             simShip.reset(nullptr);
         }
         outputSimulatorErrors.insert(make_pair(currTravelName,simCurrTravelErrors));
