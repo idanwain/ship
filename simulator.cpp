@@ -24,6 +24,7 @@
 #include "outputHandler.h"
 #include "common.h"
 #include <memory>
+#include <bitset>
 
 
 /*------------------------------Global Variables---------------------------*/
@@ -89,6 +90,15 @@ void initPaths(int argc,char** argv){
     mainTravelPath = argv[1];
 }
 
+void initArrayOfErrors(std::array<bool,19> &arr,int num){
+    string binary = std::bitset<19>(num).to_string();
+    int index = 0;
+    //TODO doesnt work properly yet.
+    for(string::iterator it = binary.end(); it != binary.begin(); it--){
+        arr[index] = *it;
+        index++;
+    }
+}
 /**
  * This function handles current port and algorithm interaction
  * @param portName          - the current port name
@@ -105,9 +115,10 @@ void runCurrentPort(string &portName,fs::path &portPath,int portNum,pair<string,
         list<string> &simCurrAlgErrors,string &algOutputFolder,int visitNumber,map<string,pair<int,int>> &algInfo){
 
     string inputPath,outputPath;
-    int instructionsCount, errorsCount, algReturn;
+    int instructionsCount, errorsCount, algReturnValue;
     std::optional<pair<int,int>> result;
     pair<int,int> intAndError;
+    std::array<bool,19> errors{false};
 
     if(portPath.empty())
         inputPath = "";
@@ -115,8 +126,8 @@ void runCurrentPort(string &portName,fs::path &portPath,int portNum,pair<string,
         inputPath =  portPath.string();
 
     outputPath = algOutputFolder + PATH_SEPARATOR + portName + "_" + std::to_string(visitNumber) + ".crane_instructions";
-    algReturn = alg.second->getInstructionsForCargo(inputPath,outputPath);
-
+    algReturnValue = alg.second->getInstructionsForCargo(inputPath,outputPath);
+    initArrayOfErrors(errors,algReturnValue);
     result = validateAlgorithm(outputPath,inputPath,simShip,portNum,simCurrAlgErrors);
     if(!result) return; //case there was an error in validateAlgorithm
 
