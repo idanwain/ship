@@ -97,7 +97,9 @@ public:
     void moveContainer(coordinate origin, coordinate dest);
     void updateFreeSpace(int num);
     bool isOnShip(Container &con);
+    Port* getPortByNumber(const int num);
     WeightBalanceCalculator* getCalc();
+
 
 };
 

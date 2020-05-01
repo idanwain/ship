@@ -3,8 +3,8 @@
 * any constellation.
 *
 *      *******      Functions      *******
-* getPortNumFile                - gets the number from the port file, <port_symbol>_<num>.<filetype>.
-* isValidPortExpressionFile     - checks if the port expression file is valid
+* extractPortNumFromFile                - gets the number from the port file, <port_symbol>_<num>.<filetype>.
+* isValidPortFileName     - checks if the port expression file is valid
 * isValidTravelName             - check if the name of the travel folder is valid name
 * portAlreadyExists             - checks in a given list of ports if the given port already exists, and pushes it back if so
 * orderListDirectories          - arranging the list of the travel directories with the following format map,route,port1,port2 etc..
@@ -33,23 +33,32 @@ using std::string;
 using std::list;
 using std::vector;
 using std::pair;
+using std::map;
 namespace fs = std::filesystem;
 #define FAIL_TO_READ_PATH "Failed to read from this file path "
+#define ROUTE "route"
+#define PLAN "plan"
 
 
-int getPortNumFile(const string& fileName);
-bool isValidPortExpressionFile(const string& fileName);
+int extractPortNumFromFile(const string& fileName);
+bool isValidPortFileName(const string& fileName);
+bool isValidShipMapFileName(const string& fileName);
+bool isValidShipRouteFileName(const string& fileName);
 std::vector<std::vector<fs::path>> orderListOfDir(std::list<std::list<fs::path>> &unOrdered);
 void initListDirectories(string &path,std::vector<std::vector<fs::path>> &vecOfPaths);
 void validateSequenceDirectories(std::vector<std::vector<fs::path>> &direct);
 bool isValidTravelName(const string& travelName);
 void setActualSize(std::vector<std::vector<fs::path>> &direct);
 Ship* extractArgsForShip(vector<fs::path> &folder,list<string> &generalErrors);
+Ship* extractArgsForShip(map<string,vector<fs::path>> &travelFolder,list<string> &generalErrors);
 void extractArgsForBlocks(Ship* &ship, std::istream &inFile,list<string> &generalErrors);
 string setBlocksByLine(std::string &str, Ship* &ship,int lineNumber);
 void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str);
 int portAlreadyExist(std::vector<Port*> &vec,string &str);
 void parseDataFromPortFile(std::map<string,string>& map, string &inputPath);
+string extractPortNameFromFile(string fileName);
+void insertPortFile(map<string,vector<fs::path>> &travelMap,string &portName, int portNum, const fs::path &entry);
+void initListDirectories(string &path,map<string,map<string,vector<fs::path>>> &directories);
 //string* getPortNameFromFile(string &filePath);
 
 #endif

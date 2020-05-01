@@ -36,7 +36,7 @@ bool isValidPortName(const string& portName);
 bool validateId(const string& str);
 bool idExistOnShip(const string& id, Ship* ship);
 bool isPortInRoute(string portName, const vector<Port*>& route, int portNum);
-void validateAlgorithm(string &outputPath, string &inputPath, Ship* simShip, int portNumber, list<string>& currAlgErrors);
+std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &inputPath, Ship* simShip, int portNumber, list<string>& currAlgErrors);
 bool validateInstruction(string &instruction,string &id,vector<int> &coordinates,Ship* ship,std::map<string,string> &portContainers,int portNum);
 bool validateLoadInstruction(vector<int> &coordinates,Ship* ship);
 bool validateUnloadInstruction(vector<int> &coordinates,Ship* ship);

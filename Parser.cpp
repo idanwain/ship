@@ -6,7 +6,7 @@
  * @param fileName
  * @return the number
  */
-int getPortNumFile(const string& fileName){
+int extractPortNumFromFile(const string& fileName){
     if(fileName.size() < 5) return 0;
     int dot = fileName.find(".");
     int dash = fileName.find("_") + 1;
@@ -20,9 +20,19 @@ int getPortNumFile(const string& fileName){
  * @param fileName
  * @return true iff it's in the right format
  */
-bool isValidPortExpressionFile(const string& fileName){
+bool isValidPortFileName(const string& fileName){
     std::regex reg("[A-Za-z]{5}_[1-9]+.cargo_data");
     return std::regex_match(fileName, reg);
+}
+
+bool isValidShipRouteFileName(const string& fileName){
+    std::regex reg("ship_route.[A-Za-z]+");
+    return std::regex_match(fileName,reg);
+}
+
+bool isValidShipMapFileName(const string& fileName){
+    std::regex reg("ship_plan.[A-Za-z]+");
+    return std::regex_match(fileName,reg);
 }
 
 /**
@@ -56,8 +66,8 @@ vector<vector<fs::path>> orderListOfDir(list<list<fs::path>> &unOrdered){
             else if(file_name == "ship_route.txt"){
                 result[ind][1] = path;
             }
-            else if(isValidPortExpressionFile(file_name)){
-                numFile = getPortNumFile(file_name)+1; //as 0,1 places are for plan and route.
+            else if(isValidPortFileName(file_name)){
+                numFile = extractPortNumFromFile(file_name) + 1; //as 0,1 places are for plan and route.
                 if(!result[ind][numFile].empty()){
                     std::cerr << "Error: there's already another port file with this number, ignoring later one" << std::endl;
                 }
@@ -97,6 +107,67 @@ void initListDirectories(string &path,vector<vector<fs::path>> &vecOfPaths) {
     vecOfPaths = orderListOfDir(unOrderedList);
     setActualSize(vecOfPaths);
     //validateSequenceDirectories(vecOfPaths);
+}
+
+void initListDirectories(string &path,map<string,map<string,vector<fs::path>>> &directories){
+    string msg = " only sub folders allowed in main folder, file won't be included in the program";
+    for(const auto &entry : fs::directory_iterator(path)){
+        if(!entry.is_directory()){
+            std::cerr << "Error: "  << entry.path().filename().string()  << msg << std::endl;
+            continue;
+        }
+        string travelName = entry.path().filename().string();
+        if(!isValidTravelName(travelName)) continue;
+        directories.insert(make_pair(travelName,map<string,vector<fs::path>>()));
+        for(const auto &deep_entry : fs::directory_iterator(entry.path())){
+            string fileName = deep_entry.path().filename().string();
+            if(isValidPortFileName(fileName)){
+                string portName = extractPortNameFromFile(fileName);
+                int portNum = extractPortNumFromFile(fileName);
+                insertPortFile(directories[travelName],portName,portNum,deep_entry.path());
+
+            }
+            else if(isValidShipRouteFileName(fileName)){
+                vector<fs::path> vec(1);
+                vec.emplace_back(deep_entry.path());
+                directories[travelName].insert(make_pair(ROUTE,vec));
+            }
+            else if(isValidShipMapFileName(fileName)){
+                vector<fs::path> vec(1);
+                vec.emplace_back(deep_entry.path());
+                directories[travelName].insert(make_pair(PLAN,vec));
+            }
+        }
+
+    }
+}
+
+/**
+ * This function get a travel folder map:= <portName,list of files with same portName>
+ * and assigns at list[portNum] the given entry which corresponds to map[portName][portNum-1] --> portName_portNum.cargo_data
+ * @param travelMap - the travel_name map
+ * @param portName - the current portName file
+ * @param portNum - the current portName number
+ * @param entry - the entry path
+ */
+void insertPortFile(map<string,vector<fs::path>> &travelMap,string &portName, int portNum, const fs::path &entry){
+    if(travelMap.find(portName) != travelMap.end()){
+        if(travelMap[portName].size() < portNum){
+            travelMap[portName].resize(portNum);
+        }
+    }
+    else{/*case no such entry found in the map, then it's first time this portName occurs*/
+        vector<fs::path> vec(portNum);
+        travelMap.insert(make_pair(portName,vec));
+    }
+
+    travelMap[portName].at(portNum-1) = entry;
+
+}
+string extractPortNameFromFile(string fileName){
+    int index = fileName.find_first_of("_");
+    string portName = fileName.substr(0,index);
+    return portName;
 }
 
 /**
@@ -269,6 +340,46 @@ Ship* extractArgsForShip(vector<fs::path> &folder,list<string> &generalErrors) {
     }
     ship->initCalc();
     return ship;
+}
+
+Ship* extractArgsForShip(map<string,vector<fs::path>> &travelFolder,list<string> &generalErrors){
+    std::ifstream inFile;
+    string line, file_path;
+    std::array<int, 3> dimensions{};
+    vector<Port *> travelRoute;
+    Ship* ship = nullptr;
+    if(travelFolder.find(ROUTE) == travelFolder.end()){
+        generalErrors.emplace_back("Error: Lack of route file, ignoring this travel folder");
+        return ship;
+    }
+    else if(travelFolder.find(PLAN) == travelFolder.end()){
+        generalErrors.emplace_back("Error: Lack of plan file, ignoring this travel folder");
+        return ship;
+    }
+    file_path = travelFolder[PLAN].at(0).string();
+    inFile.open(file_path);
+    if(inFile.fail()){
+        generalErrors.emplace_back("Error: opening plan file failed, ignoring this travel folder");
+        return ship;
+    }
+    else{
+        //TODO handle creating a ship from the plan file.
+    }
+    inFile.close();
+    file_path = travelFolder[ROUTE].at(0).string();
+    inFile.open(file_path);
+    if(inFile.fail()){
+        generalErrors.emplace_back("Error: opening route file failed, ignoring this travel folder");
+        delete ship;
+        return nullptr;
+    }
+    else{
+        //TODO handle creating route vector from route file.
+    }
+    inFile.close();
+    ship->initCalc();
+    return ship;
+
 }
 
 /**

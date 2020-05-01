@@ -33,16 +33,17 @@ void execute(Ship* ship, char command, Container* container, coordinate origin, 
  * @param portNumber - the current port number(to get reference were we are at the route)
  * @param currAlgErrors - the algorithm errors list to update
  */
-void validateAlgorithm(string &outputPath, string &inputPath, Ship* simShip, int portNumber,list<string>& currAlgErrors){
+std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &inputPath, Ship* simShip, int portNumber,list<string>& currAlgErrors){
     std::ifstream inFile;
     string line,id,instruction;
     std::pair<string,string> idAndInstruction;
     std::map<string,string> linesFromPortFile;
+    int errorsCount = 0,instructionsCount = 0;
     inFile.open(outputPath);
     parseDataFromPortFile(linesFromPortFile, inputPath);
     if(inFile.fail()) {
-        cout << FAIL_TO_READ_PATH + outputPath << endl;
-        return;
+        std::cerr << FAIL_TO_READ_PATH + outputPath << endl;
+        return std::nullopt;
     }
     while(getline(inFile,line)){
         vector<int> coordinates;
@@ -64,13 +65,16 @@ void validateAlgorithm(string &outputPath, string &inputPath, Ship* simShip, int
                 coordinate two = std::tuple<int,int>(coordinates[3],coordinates[4]);
                 execute(simShip, instruction.at(0), nullptr, one, two);
             }
+            instructionsCount++;
         }
         else{
             string msg = "Error: container id: " + id + ", instruction: " + instruction;
             currAlgErrors.emplace_back(msg);
+            errorsCount++;
         }
     }
     inFile.close();
+    return {std::pair<int,int>(instructionsCount,errorsCount)};
 }
 
 /**

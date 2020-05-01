@@ -20,57 +20,57 @@ void saveResultsInfo(std::map<string,list<int>> &results_map,vector<Algorithm*> 
         }
     }
 }
-
 /**
- * This function saves all the error occurred in an algorithm into a list and returns it
- * errors exists in all ports that have containers left in their dock, and on the ship
- * @param alg - the algorithm to extract the errors from
- * @return - list of strings , each string is an informative error message
- */
-list<string> createAlgListOfErrors(Algorithm* alg){
-    auto route = alg->getShip()->getRoute();
-    std::set<string> visitedPorts;
-    list<string> res;
-    string msg;
-    /*Iterate on every port in the travel route, on each port check for any container left in it's dock*/
-    for(Port* p : route){
-        if(visitedPorts.find(p->get_name()) != visitedPorts.end()) continue;
-        visitedPorts.emplace(p->get_name());
-        vector<Container> containers_vec = *(p->getContainerVec('L'));
-        for(Container &cont : containers_vec){
-            msg = "Error: container id: " + cont.getId();
-            if(cont.getDest()->get_name() == "NOT_IN_ROUTE")
-                msg += " is not in ship's route";
-            else
-                msg += ", destPort: " + cont.getDest()->get_name() + ", currPort: " + p->get_name();
-            res.emplace_back(msg);
-        }
-    }
-    /*Iterate over the containers that left on the shipMap at the end of the travel*/
-    for(const auto &pair: alg->getShip()->getContainersByPort()){
-        vector<Container> vec = pair.second;
-        for(Container &cont : vec){
-            msg = "Error: container id: " + cont.getId() + ", destPort: " + cont.getDest()->get_name()
-                  + " on ship";
-            res.emplace_back(msg);
-        }
-    }
-    return res;
-
-}
-/**
- * This function stores the Errors information
- */
-void saveErrorsInfo(vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,
-                    vector<Algorithm *> &algVec,string &travelName){
-    list<pair<string,list<string>>> list_errors;
-    for(Algorithm* alg : algVec){
-        string name = alg->getTypeName();
-        list<string> alg_errorsList = createAlgListOfErrors(alg);
-        list_errors.emplace_back(make_pair(name,alg_errorsList));
-    }
-    errors_vec.emplace_back(make_pair(travelName,list_errors));
-}
+// * This function saves all the error occurred in an algorithm into a list and returns it
+// * errors exists in all ports that have containers left in their dock, and on the ship
+// * @param alg - the algorithm to extract the errors from
+// * @return - list of strings , each string is an informative error message
+// */
+//list<string> createAlgListOfErrors(Algorithm* alg){
+//    auto route = alg->getShip()->getRoute();
+//    std::set<string> visitedPorts;
+//    list<string> res;
+//    string msg;
+//    /*Iterate on every port in the travel route, on each port check for any container left in it's dock*/
+//    for(Port* p : route){
+//        if(visitedPorts.find(p->get_name()) != visitedPorts.end()) continue;
+//        visitedPorts.emplace(p->get_name());
+//        vector<Container> containers_vec = *(p->getContainerVec('L'));
+//        for(Container &cont : containers_vec){
+//            msg = "Error: container id: " + cont.getId();
+//            if(cont.getDest()->get_name() == "NOT_IN_ROUTE")
+//                msg += " is not in ship's route";
+//            else
+//                msg += ", destPort: " + cont.getDest()->get_name() + ", currPort: " + p->get_name();
+//            res.emplace_back(msg);
+//        }
+//    }
+//    /*Iterate over the containers that left on the shipMap at the end of the travel*/
+//    for(const auto &pair: alg->getShip()->getContainersByPort()){
+//        vector<Container> vec = pair.second;
+//        for(Container &cont : vec){
+//            msg = "Error: container id: " + cont.getId() + ", destPort: " + cont.getDest()->get_name()
+//                  + " on ship";
+//            res.emplace_back(msg);
+//        }
+//    }
+//    return res;
+//
+//}
+//
+///**
+// * This function stores the Errors information
+// */
+//void saveErrorsInfo(vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,
+//                    vector<Algorithm *> &algVec,string &travelName){
+//    list<pair<string,list<string>>> list_errors;
+//    for(Algorithm* alg : algVec){
+//        string name = alg->getTypeName();
+//        list<string> alg_errorsList = createAlgListOfErrors(alg);
+//        list_errors.emplace_back(make_pair(name,alg_errorsList));
+//    }
+//    errors_vec.emplace_back(make_pair(travelName,list_errors));
+//}
 /**
  * This function manges to save the errors and the results information in below data structures
  * @param results_map - stores results information
@@ -79,10 +79,8 @@ void saveErrorsInfo(vector<pair<string,list<pair<string,list<string>>>>> &errors
  * @param travelName - list of travel names tested on
  */
 void saveOutputInformation(std::map<string,list<int>> &results_map,
-                           vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,
                            vector<Algorithm *> &algVec, string &travelName){
 
-    saveErrorsInfo(errors_vec,algVec,travelName);
     saveResultsInfo(results_map,algVec);
 }
 
@@ -92,36 +90,43 @@ void saveOutputInformation(std::map<string,list<int>> &results_map,
  * @param travels - list of travel names
  * @param path - the file path to create the file in
  */
-void createResultsFile(std::map<string,list<int>> &output_map,vector<string> &travels,string path){
+void createResultsFile(map<string,map<string,pair<int,int>>>& output_map,string path){
     std::ofstream inFile;
-    int sum = 0,longestName = 0;
+    int sumInstructions = 0,sumErrors = 0,longestName = 0;
     const int spaces = 10;
+    list<string> travels;
+    list<string> algNames;
     path.append(PATH_SEPARATOR);
     path.append("simulation.results");
-
+    //TODO need to make this file csv type with commas
     inFile.open(path); //Default mode is writing to a file
     if(inFile.fail()){
         std::cerr << "Error: failed to create results file" << std::endl;
         exit(EXIT_FAILURE);
     }
-    for(const auto &p : output_map)
-        longestName = std::max(longestName,(int)p.first.size());
+
+    for(auto &map : output_map)//Get travel Names
+        travels.emplace_back(map.first);
+    for(auto &outterPair : output_map[travels.front()])//Get algNames
+        algNames.emplace_back(outterPair.first);
 
     inFile << "RESULTS" << std::setw(longestName - 7 + spaces);/*results length is 7*/
     for(string &travel_name : travels)
         inFile << travel_name << std::setw(spaces);
-    inFile << "Sum" << '\n';
+    inFile << "Sum" << std::setw(spaces) << "Errors" <<  '\n';
 
-    //iterate over the algorithm names and iterate over them, note that p is a pair<string,list<int>>
-    for(const auto &p : output_map){
-        sum = 0;
-        inFile << p.first << std::setw(longestName - (int)p.first.size() + spaces);
-        for(int num : p.second){
-            inFile  << num << std::setw(spaces);
-            sum += num;
+    for(auto& algName : algNames){
+        inFile << algName << std::setw(spaces);
+        for(auto &travelName : travels){
+            sumInstructions += output_map[travelName][algName].first;
+            sumErrors += output_map[travelName][algName].second;
+            inFile << output_map[travelName][algName].first << std::setw(spaces);
         }
-        inFile << std::setw(spaces) << sum << '\n';
+        inFile << sumInstructions << std::setw(spaces) << sumErrors << '\n';
+        sumInstructions = 0;
+        sumErrors = 0;
     }
+
     inFile.close();
 }
 
@@ -132,26 +137,23 @@ void createResultsFile(std::map<string,list<int>> &output_map,vector<string> &tr
  * @param errors_vec - stores errors information
  * @param path - the file path to create the file in
  */
-void createErrorsFile(vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,std::map<string,std::map<string,list<string>>>& simErrors,string path){
+void createErrorsFile(std::map<string,std::map<string,list<string>>>& simErrors,string path) {
     const string spaces = "      ";//6spaces
     std::ofstream inFile;
     path.append(PATH_SEPARATOR);
     path.append("simulation.errors");
     inFile.open(path);
-    if(inFile.fail()){
+    if (inFile.fail()) {
         std::cerr << "Error: failed to create errors file" << std::endl;
         exit(EXIT_FAILURE);
     }
 
-    for(auto &outterPair : errors_vec){//first:string, second:list<pair...
-        inFile << outterPair.first << " Errors:" << '\n'; //travel name
-        for(pair<string,list<string>> &innerPair : outterPair.second){
-            inFile << spaces << innerPair.first + ":" << '\n';//algorithm name
-            for(string &msg : innerPair.second){//innerPair.second is type list<string>
-                inFile << spaces << msg << '\n';
-            }
-            for(string &simMsg : simErrors[outterPair.first][innerPair.first]){
-                inFile << spaces+spaces << simMsg << '\n';
+    for (auto &outterPair : simErrors) {
+        inFile << outterPair.first << " Errors" << '\n'; //Travel name
+        for (auto &innerPair : simErrors[outterPair.first]) {
+            inFile << spaces << innerPair.first + ":" << '\n'; //Algorithm name
+            for (string &msg : innerPair.second) {
+                inFile << spaces + spaces << msg << '\n'; //error msg list for this alg in this travel
             }
         }
     }
@@ -183,4 +185,21 @@ void createOutputDirectories(std::vector<std::vector<fs::path>> &paths,char* mai
             }
         }
     }
+}
+
+/**
+ * This function create an algorithm output directory per algorithm and travel in the main output directory
+ * @param algName
+ * @param outputDirectory
+ * @param travelName
+ * @return the full path of this directory
+ */
+string createAlgorithmOutDirectory(const string &algName,const string outputDirectory,const string &travelName){
+    string algOutDirectory = outputDirectory + PATH_SEPARATOR + algName + "_" + travelName + "_" + "crane_instructions";
+    fs::path directoryPath(algOutDirectory);
+    fs::path parentDirectory(outputDirectory);
+    if(!fs::exists(directoryPath)){
+        fs::create_directory(directoryPath,parentDirectory);
+    }
+    return algOutDirectory;
 }

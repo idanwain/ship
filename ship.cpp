@@ -208,6 +208,13 @@ bool Ship::isOnShip(Container &con) {
     }
 }
 
+Port* Ship:: getPortByNumber(const int num){
+    if(num > this->route.size()){
+        return nullptr;
+    }
+    return this->route[num];
+}
+
 /*This function for ex2 purposes*/
 //std::tuple<int,int> Ship::find_min_floor(){
 //    std::tuple<int, int> min_floor_coor;
