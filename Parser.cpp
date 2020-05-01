@@ -170,7 +170,7 @@ string setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lineNumber) {
         return "Error: at line number " + std::to_string(lineNumber) + " One of the provided ship plan constraints exceeding the dimensions of the ship,ignoring";
     }
     else if(!(*map)[dim[0]][dim[1]].empty()){
-        return "Error: at line number " + std::to_string(lineNumber) + " constraint at (" +std::to_string(dim[0]) + ","+ std::to_string(dim[1]) +") already given,ignoring...";
+        return "Error: at line number " + std::to_string(lineNumber) + " constraint at (" +std::to_string(dim[0]) + ","+ std::to_string(dim[1]) +") already given,ignoring";
     }
     else{
         for(int i = 0; i < ship->getAxis("z")-dim[2]; i++){
@@ -189,9 +189,8 @@ string setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lineNumber) {
  */
 int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const std::string& filePath, list<string> &generalErrors){
     string line;
-    int lineNumber = 2;
+    int lineNumber = 2, returnStatement = 0;
     std::ifstream inFile;
-    int returnStatement = 0;
 
     inFile.open(filePath);
     if (inFile.fail()) {
@@ -199,6 +198,7 @@ int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const std::string& filePath
         returnStatement = FAIL_TO_READ_PATH_CODE;
     }
     else {
+        getline(inFile,line); /*first line is ship dimensions we already got them*/
         while (getline(inFile, line)){
             if(!line.empty() && line.at(0) == '#') {
                 lineNumber++;
@@ -237,7 +237,7 @@ int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship){
         if(dimensions[0] < 0 || dimensions[1] < 0 || dimensions[2] < 0) {
             returnStatement = NEGETIVE_DIMENSION_PARAM;
         } else {
-            ship = std::make_unique<Ship>(dimensions[0]+1, dimensions[1]+1, dimensions[2]+1);
+            ship = std::make_unique<Ship>(dimensions[1]+1, dimensions[2]+1, dimensions[0]+1);
         }
     }
 

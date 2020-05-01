@@ -44,11 +44,11 @@ void initAlgorithmList(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &
         string planPath = travelFolder.at(PLAN).at(0).string();
 //    //TODO make polymorphic algorithm factory & change to smart pointers
 //    std::unique_ptr<AbstractAlgorithm> lifoAlgorithm = std::make_unique<Lifo_algorithm>();
-////    std::unique_ptr<AbstractAlgorithm> unsortedLifoAlgorithm = std::make_unique<Unsorted_Lifo_Algorithm>();
-////    std::unique_ptr<AbstractAlgorithm> erroneousAlgorithm = std::make_unique<Erroneous_algorithm>();
+//    std::unique_ptr<AbstractAlgorithm> unsortedLifoAlgorithm = std::make_unique<Unsorted_Lifo_Algorithm>();
+//    std::unique_ptr<AbstractAlgorithm> erroneousAlgorithm = std::make_unique<Erroneous_algorithm>();
 //    algList.emplace_back(std::move(lifoAlgorithm));
-////    algList.emplace_back(unsortedLifoAlgorithm);
-////    algList.emplace_back(erroneousAlgorithm);
+//    algList.emplace_back(unsortedLifoAlgorithm);
+//    algList.emplace_back(erroneousAlgorithm);
 //    //init alg data
     for(auto &alg : algList){
         alg.second->readShipPlan(planPath);
