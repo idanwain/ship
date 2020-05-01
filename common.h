@@ -26,8 +26,36 @@
 #define COMMON_H
 
 #include "Parser.h"
+#include <cmath>
 
 enum class VALIDATION {InvalidID, ExistID, InvalidPort, Valid};
+/**
+ * enum class for error codes as pre defined between algorithms and simulator
+ * C - is identifier for containers at port
+ * reserved - for future use if necessary
+ */
+enum class errorCodes {
+    Plan_ZError     = (1 << 0), /*Error at ship plan Z axis*/
+    Plan_XYError    = (1 << 1), /*Error at ship plan xy axis*/
+    Plan_BadLine    = (1 << 2), /*Error bad line reading*/
+    Plan_Fatal      = (1 << 3), /*Fatal Error in ship plan file*/
+    Reserved        = (1 << 4),
+    Route_PortTwice = (1 << 5), /*Port occurs 2 or more consecutive times*/
+    Route_badPortN  = (1 << 6), /*Bad port Number*/
+    Route_Fatal     = (1 << 7), /*Fatal Error in route file*/
+    Route_SingleP   = (1 << 8), /*Single Port in the Route*/
+    Reserved2       = (1 << 9),
+    C_DuplicateId   = (1 << 10),/*2 containers with same Id*/
+    C_IdAlreadyOn   = (1 << 11),/*Id already on ship*/
+    C_WeightIssue   = (1 << 12),/*Any weight issue, bad weight/missing*/
+    C_PortIssue     = (1 << 13),/*Missing port,port not in dest*/
+    C_IdCantRead    = (1 << 14),/*Cant read Id??*/
+    C_IdIllegal     = (1 << 15),/*Id is not illegal ISO 6346*/
+    C_FileCantRead  = (1 << 16),/*Assuming no cargo to load at this port*/
+    C_LastPortCont  = (1 << 17),/*Last port has awaiting containers*/
+    C_ExceedsCap    = (1 << 18) /*total containers amount exceeds ship cap*/
+
+};
 
 /*----------------------Validate functions-------------------*/
 bool isValidPortName(const string& portName);

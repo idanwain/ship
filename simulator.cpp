@@ -105,7 +105,7 @@ void runCurrentPort(string &portName,fs::path &portPath,int portNum,pair<string,
         list<string> &simCurrAlgErrors,string &algOutputFolder,int visitNumber,map<string,pair<int,int>> &algInfo){
 
     string inputPath,outputPath;
-    int instructionsCount, errorsCount;
+    int instructionsCount, errorsCount, algReturn;
     std::optional<pair<int,int>> result;
     pair<int,int> intAndError;
 
@@ -115,11 +115,12 @@ void runCurrentPort(string &portName,fs::path &portPath,int portNum,pair<string,
         inputPath =  portPath.string();
 
     outputPath = algOutputFolder + PATH_SEPARATOR + portName + "_" + std::to_string(visitNumber) + ".crane_instructions";
-    alg.second->getInstructionsForCargo(inputPath,outputPath);
+    algReturn = alg.second->getInstructionsForCargo(inputPath,outputPath);
 
     result = validateAlgorithm(outputPath,inputPath,simShip,portNum,simCurrAlgErrors);
     if(!result) return; //case there was an error in validateAlgorithm
 
+    /*Incrementing the instructions count and errors count*/
     intAndError = result.value();
     instructionsCount = std::get<0>(intAndError);
     errorsCount = std::get<1>(intAndError);
