@@ -23,7 +23,7 @@ std::tuple<int, int, int> Ship::getCoordinate(const Container& container) {
 	return std::tuple<int, int, int>();
 }
 
-std::vector<Port*> Ship::getRoute() {
+std::vector<std::shared_ptr<Port>> Ship::getRoute() {
 	return this->route;
 }
 
@@ -43,10 +43,10 @@ std::vector<std::vector<std::vector<Container>>>* Ship::getMap() {
     return &shipMap;
 }
 
-Port* Ship::getPortByName(const std::string &name) {
+std::shared_ptr<Port> Ship::getPortByName(const std::string &name) {
 
-    Port* pPort = nullptr;
-    for(auto port : this->route) {
+    std::shared_ptr<Port> pPort;
+    for(auto& port : this->route) {
         auto routePortName = port->get_name();
         if(port->get_name() == name) {
             pPort = port;
@@ -54,12 +54,12 @@ Port* Ship::getPortByName(const std::string &name) {
         }
     }
     if(pPort == nullptr){
-        pPort = new Port("NOT_IN_ROUTE");
+        pPort = std::make_shared<Port>("NOT_IN_ROUTE");
     }
     return pPort;
 }
 
-void Ship::setRoute(std::vector<Port *> &route) {
+void Ship::setRoute(std::vector<std::shared_ptr<Port>>& route) {
     this->route = route;
     //init map of containers by port according to routes
     this->initContainersByPort(route);
@@ -72,12 +72,12 @@ int Ship::getAxis(const std::string &str) const {
     else return -1;
 }
 
-void Ship::getContainersToUnload(Port *pPort, std::vector<Container>** unload) {
+void Ship::getContainersToUnload(std::shared_ptr<Port>& pPort, std::vector<Container>** unload) {
     *unload =  &containersByPort[pPort];
 }
 
-void Ship::initContainersByPort(std::vector<Port *> &vector) {
-    for(auto pPort : vector){
+void Ship::initContainersByPort(std::vector<std::shared_ptr<Port>>& vector) {
+    for(auto& pPort : vector){
         std::vector<Container> con;
         this->containersByPort.insert({pPort, con});
     }
@@ -94,11 +94,11 @@ Ship::~Ship() {
         }
         mat.clear();
     }
-
-    for(auto iter = containersByPort.begin(); iter != containersByPort.end(); ++iter) {
-        Port *port = iter->first;
-        delete port;
-    }
+    //shared_ptr will delete themselves
+//    for(auto iter = containersByPort.begin(); iter != containersByPort.end(); ++iter) {
+//        Port *port = iter->first;
+//        delete port;
+//    }
 }
 
 void Ship::getCoordinatesToHandle(std::set<coordinate> &coordinates_to_handle, std::vector<Container>& containers_to_unload) {
@@ -107,7 +107,7 @@ void Ship::getCoordinatesToHandle(std::set<coordinate> &coordinates_to_handle, s
     }
 }
 
-int Ship::getLowestFloorOfRelevantContainer(Port *pPort, coordinate coor){
+int Ship::getLowestFloorOfRelevantContainer(std::shared_ptr<Port>& pPort, coordinate coor){
     int lowest = 0;
     for(Container& con : this->shipMap[std::get<0>(coor)][std::get<1>(coor)]){
         if(con.getId() != "block" && *(con.getDest()) == (*pPort)){
@@ -122,7 +122,7 @@ void Ship::getColumn(coordinate coor, std::vector<Container>** column) {
     *column = &(shipMap[std::get<0>(coor)][std::get<1>(coor)]);
 }
 
-WeightBalanceCalculator* Ship::getCalc() {
+std::shared_ptr<WeightBalanceCalculator> Ship::getCalc() {
     return calculator;
 }
 
@@ -154,8 +154,9 @@ void Ship::moveContainer(coordinate origin, coordinate dest) {
     shipMap[std::get<0>(origin)][std::get<1>(origin)].pop_back();
 }
 
-void Ship::initCalc() {
-    calculator = new WeightBalanceCalculator(this);
+int Ship::initCalc() {
+    calculator = std::make_shared<WeightBalanceCalculator>(this);
+    return 0;
 }
 
 int Ship::getTopFloor(coordinate coor) {
@@ -184,7 +185,7 @@ void Ship::findColumnToLoad(coordinate &coor, bool &found, int kg) {
     }
 }
 
-std::map<Port*,std::vector<Container>>& Ship::getContainersByPort() {
+std::map<std::shared_ptr<Port>,std::vector<Container>>& Ship::getContainersByPort() {
     return this->containersByPort;
 }
 

@@ -8,14 +8,14 @@
  * @param origin
  * @param dest
  */
-void execute(Ship* ship, char command, Container* container, coordinate origin, coordinate dest) {
+void execute(std::unique_ptr<Ship>& ship, char command, std::unique_ptr<Container>& container, coordinate origin, coordinate dest) {
     switch (command) {
         case 'L':
             ship->addContainer(*container, origin);
             break;
         case 'U':
             ship->removeContainer(origin);
-            delete container;
+            container.reset(nullptr);
             break;
         case 'M':
             ship->moveContainer(origin, dest);
@@ -33,7 +33,7 @@ void execute(Ship* ship, char command, Container* container, coordinate origin, 
  * @param portNumber - the current port number(to get reference were we are at the route)
  * @param currAlgErrors - the algorithm errors list to update
  */
-std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &inputPath, Ship* simShip, int portNumber,list<string>& currAlgErrors){
+std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &inputPath, std::unique_ptr<Ship>& simShip, int portNumber,list<string>& currAlgErrors){
     std::ifstream inFile;
     string line,id,instruction;
     std::pair<string,string> idAndInstruction;
@@ -54,16 +54,18 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &input
         if(validateInstruction(instruction, id, coordinates, simShip, linesFromPortFile, portNumber)){
             if(instruction == "R")continue;
             coordinate one = std::tuple<int,int>(coordinates[0],coordinates[1]);
+            std::unique_ptr<Container> cont = std::make_unique<Container>(id);
             if(instruction == "L") {
-                Container* cont = new Container(id);
                 execute(simShip, instruction.at(0), cont, one, std::forward_as_tuple(-1, -1));
             }
             else if(instruction == "U"){
-                execute(simShip, instruction.at(0), nullptr, one, std::forward_as_tuple(-1, -1));
+                execute(simShip, instruction.at(0), cont, one, std::forward_as_tuple(-1, -1));
+                cont.reset(nullptr);
             }
             else if(instruction == "M"){
                 coordinate two = std::tuple<int,int>(coordinates[3],coordinates[4]);
-                execute(simShip, instruction.at(0), nullptr, one, two);
+                execute(simShip, instruction.at(0), cont, one, two);
+                cont.reset(nullptr);
             }
             instructionsCount++;
         }
@@ -106,7 +108,7 @@ void extractCraneInstruction(string &toParse, std::pair<string,string> &instruct
  * @param portNum
  * @return true iff the validation of instruction went successfully
  */
-bool validateInstruction(string &instruction,string &id, vector<int> &coordinates,Ship* ship,std::map<string,string>& portContainers,int portNum){
+bool validateInstruction(string &instruction,string &id, vector<int> &coordinates,std::unique_ptr<Ship>& ship,std::map<string,string>& portContainers,int portNum){
     auto map = ship->getMap();
     bool isValid;
     if(instruction == "L"){
@@ -133,7 +135,7 @@ bool validateInstruction(string &instruction,string &id, vector<int> &coordinate
  * @param portNum - the current port number
  * @return true iff one of the tests failes
  */
-bool validateRejectInstruction(std::map<string,string>& portContainers, string& id,Ship* ship,int portNum){
+bool validateRejectInstruction(std::map<string,string>& portContainers, string& id,std::unique_ptr<Ship>& ship,int portNum){
     string line = portContainers[id];
     auto parsedInfo = stringSplit(line,delim);
     string portName = parsedInfo.at(2) + " " + parsedInfo.at(3);
@@ -152,7 +154,7 @@ bool validateRejectInstruction(std::map<string,string>& portContainers, string& 
  * @param ship - to get ship map
  * @return true iff all tests were failed
  */
-bool validateLoadInstruction(vector<int> &coordinates,Ship* ship){
+bool validateLoadInstruction(vector<int> &coordinates,std::unique_ptr<Ship>& ship){
     int x = coordinates[0],y = coordinates[1], z = coordinates[2];
     auto map = ship->getMap();
     if((x < 0 || x > ship->getAxis("x")) && (y < 0 || y > ship->getAxis("y"))) return false;
@@ -169,7 +171,7 @@ bool validateLoadInstruction(vector<int> &coordinates,Ship* ship){
  * @param ship - to get ship map
  * @return true iff all tests were failed
  */
-bool validateUnloadInstruction(vector<int> &coordinates,Ship* ship){
+bool validateUnloadInstruction(vector<int> &coordinates,std::unique_ptr<Ship>& ship){
     int x = coordinates[0],y = coordinates[1], z = coordinates[2];
     auto map = ship->getMap();
     if((x < 0 || x > ship->getAxis("x")) && (y < 0 || y > ship->getAxis("y"))) return false;
@@ -204,7 +206,7 @@ bool validateMoveInstruction(vector<int> &coordinates, vector<vector<vector<Cont
  * @param ship - current ship
  * @return true iff reason == valid
  */
-bool validateContainerData(const std::string& line, VALIDATION& reason, std::string& id, Ship* ship) {
+bool validateContainerData(const std::string& line, VALIDATION& reason, std::string& id, std::unique_ptr<Ship>& ship) {
     int i=-1;
     auto data = stringSplit(line, delim);
     if(data.size() != 4)
@@ -339,7 +341,7 @@ bool validateId(const std::string& str) {
  * @param ship
  * @return true iff it already exist
  */
-bool idExistOnShip(const std::string& id, Ship* ship){
+bool idExistOnShip(const std::string& id, std::unique_ptr<Ship>& ship){
     auto map = ship->getContainersByPort();
     for(auto & pPort : map){
         for(auto con_it : pPort.second) {
@@ -360,7 +362,7 @@ bool idExistOnShip(const std::string& id, Ship* ship){
  * @param portNum
  * @return true iff it's in the following route
  */
-bool isPortInRoute(std::string portName, const std::vector<Port*>& route, int portNum) {
+bool isPortInRoute(const std::string& portName, const std::vector<std::shared_ptr<Port>>& route, int portNum) {
     bool found = false;
     for(auto port_it = route.begin() + portNum + 1; port_it != route.end(); ++port_it){
         if(((*port_it)->get_name()) == portName){
@@ -377,23 +379,142 @@ bool isPortInRoute(std::string portName, const std::vector<Port*>& route, int po
  * @param ship
  * @param inFile
  */
-void extractTravelRoute(Ship* &ship, std::istream &inFile,list<string> &generalErrors) {
-    std::vector<Port *> *vec = new std::vector<Port *>();
+int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,list<string> &generalErrors) {
+    std::unique_ptr<std::vector<std::shared_ptr<Port>>> vec = std::make_unique<std::vector<std::shared_ptr<Port>>>(); //TODO change to smart pointer
     string line;
-    while (getline(inFile, line)) {
-        if (line.at(0) == '#') continue; //comment symbol
-        else if (isValidPortName(line)) {
-            if(iscntrl(line[line.length() - 1])){
-                line = line.substr(0, line.length() - 1);
+    std::ifstream inFile;
+    int returnStatement = 0;
+
+    inFile.open(filePath);
+    if (inFile.fail()) {
+        std::cerr << FAIL_TO_READ_PATH + filePath << endl;
+        returnStatement = FAIL_TO_READ_PATH_CODE;
+    }
+    else {
+        while (getline(inFile, line)) {
+            if (line.at(0) == '#') continue; //comment symbol
+            else if (isValidPortName(line)) {
+                if(iscntrl(line[line.length() - 1])){
+                    line = line.substr(0, line.length() - 1);
+                }
+                if(vec->at(vec->size()-1) && vec->at(vec->size()-1)->get_name() == line){
+                    generalErrors.emplace_back("Port " + line + " 2 or more consecutive times");
+                }
+                else if (!portAlreadyExist(*vec, line)) {
+                    std::shared_ptr<Port> p1 = std::make_shared<Port>(line);
+                    vec->emplace_back(p1);
+                }
             }
-            if(vec->at(vec->size()-1) && vec->at(vec->size()-1)->get_name() == line){
-                generalErrors.emplace_back("Port " + line + " 2 or more consecutive times");
+        }
+        ship->setRoute(*vec);
+    }
+
+    inFile.close();
+    return returnStatement;
+}
+
+/**
+ * overloaded function without error log for algorithm usage
+ */
+int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath){
+    list<string> tempListForAlg;
+    return extractTravelRoute(ship, filePath, tempListForAlg);
+}
+
+
+/*************************************************************************
+************************ MERGE WITH STOWAGE ALGORITHM ********************
+*************************************************************************/
+
+
+void writeToOutput(std::ofstream& output,
+                              const std::string& command, const std::string& id,
+                              const std::tuple<int,int,int>& pos, const std::tuple<int,int,int>& movedTo){
+    if(command == "R"){
+        output << command << ", " <<  id << std::endl;
+    } else if (command == "M") {
+        output << command << ", " <<  id << ", " << std::get<0>(pos) <<
+               ", " << std::get<1>(pos) << ", " << std::get<2>(pos) <<
+               ", " << std::get<0>(movedTo) << ", " << std::get<1>(movedTo) <<
+               ", " << std::get<2>(movedTo) << std::endl;
+    } else {
+        output << command << ", " <<  id << ", " << std::get<0>(pos) << ", " << std::get<1>(pos) << ", " << std::get<2>(pos) << std::endl;
+    }
+}
+
+/**
+ * Parses the containers data and connecting it to the "load" list of the port
+ * @param input_full_path_and_file_name
+ */
+bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream &output,
+        std::unique_ptr<Ship>& ship, std::shared_ptr<Port>& port) {
+    std::string line;
+    std::ifstream input;
+
+    input.open(inputFullPathAndFileName);
+
+    if(input.fail()){
+        std::cout << "Error Opening file, closing program" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    while(getline(input,line)){
+        if (!line.empty() && line.at(0) == '#') continue; //comment symbol
+        std::string id; int weight;
+        std::shared_ptr<Port> dest;
+        VALIDATION reason = VALIDATION::Valid;
+        if(validateContainerData(line, reason, id, ship)) {
+            extractContainersData(line, id, weight, dest, ship);
+            if(dest == nullptr) {
+                std::cout << id << ": "<< CONTAINER_NOT_IN_ROUTE << std::endl;
+                writeToOutput(output,"R", id,std::forward_as_tuple(-1,-1,-1) , std::forward_as_tuple(-1,-1,-1));
             }
-            else if (!portAlreadyExist(*vec, line)) {
-                Port *p1 = new Port(line);
-                vec->emplace_back(p1);
+            else {
+                std::unique_ptr<Container> con = std::make_unique<Container>(id, weight,port, dest);
+                port->addContainer(*con, 'L');
+            }
+        }
+        else {
+            if(reason != VALIDATION::Valid){
+                writeToOutput(output, "R", id, std::forward_as_tuple(-1,-1,-1), std::forward_as_tuple(-1,-1,-1));
             }
         }
     }
-    ship->setRoute(*vec);
+    input.close();
+    return true;
+}
+
+/**
+ * parses the data from a given line
+ * @param line - data line of container
+ * @param id - container's ID
+ * @param weight - container's weight
+ * @param dest - container's destination
+ */
+void extractContainersData(const std::string& line, std::string &id, int &weight, std::shared_ptr<Port>& dest, std::unique_ptr<Ship>& ship) {
+    int i=0;
+    auto data = stringSplit(line, delim);
+    std::string port_name;
+    for(const std::string& item : data){
+        switch(i){
+            case 0:
+                id = item;
+                ++i;
+                break;
+            case 1:
+                weight = stoi(item);
+                ++i;
+                break;
+            case 2:
+                port_name = item;
+                ++i;
+                break;
+            case 3:
+                port_name += " " + item;
+        }
+    }
+    auto dest_temp = ship->getPortByName(port_name);
+    if(!dest_temp){
+        dest = dest_temp;
+    }
 }

@@ -6,20 +6,21 @@
  * @param results_map - the data structure to save on the information
  * @param algVec - the algorithms that been tested in the simulation
  */
-void saveResultsInfo(std::map<string,list<int>> &results_map,vector<Algorithm*> &algVec){
-    for(Algorithm* alg : algVec){
-        int num = alg->getInstructionsCounter();
-        string name = alg->getTypeName();
+void saveResultsInfo(std::map<string,list<int>> &results_map,vector<std::unique_ptr<AbstractAlgorithm>> &algVec){
+    for(auto& alg : algVec){
+        //int num = alg->getInstructionsCounter(); //no such thing
+        string name = typeid(*alg).name();
         if(results_map.find(name) != results_map.end()){
-            results_map.at(name).emplace_back(num);
+            //results_map.at(name).emplace_back(num);
         }
         else{
             std::list<int> ls;
-            ls.emplace_back(num);
+            //ls.emplace_back(num);
             results_map.emplace(make_pair(name, ls));
         }
     }
 }
+//TODO: need to not rely on alg data such as route or functions & change to unique_ptr of AbsAlg
 /**
 // * This function saves all the error occurred in an algorithm into a list and returns it
 // * errors exists in all ports that have containers left in their dock, and on the ship
@@ -79,7 +80,7 @@ void saveResultsInfo(std::map<string,list<int>> &results_map,vector<Algorithm*> 
  * @param travelName - list of travel names tested on
  */
 void saveOutputInformation(std::map<string,list<int>> &results_map,
-                           vector<Algorithm *> &algVec, string &travelName){
+                           vector<std::unique_ptr<AbstractAlgorithm>> &algVec, string &travelName){
 
     saveResultsInfo(results_map,algVec);
 }

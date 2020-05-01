@@ -17,7 +17,7 @@
 #include <string>
 #include "ship.h"
 #include "Parser.h"
-#include "stowage_algorithm.h"
+#include "AbstractAlgorithm.h"
 #include "lifo_algorithm.h"
 #include "Unsorted_Lifo_Algorithm.h"
 #include "erroneous_algorithm.h"
@@ -38,22 +38,32 @@ string mainOutputPath;
  * @param algList
  * @param ship
  */
-void initAlgorithmList(std::vector<Algorithm*> &algList,Ship* ship){
-    Algorithm* lifoAlgorithm = new Lifo_algorithm(new Ship(ship));
-    Algorithm* unsortedLifoAlgorithm = new Unsorted_Lifo_Algorithm(new Ship(ship));
-    Algorithm* erroneousAlgorithm = new Erroneous_algorithm(new Ship(ship));
-    algList.emplace_back(lifoAlgorithm);
-    algList.emplace_back(unsortedLifoAlgorithm);
-    algList.emplace_back(erroneousAlgorithm);
+void initAlgorithmList(std::vector<std::unique_ptr<AbstractAlgorithm>>& algList, vector<fs::path> &folder){
+    std::string ship_plan_file_path = folder[0].string();
+    std::string route_file_path = folder[1].string();
+
+    //TODO make polymorphic algorithm factory & change to smart pointers
+    std::unique_ptr<AbstractAlgorithm> lifoAlgorithm = std::make_unique<Lifo_algorithm>();
+//    std::unique_ptr<AbstractAlgorithm> unsortedLifoAlgorithm = std::make_unique<Unsorted_Lifo_Algorithm>();
+//    std::unique_ptr<AbstractAlgorithm> erroneousAlgorithm = std::make_unique<Erroneous_algorithm>();
+    algList.emplace_back(std::move(lifoAlgorithm));
+//    algList.emplace_back(unsortedLifoAlgorithm);
+//    algList.emplace_back(erroneousAlgorithm);
+    //init alg data
+    for(auto& alg : algList){
+        alg->readShipPlan(ship_plan_file_path);
+        alg->readShipRoute(route_file_path);
+        //alg->setWeightBalanceCalculator(); //TODO deal with the calc
+    }
 }
 
 /**
  * This function iterate through the vector and delete each algorithm
  * @param algVec
  */
-void destroyAlgVec(std::vector<Algorithm*> &algVec){
+void destroyAlgVec(std::vector<std::unique_ptr<AbstractAlgorithm>> &algVec){
     for(auto &alg : algVec)
-        delete alg;
+        alg.reset(nullptr);
 
     algVec.clear();
 }
@@ -123,7 +133,7 @@ void runCurrentPort(string &portName,fs::path &portPath,int portNum,Algorithm* &
 
 int main(int argc, char** argv) {
 
-    vector<Algorithm *> algVec;
+    vector<std::unique_ptr<AbstractAlgorithm>> algVec;
     map<string,map<string,pair<int,int>>> outputResultsInfo;
     map<string,map<string,list<string>>> outputSimulatorErrors;
     map<string,map<string,vector<fs::path>>> inputFiles;
@@ -136,16 +146,17 @@ int main(int argc, char** argv) {
         list<string> currTravelGeneralErrors;
         map<string,list<string>> simCurrTravelErrors;
         string currTravelName = travel_folder.first;
-        Ship* mainShip = extractArgsForShip(travel_folder.second,currTravelGeneralErrors);
+        std::unique_ptr<Ship> mainShip = extractArgsForShip(travel_folder.second,currTravelGeneralErrors);
         if(mainShip == nullptr){
             simCurrTravelErrors.insert(make_pair("general",currTravelGeneralErrors));
             outputSimulatorErrors.insert(make_pair(currTravelName,simCurrTravelErrors));
             continue; /* can happen if either route/map files are erroneous*/
         }
+        mainShip->initCalc();
         initAlgorithmList(algVec, mainShip);
         map<string,pair<int,int>> algInfo; /*This is a list of algorithms and counting their errors and instruction per travel*/
         for (auto &alg : algVec) {
-            Ship* simShip = new Ship(mainShip);
+            std::unique_ptr<Ship> simShip = std::make_unique<Ship>(*mainShip);
             list<string> simCurrAlgErrors;
             map<string,int> visitNumbersByPort;
             for(int portNum = 0; portNum < (int)simShip->getRoute().size(); portNum++){
@@ -156,12 +167,12 @@ int main(int argc, char** argv) {
                 runCurrentPort(portName,portPath,portNum,alg,simShip,simCurrAlgErrors,algOpFolder,++visitNumbersByPort[portName],algInfo);
             }
             simCurrTravelErrors.insert(make_pair(alg->getTypeName(),simCurrAlgErrors));
-            delete simShip;
+            simShip.reset(nullptr);
         }
         outputSimulatorErrors.insert(make_pair(currTravelName,simCurrTravelErrors));
         outputResultsInfo.insert(make_pair(currTravelName,algInfo));
         destroyAlgVec(algVec);
-        delete mainShip;
+        mainShip.reset(nullptr);
     }
     createResultsFile(outputResultsInfo, mainTravelPath);
     createErrorsFile(outputSimulatorErrors, mainTravelPath);

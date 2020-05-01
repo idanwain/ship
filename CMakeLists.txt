@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(ship3)
+project(ship1)
 
 set(CMAKE_CXX_STANDARD 17)
 set(GCC_COVERAGE_COMPILE_FLAGS "-std=c++2a -Wall -Wextra -pedantic-errors -DNDEBUG")
@@ -7,9 +7,7 @@ set(GCC_COVERAGE_LINK_FLAGS    "-lstdc++fs")
 
 add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
 
-include_directories(.)
-
-add_executable(ship3
+add_executable(ship1
         container.cpp
         container.h
         port.cpp
@@ -17,13 +15,10 @@ add_executable(ship3
         ship.cpp
         ship.h
         simulator.cpp
-        stowage_algorithm.cpp stowage_algorithm.h
-        lifo_algorithm.cpp lifo_algorithm.h
-        Unsorted_Lifo_Algorithm.cpp Unsorted_Lifo_Algorithm.h
-        Parser.cpp Parser.h
-        Error.cpp Error.h
         WeightBalanceCalculator.cpp WeightBalanceCalculator.h
+        Parser.cpp Parser.h
         outputHandler.cpp outputHandler.h
         common.cpp common.h
-        erroneous_algorithm.cpp erroneous_algorithm.h
+        AbstractAlgorithm.h
+        lifo_algorithm.cpp lifo_algorithm.h
         )

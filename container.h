@@ -32,6 +32,8 @@
 #include <list> 
 #include <iterator>
 #include <climits>
+#include <memory>
+#include <utility>
 #include "port.h"
 
 class Port;
@@ -39,18 +41,18 @@ class Port;
 class Container {
     std::string id;
 	int weight;
-	Port* source = nullptr;
-	Port* destination = nullptr;
+    std::shared_ptr<Port> source;
+    std::shared_ptr<Port> destination;
 	int distanceFromDest;
 
 public:
-	Container(const std::string& id, int weight, Port* const source, Port* const dest) :
-		id(id),
+	Container(std::string id, int weight, std::shared_ptr<Port>& _source, std::shared_ptr<Port>& _dest) :
+		id(std::move(id)),
 		weight(weight),
-		source(source),
-		destination(dest),
-        distanceFromDest(INT_MAX)
-		{}
+        source(_source),
+        destination(_dest),
+        distanceFromDest(INT_MAX){}
+
     /*Container copy c'tor*/
     Container(const Container* contToCopy){
 	    this->id = contToCopy->id;
@@ -64,7 +66,7 @@ public:
     virtual ~Container();
 	int getWeight();
 	std::string getId();
-	Port* getDest();
+	std::shared_ptr<Port>& getDest();
     friend std::ostream& operator<<(std::ostream& os, const Container& c);
 	bool operator==(const Container& c);
 	bool operator!=(const Container& c);

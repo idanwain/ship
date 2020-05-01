@@ -44,16 +44,15 @@ using std::list;
 using std::vector;
 using std::pair;
 
-
-void saveResultsInfo(std::map<string,list<int>> &results_map,vector<Algorithm*> &algVec);
-list<string> createAlgListOfErrors(Algorithm* alg);
-void createResultsFile(map<string,map<string,pair<int,int>>>& output_map,string path);
+void saveResultsInfo(std::map<string,list<int>> &results_map,vector<std::unique_ptr<AbstractAlgorithm>>& algVec);
+//list<string> createAlgListOfErrors(std::unique_ptr<AbstractAlgorithm>& alg);
+void createResultsFile(std::map<string,list<int>> &output_map,vector<string> &travels,string path);
 void createOutputDirectories(vector<vector<fs::path>> &paths,char* mainDirectory);
 void saveErrorsInfo(vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,
-                    vector<Algorithm *> &algVec,string &travelName);
+                    vector<std::unique_ptr<AbstractAlgorithm>> &algVec,string &travelName);
 void saveOutputInformation(std::map<string,list<int>> &results_map,
                            vector<pair<string,list<pair<string,list<string>>>>> &errors_vec,
-                           vector<Algorithm *> &algVec, string &travelName);
+                           vector<std::unique_ptr<AbstractAlgorithm>> &algVec, string &travelName);
 void createErrorsFile(std::map<string,std::map<string,list<string>>> &simErrors,string path);
 string createAlgorithmOutDirectory(const string &algName,const string outputDirectory,const string &travelName);
 
