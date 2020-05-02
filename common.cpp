@@ -28,24 +28,24 @@ void execute(std::unique_ptr<Ship>& ship, char command, std::unique_ptr<Containe
 /**
  * This function manages to validate the whole algorithm cranse instruction at given port
  * @param outputPath - the path of the crane instructions file
- * @param inputPath - the input path of the port data of containers to be tested
+ * @param contAtPortPath - the input path of the port data of containers to be tested
  * @param simShip - the simulator ship
  * @param portNumber - the current port number(to get reference were we are at the route)
  * @param currAlgErrors - the algorithm errors list to update
  */
-std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &inputPath, std::unique_ptr<Ship>& simShip, int portNumber,list<string>& currAlgErrors){
-    std::ifstream inFile;
+std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contAtPortPath, std::unique_ptr<Ship>& simShip, int portNumber, list<string>& currAlgErrors, std::array<int,NUM_OF_ERRORS> &errorsArr){
+    std::ifstream instructionsFile;
     string line,id,instruction;
-    std::pair<string,string> idAndInstruction;
-    std::map<string,string> linesFromPortFile;
+    pair<string,string> idAndInstruction;
+    map<string,string> linesFromPortFile;
     int errorsCount = 0,instructionsCount = 0;
-    inFile.open(outputPath);
-    parseDataFromPortFile(linesFromPortFile, inputPath);
-    if(inFile.fail()) {
+    instructionsFile.open(outputPath);
+    parseDataFromPortFile(linesFromPortFile, contAtPortPath);
+    if(instructionsFile.fail()) {
         std::cerr << FAIL_TO_READ_PATH + outputPath << endl;
         return std::nullopt;
     }
-    while(getline(inFile,line)){
+    while(getline(instructionsFile, line)){
         vector<int> coordinates;
         extractCraneInstruction(line, idAndInstruction, coordinates);
         instruction = std::get<0>(idAndInstruction);
@@ -75,7 +75,7 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &input
             errorsCount++;
         }
     }
-    inFile.close();
+    instructionsFile.close();
     return {std::pair<int,int>(instructionsCount,errorsCount)};
 }
 

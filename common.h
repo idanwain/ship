@@ -27,6 +27,9 @@
 
 #include "Parser.h"
 #include <cmath>
+/*----------------------Prefix variables-------------------*/
+
+#define NUM_OF_ERRORS 19
 
 enum class VALIDATION {InvalidID, ExistID, InvalidPort, Valid};
 /**
@@ -60,7 +63,7 @@ enum class errorCodes {
 /*----------------------Validate functions-------------------*/
 bool isValidPortName(const string& portName);
 bool validateId(const string& str);
-std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &inputPath, std::unique_ptr<Ship>& simShip, int portNumber, list<string>& currAlgErrors);
+std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contAtPortPath, std::unique_ptr<Ship>& simShip, int portNumber, list<string>& currAlgErrors, std::array<int,NUM_OF_ERRORS> &errorsArr);
 bool validateInstruction(string &instruction,string &id,vector<int> &coordinates,std::unique_ptr<Ship>& ship,std::map<string,string> &portContainers,int portNum);
 bool validateLoadInstruction(vector<int> &coordinates,std::unique_ptr<Ship>& ship);
 bool validateUnloadInstruction(vector<int> &coordinates,std::unique_ptr<Ship>& ship);

@@ -26,7 +26,6 @@
 #include <memory>
 #include <bitset>
 
-
 /*------------------------------Global Variables---------------------------*/
 
 string mainTravelPath;
@@ -90,13 +89,18 @@ void initPaths(int argc,char** argv){
     mainTravelPath = argv[1];
 }
 
-void initArrayOfErrors(std::array<bool,19> &arr,int num){
-    string binary = std::bitset<19>(num).to_string();
-    int index = 0;
-    //TODO doesnt work properly yet.
-    for(string::iterator it = binary.end(); it != binary.begin(); it--){
-        arr[index] = *it;
-        index++;
+/**
+ * This function gets the array of 19 available errors, and the number that returned from the algorithm run
+ * over the current port and transform this number into bit number, if bit at index i is 1 then there's an error
+ * and array at index length() - i will get the value true as there's an error.
+ * @param arr - the given array
+ * @param num - the number returned from the algortihm run
+ */
+void initArrayOfErrors(std::array<bool,NUM_OF_ERRORS> &arr,int num){
+    string binary = std::bitset<NUM_OF_ERRORS>(num).to_string();
+    int index = 0, length = (int)binary.length()-1;
+    for(index = 0; index <= length; index++){
+        arr[index] = binary.at(length-index) - 48;
     }
 }
 /**
@@ -118,7 +122,7 @@ void runCurrentPort(string &portName,fs::path &portPath,int portNum,pair<string,
     int instructionsCount, errorsCount, algReturnValue;
     std::optional<pair<int,int>> result;
     pair<int,int> intAndError;
-    std::array<bool,19> errors{false};
+    std::array<bool,NUM_OF_ERRORS> errors{false};
 
     if(portPath.empty())
         inputPath = "";
@@ -127,8 +131,9 @@ void runCurrentPort(string &portName,fs::path &portPath,int portNum,pair<string,
 
     outputPath = algOutputFolder + PATH_SEPARATOR + portName + "_" + std::to_string(visitNumber) + ".crane_instructions";
     algReturnValue = alg.second->getInstructionsForCargo(inputPath,outputPath);
+
     initArrayOfErrors(errors,algReturnValue);
-    result = validateAlgorithm(outputPath,inputPath,simShip,portNum,simCurrAlgErrors);
+    result = validateAlgorithm(outputPath,inputPath,simShip,portNum,simCurrAlgErrors,errors);
     if(!result) return; //case there was an error in validateAlgorithm
 
     /*Incrementing the instructions count and errors count*/
