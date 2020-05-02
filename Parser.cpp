@@ -1,5 +1,4 @@
 #include "Parser.h"
-#include "stowage_algorithm.h"
 
 /**
  * This function gets the number from the <port_symbol>_<num>.<filetype> deceleration
@@ -16,69 +15,6 @@ int extractPortNumFromFile(const string& fileName){
 }
 
 /**
- * This function checks if the port file is valid aka <port_symbol>_<num>.<filetype>
- * @param fileName
- * @return true iff it's in the right format
- */
-bool isValidPortFileName(const string& fileName){
-    std::regex reg("[A-Za-z]{5}_[1-9]+.cargo_data");
-    return std::regex_match(fileName, reg);
-}
-
-bool isValidShipRouteFileName(const string& fileName){
-    std::regex reg("ship_route.[A-Za-z]+");
-    return std::regex_match(fileName,reg);
-}
-
-bool isValidShipMapFileName(const string& fileName){
-    std::regex reg("ship_plan.[A-Za-z]+");
-    return std::regex_match(fileName,reg);
-}
-
-/**
- * This function checks if the travel name folder is in the right format aka "Travel" followed by any valid numbers
- * @param travelName
- * @return true iff it's in the right format
- */
-bool isValidTravelName(const string& travelName){
-    std::regex reg("Travel[1-9]+");
-    return std::regex_match(travelName, reg);
-}
-
-void initListDirectories(string &path,map<string,map<string,vector<fs::path>>> &directories){
-    string msg = " only sub folders allowed in main folder, file won't be included in the program";
-    for(const auto &entry : fs::directory_iterator(path)){
-        if(!entry.is_directory()){
-            std::cerr << "Error: "  << entry.path().filename().string()  << msg << std::endl;
-            continue;
-        }
-        string travelName = entry.path().filename().string();
-        if(!isValidTravelName(travelName)) continue;
-        directories.insert(make_pair(travelName,map<string,vector<fs::path>>()));
-        for(const auto &deep_entry : fs::directory_iterator(entry.path())){
-            string fileName = deep_entry.path().filename().string();
-            if(isValidPortFileName(fileName)){
-                string portName = extractPortNameFromFile(fileName);
-                int portNum = extractPortNumFromFile(fileName);
-                insertPortFile(directories[travelName],portName,portNum,deep_entry.path());
-
-            }
-            else if(isValidShipRouteFileName(fileName)){
-                vector<fs::path> vec(1);
-                vec.emplace_back(deep_entry.path());
-                directories[travelName].insert(make_pair(ROUTE,vec));
-            }
-            else if(isValidShipMapFileName(fileName)){
-                vector<fs::path> vec(1);
-                vec.emplace_back(deep_entry.path());
-                directories[travelName].insert(make_pair(PLAN,vec));
-            }
-        }
-
-    }
-}
-
-/**
  * This function get a travel folder map:= <portName,list of files with same portName>
  * and assigns at list[portNum] the given entry which corresponds to map[portName][portNum-1] --> portName_portNum.cargo_data
  * @param travelMap - the travel_name map
@@ -86,20 +22,6 @@ void initListDirectories(string &path,map<string,map<string,vector<fs::path>>> &
  * @param portNum - the current portName number
  * @param entry - the entry path
  */
-void insertPortFile(map<string,vector<fs::path>> &travelMap,string &portName, int portNum, const fs::path &entry){
-    if(travelMap.find(portName) != travelMap.end()){
-        if(travelMap[portName].size() < portNum){
-            travelMap[portName].resize(portNum);
-        }
-    }
-    else{/*case no such entry found in the map, then it's first time this portName occurs*/
-        vector<fs::path> vec(portNum);
-        travelMap.insert(make_pair(portName,vec));
-    }
-
-    travelMap[portName].at(portNum-1) = entry;
-
-}
 string extractPortNameFromFile(string fileName){
     int index = fileName.find_first_of("_");
     string portName = fileName.substr(0,index);
@@ -130,26 +52,27 @@ int portAlreadyExist(std::vector<std::shared_ptr<Port>>& vec,string &str){
  * @param str - byFile means we parse from file, otherwise parse from the str itself
  */
 void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str){
-    //TODO need to check if the input is a number, might be symbols, idan made a function need to ask
-    string line;
-    char* input;
+    vector<string> vec;
+
+    /*if we read from file then we want to get first line which is not comment*/
     if(str == "byFile"){
-        while(getline(inFile,line)) {
-            if(!line.empty() && line.at(0) != '#') break; //comment symbol
-        }
-        input = strtok(line.data(),delim);
-        for(int i = 0; i < 3; i++) {
-            arr[i] = atoi(input);
-            input = strtok(NULL, delim);
+        str = "";
+        while(getline(inFile,str)) {
+            if(!str.empty() && str.at(0) != '#') break; //comment symbol
         }
     }
-    else {
-        input = strtok(str.data(),delim);
-        for(int i = 0; i < 3; i++) {
-            arr[i] = atoi(input);
-            input = strtok(NULL, delim);
-        }
+
+    vec = stringSplit(str,delim);
+    if((int)vec.size() != 3) {
+        arr[0] = -1; /*indicates caller function that bad line format*/
+        return;
     }
+    for(int i = 0; i < 3; i++){
+        if(isValidInteger(vec[i]))
+            arr[i] = atoi(vec[i].data());
+        else
+            arr[i] = -1;
+        }
 }
 
 
@@ -161,16 +84,31 @@ void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str){
  * @param lineNumber - current line number reading from file optional --> algorithm might
  * @return returns empty string iff no error happened
  */
-string setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lineNumber) {
+pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lineNumber) {
     auto map = ship->getMap();
     std::ifstream inFile;
     std::array<int,3> dim{};
+    pair<string,int> pair;
     getDimensions(dim,inFile,str);
+
     if(dim[0] > ship->getAxis("x") || dim[1] > ship->getAxis("y") || dim[2] > ship->getAxis("z")){
-        return "Error: at line number " + std::to_string(lineNumber) + " One of the provided ship plan constraints exceeding the dimensions of the ship,ignoring";
+        if(dim[0] > ship->getAxis("x") || dim[1] > ship->getAxis("y")){
+            std::get<1>(pair) = Plan_XYError;
+        }
+        if(dim[2] > ship->getAxis("z"))
+            std::get<1>(pair) = Plan_ZError;
+
+        std::get<0>(pair) = "Error: at line number " + std::to_string(lineNumber) + " One of the provided ship plan constraints exceeding the dimensions of the ship,ignoring";
+        return pair;
+    }
+
+    else if(dim[0] < 0 || dim[1] < 0 || dim[2] < 0){
+        std::get<0>(pair) = "Error: at line number " + std::to_string(lineNumber) + "bad line format";
+        std::get<1>(pair) = Plan_BadLine;
     }
     else if(!(*map)[dim[0]][dim[1]].empty()){
-        return "Error: at line number " + std::to_string(lineNumber) + " constraint at (" +std::to_string(dim[0]) + ","+ std::to_string(dim[1]) +") already given,ignoring";
+        std::get<0>(pair) = "Error: at line number " + std::to_string(lineNumber) + " constraint at (" +std::to_string(dim[0]) + ","+ std::to_string(dim[1]) +") already given,ignoring";
+        std::get<1>(pair) = Plan_Exist;
     }
     else{
         for(int i = 0; i < ship->getAxis("z")-dim[2]; i++){
@@ -178,7 +116,7 @@ string setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lineNumber) {
             ship->updateFreeSpace(-1);
         }
     }
-    return "";
+    return pair;
 }
 
 /**
@@ -189,13 +127,14 @@ string setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lineNumber) {
  */
 int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const std::string& filePath, list<string> &generalErrors){
     string line;
-    int lineNumber = 2, returnStatement = 0;
+    int lineNumber = 2, returnStatement = 0,num;
     std::ifstream inFile;
+    pair<string,int> pair;
 
     inFile.open(filePath);
     if (inFile.fail()) {
         std::cerr << FAIL_TO_READ_PATH + filePath << endl;
-        returnStatement = FAIL_TO_READ_PATH_CODE;
+        returnStatement = Plan_Fatal;
     }
     else {
         getline(inFile,line); /*first line is ship dimensions we already got them*/
@@ -204,7 +143,10 @@ int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const std::string& filePath
                 lineNumber++;
                 continue;
             }
-            string error = setBlocksByLine(line, ship,lineNumber);
+            pair = setBlocksByLine(line, ship,lineNumber);
+            num = std::get<1>(pair);
+            string error = std::get<0>(pair);
+            updateErrorNum(&returnStatement,num);
             if(!error.empty())
                 generalErrors.emplace_back(error);
             lineNumber++;
@@ -230,12 +172,12 @@ int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship){
     inFile.open(filePath);
     if (inFile.fail()) {
         std::cerr << FAIL_TO_READ_PATH + filePath << endl;
-        returnStatement = FAIL_TO_READ_PATH_CODE;
+        returnStatement += Plan_Fatal;
     }
     else {
         getDimensions(dimensions, inFile,"byFile");
         if(dimensions[0] < 0 || dimensions[1] < 0 || dimensions[2] < 0) {
-            returnStatement = NEGETIVE_DIMENSION_PARAM;
+            returnStatement += Plan_Fatal;
         } else {
             ship = std::make_unique<Ship>(dimensions[1]+1, dimensions[2]+1, dimensions[0]+1);
         }
@@ -251,44 +193,42 @@ int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship){
  * @param folder - the folder that contains ship_route, ship_plan files
  * @return the constructed ship iff folder is not empty.
  */
-std::unique_ptr<Ship> extractArgsForShip(map<string,vector<fs::path>> &travelFolder,list<string> &generalErrors) {
+std::unique_ptr<Ship> extractArgsForShip(string &travelName,SimulatorObj &simulator) {
     string file_path;
     vector<std::shared_ptr<Port>> travelRoute;
     std::unique_ptr<Ship> ship;
+    list<string> generalErrors;
+    auto &travelFolder = simulator.getInputFiles()[travelName];
 
-    if(travelFolder.find(ROUTE) == travelFolder.end()){
-        generalErrors.emplace_back("Error: Lack of route file, ignoring this travel folder");
-        return ship;
-    }
-    else if(travelFolder.find(PLAN) == travelFolder.end()){
-        generalErrors.emplace_back("Error: Lack of plan file, ignoring this travel folder");
-        return ship;
+    if(travelFolder.find(ROUTE) == travelFolder.end() || travelFolder.find(PLAN) == travelFolder.end()){
+        if(travelFolder.find(ROUTE) == travelFolder.end())
+            simulator.addNewErrorToGeneralErrors("Error: Lack of route file, ignoring this travel");
+        else
+            simulator.addNewErrorToGeneralErrors("Error: Lack of plan file, ignoring this travel");
+        return nullptr;
     }
     file_path = travelFolder[PLAN].at(0).string();
-    switch (extractShipPlan(file_path, ship)) {
-        case 0:
-            if(extractArgsForBlocks(ship, file_path, generalErrors) == FAIL_TO_READ_PATH_CODE) return nullptr;
-            break;
-        case NEGETIVE_DIMENSION_PARAM:
-            generalErrors.emplace_back("Error: one of the ship map dimensions is negative");
-            return nullptr;
-        case FAIL_TO_READ_PATH_CODE:
-            generalErrors.emplace_back("Error: opening plan file failed, ignoring this travel folder");
-            return nullptr;
+    int resultInt = extractShipPlan(file_path,ship);
+    if(resultInt == 0){
+        resultInt = extractArgsForBlocks(ship,file_path,generalErrors);
+        simulator.updateSimulatorArrayOfCodes(resultInt);
     }
-    file_path = travelFolder[ROUTE].at(0).string();
-    switch(extractTravelRoute(ship, file_path, generalErrors)) {
-        case 0:
-            break; // success
-        case FAIL_TO_READ_PATH_CODE:
-            generalErrors.emplace_back("Error: opening route file failed, ignoring this travel folder");
-            return nullptr;
-}
-    if(ship->getRoute().size() <= 1){
-        generalErrors.emplace_back("Error: route file contains less then 2 valid ports, ignoring this travel folder");
+    else {
+        simulator.addNewErrorToGeneralErrors("Error: Fatal error occurred in plan file, ignoring this travel");
         return nullptr;
     }
 
+    file_path = travelFolder[ROUTE].at(0).string();
+    resultInt = extractTravelRoute(ship,file_path,generalErrors);
+    if(resultInt == Route_Fatal){
+        simulator.addNewErrorToGeneralErrors("Error: Fatal error occurred in route file, ignoring this travel");
+        return nullptr;
+    }
+    if(ship->getRoute().size() <= 1){
+        simulator.addNewErrorToGeneralErrors("Error: Route file contains less then 2 valid ports, ignoring this travel");
+        return nullptr;
+    }
+    simulator.updateSimulatorArrayOfCodes(resultInt);
     return ship;
 }
 

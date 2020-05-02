@@ -31,39 +31,39 @@
 
 #define NUM_OF_ERRORS 19
 
-enum class VALIDATION {InvalidID, ExistID, InvalidPort, Valid};
-/**
- * enum class for error codes as pre defined between algorithms and simulator
- * C - is identifier for containers at port
- * reserved - for future use if necessary
- */
-enum class errorCodes {
-    Plan_ZError     = (1 << 0), /*Error at ship plan Z axis*/
-    Plan_XYError    = (1 << 1), /*Error at ship plan xy axis*/
-    Plan_BadLine    = (1 << 2), /*Error bad line reading*/
-    Plan_Fatal      = (1 << 3), /*Fatal Error in ship plan file*/
-    Reserved        = (1 << 4),
-    Route_PortTwice = (1 << 5), /*Port occurs 2 or more consecutive times*/
-    Route_badPortN  = (1 << 6), /*Bad port Number*/
-    Route_Fatal     = (1 << 7), /*Fatal Error in route file*/
-    Route_SingleP   = (1 << 8), /*Single Port in the Route*/
-    Reserved2       = (1 << 9),
-    C_DuplicateId   = (1 << 10),/*2 containers with same Id*/
-    C_IdAlreadyOn   = (1 << 11),/*Id already on ship*/
-    C_WeightIssue   = (1 << 12),/*Any weight issue, bad weight/missing*/
-    C_PortIssue     = (1 << 13),/*Missing port,port not in dest*/
-    C_IdCantRead    = (1 << 14),/*Cant read Id??*/
-    C_IdIllegal     = (1 << 15),/*Id is not illegal ISO 6346*/
-    C_FileCantRead  = (1 << 16),/*Assuming no cargo to load at this port*/
-    C_LastPortCont  = (1 << 17),/*Last port has awaiting containers*/
-    C_ExceedsCap    = (1 << 18) /*total containers amount exceeds ship cap*/
+/*----------------------Common Error Codes-------------------*/
+#define Plan_ZError     (1 << 0) /*Error at ship plan Z axis*/
+#define Plan_XYError    (1 << 1) /*Error at ship plan xy axis*/
+#define Plan_BadLine    (1 << 2) /*Error bad line reading*/
+#define Plan_Fatal      (1 << 3) /*Fatal Error in ship plan file*/
+#define Plan_Exist      (1 << 4) /*Error container block already exist at position*/
+#define Route_PortTwice (1 << 5) /*Port occurs 2 or more consecutive times*/
+#define Route_badPortS  (1 << 6) /*Bad port symbol*/
+#define Route_Fatal     (1 << 7) /*Fatal Error in route file*/
+#define Route_SingleP   (1 << 8) /*Single Port in the Route*/
+#define Reserved2       (1 << 9)
+#define C_DuplicateId   (1 << 10)/*2 containers with same Id*/
+#define C_IdAlreadyOn   (1 << 11)/*Id already on ship*/
+#define C_WeightIssue   (1 << 12)/*Any weight issue, bad weight/missing*/
+#define C_PortIssue     (1 << 13)/*Missing port,port not in dest*/
+#define C_IdCantRead    (1 << 14)/*Cant read Id??*/
+#define C_IdIllegal     (1 << 15)/*Id is not illegal ISO 6346*/
+#define C_FileCantRead  (1 << 16)/*Assuming no cargo to load at this port*/
+#define C_LastPortCont  (1 << 17)/*Last port has awaiting containers*/
+#define C_ExceedsCap    (1 << 18)/*total containers amount exceeds ship cap*/
 
-};
+enum class VALIDATION {InvalidID, ExistID, InvalidPort, Valid};
+
 
 /*----------------------Validate functions-------------------*/
+bool isValidPortFileName(const string& fileName);
+bool isValidShipMapFileName(const string& fileName);
+bool isValidShipRouteFileName(const string& fileName);
+bool isValidTravelName(const string& travelName);
 bool isValidPortName(const string& portName);
+bool isValidInteger(const string str);
 bool validateId(const string& str);
-std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contAtPortPath, std::unique_ptr<Ship>& simShip, int portNumber, list<string>& currAlgErrors, std::array<int,NUM_OF_ERRORS> &errorsArr);
+std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contAtPortPath, std::unique_ptr<Ship>& simShip, int portNumber, list<string>& currAlgErrors, std::array<bool,NUM_OF_ERRORS> &errorsArr);
 bool validateInstruction(string &instruction,string &id,vector<int> &coordinates,std::unique_ptr<Ship>& ship,std::map<string,string> &portContainers,int portNum);
 bool validateLoadInstruction(vector<int> &coordinates,std::unique_ptr<Ship>& ship);
 bool validateUnloadInstruction(vector<int> &coordinates,std::unique_ptr<Ship>& ship);
@@ -86,5 +86,7 @@ vector<string> stringSplit(string s, const char* delimiter);
 void writeToOutput(std::ofstream& output,
                    const std::string& command, const std::string& id,
                    const std::tuple<int,int,int>& pos, const std::tuple<int,int,int>& movedTo);
+void initArrayOfErrors(std::array<bool,NUM_OF_ERRORS> &arr,int num);
+void updateErrorNum(int* currError,int newError);
 
 #endif

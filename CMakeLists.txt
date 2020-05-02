@@ -14,11 +14,11 @@ add_executable(ship3
         port.h
         ship.cpp
         ship.h
-        simulator.cpp
+        main.cpp
         WeightBalanceCalculator.cpp WeightBalanceCalculator.h
         Parser.cpp Parser.h
         outputHandler.cpp outputHandler.h
         common.cpp common.h
         AbstractAlgorithm.h
         lifo_algorithm.cpp lifo_algorithm.h
-        )
+        SimulatorObj.cpp SimulatorObj.h)

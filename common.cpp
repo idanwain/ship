@@ -33,7 +33,7 @@ void execute(std::unique_ptr<Ship>& ship, char command, std::unique_ptr<Containe
  * @param portNumber - the current port number(to get reference were we are at the route)
  * @param currAlgErrors - the algorithm errors list to update
  */
-std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contAtPortPath, std::unique_ptr<Ship>& simShip, int portNumber, list<string>& currAlgErrors, std::array<int,NUM_OF_ERRORS> &errorsArr){
+std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contAtPortPath, std::unique_ptr<Ship>& simShip, int portNumber, list<string>& currAlgErrors, std::array<bool,NUM_OF_ERRORS> &errorsArr){
     std::ifstream instructionsFile;
     string line,id,instruction;
     pair<string,string> idAndInstruction;
@@ -383,28 +383,37 @@ int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,
     std::unique_ptr<std::vector<std::shared_ptr<Port>>> vec = std::make_unique<std::vector<std::shared_ptr<Port>>>();
     string line;
     std::ifstream inFile;
-    int returnStatement = 0;
+    int returnStatement = 0,temporalStatement = 0;
 
     inFile.open(filePath);
     if (inFile.fail()) {
         std::cerr << FAIL_TO_READ_PATH + filePath << endl;
-        returnStatement = FAIL_TO_READ_PATH_CODE;
+        returnStatement = Route_Fatal;
     }
     else {
         while (getline(inFile, line)) {
+            temporalStatement = 0;
             if (line.at(0) == '#') continue; //comment symbol
             else if (isValidPortName(line)) {
                 if(iscntrl(line[line.length() - 1])){
                     line = line.substr(0, line.length() - 1);
                 }
                 if(vec->at(vec->size()-1) && vec->at(vec->size()-1)->get_name() == line){
-                    generalErrors.emplace_back("Port " + line + " 2 or more consecutive times");
+                    generalErrors.emplace_back("Error: Port " + line + " occurs 2 or more consecutive times");
+                    temporalStatement = Route_PortTwice;
                 }
                 else if (!portAlreadyExist(*vec, line)) {
                     std::shared_ptr<Port> p1 = std::make_shared<Port>(line);
                     vec->emplace_back(p1);
                 }
             }
+            else{
+                temporalStatement = Route_badPortS;
+            }
+            updateErrorNum(&returnStatement,temporalStatement);
+        }
+        if((int)vec->size() <= 1){
+            returnStatement += Route_SingleP;
         }
         ship->setRoute(*vec);
     }
@@ -517,4 +526,70 @@ void extractContainersData(const std::string& line, std::string &id, int &weight
     if(!dest_temp){
         dest = dest_temp;
     }
+}
+/**
+ * This function checks if the port file is valid aka <port_symbol>_<num>.<filetype>
+ * @param fileName
+ * @return true iff it's in the right format
+ */
+bool isValidPortFileName(const string& fileName){
+    std::regex reg("[A-Za-z]{5}_[1-9]+.cargo_data");
+    return std::regex_match(fileName, reg);
+}
+
+bool isValidShipRouteFileName(const string& fileName){
+    std::regex reg("ship_route.[A-Za-z]+");
+    return std::regex_match(fileName,reg);
+}
+
+bool isValidShipMapFileName(const string& fileName){
+    std::regex reg("ship_plan.[A-Za-z]+");
+    return std::regex_match(fileName,reg);
+}
+
+/**
+ * This function checks if the travel name folder is in the right format aka "Travel" followed by any valid numbers
+ * @param travelName
+ * @return true iff it's in the right format
+ */
+bool isValidTravelName(const string& travelName){
+    std::regex reg("Travel[1-9]+");
+    return std::regex_match(travelName, reg);
+}
+
+/**
+ * This function gets the array of 19 available errors, and the number that returned from the algorithm run
+ * over the current port and transform this number into bit number, if bit at index i is 1 then there's an error
+ * and array at index length() - i will get the value true as there's an error.
+ * @param arr - the given array
+ * @param num - the number returned from the algortihm run
+ */
+void initArrayOfErrors(std::array<bool,NUM_OF_ERRORS> &arr,int num){
+    string binary = std::bitset<NUM_OF_ERRORS>(num).to_string();
+    int index = 0, length = (int)binary.length()-1;
+    for(index = 0; index <= length; index++){
+        arr[index] = binary.at(length-index) - 48;
+    }
+}
+
+/**
+ * This function gets a curr error number which is a sum of 2^i distinct values only
+ * @param currError - the current error number which we want to update
+ * @param newError - the new error number which we want to compare to, and assign only values which not exist
+ * in the curr error number
+ */
+void updateErrorNum(int* currError,int newError){
+    std::array<bool,NUM_OF_ERRORS> currErrorArr {false};
+    std::array<bool,NUM_OF_ERRORS> newErrorArr  {false};
+    initArrayOfErrors(currErrorArr,*currError);
+    initArrayOfErrors(newErrorArr,newError);
+    for(int i = 0; i < NUM_OF_ERRORS; i++){
+        if(!currErrorArr[i] && newErrorArr[i]){ /*if currError is false then no error yet found, and the other is true then found*/
+            (*currError) += (1 << i);
+        }
+    }
+}
+
+bool isValidInteger(const string str){
+    return std::regex_match(str, std::regex("[(-|+)|][0-9]+"));
 }

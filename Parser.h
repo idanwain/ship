@@ -26,6 +26,7 @@
 #include <iostream>
 #include "ship.h"
 #include <fstream>
+#include "SimulatorObj.h"
 
 using std::cout;
 using std::endl;
@@ -37,29 +38,22 @@ using std::map;
 namespace fs = std::filesystem;
 
 #define CONTAINER_NOT_IN_ROUTE "This container's destination is not in the ship's route"
-#define FAIL_TO_READ_PATH_CODE 7
-#define NEGETIVE_DIMENSION_PARAM 6
 #define FAIL_TO_READ_PATH "Failed to read from this file path "
 #define ROUTE "route"
 #define PLAN "plan"
 
 
+
 int extractPortNumFromFile(const string& fileName);
-bool isValidPortFileName(const string& fileName);
-bool isValidShipMapFileName(const string& fileName);
-bool isValidShipRouteFileName(const string& fileName);
-bool isValidTravelName(const string& travelName);
 int extractArgsForBlocks(std::unique_ptr<Ship>& ship, const std::string& file_path,list<string> &generalErrors);
 int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const std::string& filePath);
-std::unique_ptr<Ship> extractArgsForShip(map<string,vector<fs::path>> &travelFolder,list<string> &generalErrors);
-string setBlocksByLine(std::string &str, std::unique_ptr<Ship> &ship,int lineNumber);
+std::unique_ptr<Ship> extractArgsForShip(string &travelName,SimulatorObj &simulator);
+pair<string,int> setBlocksByLine(std::string &str, std::unique_ptr<Ship> &ship,int lineNumber);
 void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str);
 int portAlreadyExist(std::vector<std::shared_ptr<Port>>& vec,string &str);
 void parseDataFromPortFile(std::map<string,string>& map, string &inputPath);
 int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship);
 string extractPortNameFromFile(string fileName);
-void insertPortFile(map<string,vector<fs::path>> &travelMap,string &portName, int portNum, const fs::path &entry);
-void initListDirectories(string &path,map<string,map<string,vector<fs::path>>> &directories);
 //string* getPortNameFromFile(string &filePath);
 
 #endif
