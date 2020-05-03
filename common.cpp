@@ -73,7 +73,8 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
         else{
             string msg = "Error: container id: " + id + ", instruction: " + instruction;
             currAlgErrors.emplace_back(msg);
-            errorsCount++;
+            errorsCount = -1;
+            break;
         }
     }
     instructionsFile.close();
@@ -539,12 +540,12 @@ bool isValidPortFileName(const string& fileName){
 }
 
 bool isValidShipRouteFileName(const string& fileName){
-    std::regex reg("ship_route.[A-Za-z]+");
+    std::regex reg(".*\\.route");
     return std::regex_match(fileName,reg);
 }
 
 bool isValidShipMapFileName(const string& fileName){
-    std::regex reg("ship_plan.[A-Za-z]+");
+    std::regex reg(".*\\.ship_plan");
     return std::regex_match(fileName,reg);
 }
 

@@ -78,13 +78,6 @@ void SimulatorObj::addResultsInfo(string &travelName){
     this->outputResultsInfo.insert(make_pair(travelName,algInfo));
 }
 
-void SimulatorObj::resetOutputLists(){
-    this->currTravelErrors.clear();
-    this->currTravelGeneralErrors.clear();
-    this->algInfo.clear();
-
-}
-
 map<string,map<string,list<string>>>& SimulatorObj::getErrorsInfo(){
     return this->outputErrorsInfo;
 }
@@ -109,7 +102,7 @@ std::array<bool,NUM_OF_ERRORS>& SimulatorObj::getCommonErrors(){
     return this->algErrorCodes;
 }
 
-std::array<bool,NUM_OF_SIM_ERRORS>& SimulatorObj:: getSimErrors(){
+std::array<bool,NUM_OF_ERRORS>& SimulatorObj:: getSimErrors(){
     return this->simErrorCodes;
 }
 
@@ -137,11 +130,12 @@ void SimulatorObj::createResultsFile(string path){
         std::cerr << "Error: failed to create results file" << std::endl;
         exit(EXIT_FAILURE);
     }
-
     for(auto &map : output_map)//Get travel Names
         travels.emplace_back(map.first);
     for(auto &outterPair : output_map[travels.front()])//Get algNames
         algNames.emplace_back(outterPair.first);
+
+    sortAlgorithms(output_map,algNames);
 
     inFile << "RESULTS" << comma;
     for(string &travel_name : travels)
@@ -174,6 +168,8 @@ void SimulatorObj::createErrorsFile(string path) {
     const string spaces = "      ";//6spaces
     std::ofstream inFile;
     auto &simErrors = this->outputErrorsInfo;
+    if(simErrors.empty())
+        return;
     path.append(PATH_SEPARATOR);
     path.append("simulation.errors");
     inFile.open(path);
@@ -214,13 +210,14 @@ string createAlgorithmOutDirectory(const string &algName,const string &outputDir
 void SimulatorObj::runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> &alg, string &travelName){
     list<string> simCurrAlgErrors;
     map<string,int> visitNumbersByPort;
+    int res = 0;
     vector<std::shared_ptr<Port>> route = this->simShip->getRoute();
     string algOpFolder = createAlgorithmOutDirectory(alg.first,mainOutputPath,travelName);
-    for(int portNum = 0; portNum < (int)route.size(); portNum++){
+    for(int portNum = 0; portNum < (int)route.size() && res != -1; portNum++){
         string portName = route[portNum]->get_name();
         int visitNumber = visitNumbersByPort[portName];
         fs::path portPath(this->inputFiles[travelName][portName][visitNumber]);
-        runCurrentPort(portName,portPath,portNum,alg,simCurrAlgErrors,algOpFolder,++visitNumbersByPort[portName]);
+        res = runCurrentPort(portName,portPath,portNum,alg,simCurrAlgErrors,algOpFolder,++visitNumbersByPort[portName]);
     }
     currTravelErrors.insert(make_pair(alg.first, simCurrAlgErrors));
 }
@@ -237,7 +234,7 @@ void SimulatorObj::runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgor
  * @param visitNumber       - current port visit number
  * @param algInfo           - stores the data of instructions count and errors count
  */
-void SimulatorObj::runCurrentPort(string &portName,fs::path &portPath,int portNum,pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,
+int SimulatorObj::runCurrentPort(string &portName,fs::path &portPath,int portNum,pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,
                     list<string> &simCurrAlgErrors,string &algOutputFolder,int visitNumber){
 
     string inputPath,outputPath;
@@ -254,7 +251,7 @@ void SimulatorObj::runCurrentPort(string &portName,fs::path &portPath,int portNu
     this->updateArrayOfCodes(algReturnValue,"alg");
 
     result = validateAlgorithm(outputPath,inputPath,portNum,simCurrAlgErrors,this);
-    if(!result) return; //case there was an error in validateAlgorithm
+    if(!result) return -1; //case there was an error in validateAlgorithm
 
     /*Incrementing the instructions count and errors count*/
     intAndError = result.value();
@@ -265,6 +262,7 @@ void SimulatorObj::runCurrentPort(string &portName,fs::path &portPath,int portNu
     }
     std::get<0>(algInfo[alg.first]) += instructionsCount;
     std::get<1>(algInfo[alg.first]) += errorsCount;
+    return errorsCount;
 }
 
 void SimulatorObj::updateArrayOfCodes(int num, string type){
@@ -277,6 +275,113 @@ void SimulatorObj::updateArrayOfCodes(int num, string type){
             this->simErrorCodes[i] = true;
         }
     }
+}
+
+
+void SimulatorObj::addListOfGeneralErrors(list<string> &generalErrors){
+    for(string &msg : generalErrors){
+        this->currTravelGeneralErrors.emplace_back(msg);
+    }
+}
+
+void SimulatorObj::createErrorsFromArray(){
+    auto &arr = simErrorCodes;
+    list<string> errList;
+    if(arr[0])
+        errList.emplace_back("ship plan: a position has an equal number of floors, or more, "
+                             "than the number of floors provided in the first line (ignored)");
+    if(arr[1])
+        errList.emplace_back("ship plan: a given position exceeds the X/Y ship limits (ignored)");
+    if(arr[2])
+        errList.emplace_back("ship plan: bad line format after first line or duplicate x,y appearance with same data (ignored)");
+    if(arr[3])
+        errList.emplace_back("ship plan: travel error - bad first line or file cannot be read altogether (cannot run this travel)");
+    if(arr[4])
+        errList.emplace_back("ship plan: travel error - duplicate x,y appearance with different data (cannot run this travel)");
+    if(arr[5])
+        errList.emplace_back("travel route: a port appears twice or more consecutively (ignored)");
+    if(arr[6])
+        errList.emplace_back("travel route: bad port symbol format (ignored)");
+    if(arr[7])
+        errList.emplace_back("travel route: travel error - empty file or file cannot be read altogether (cannot run this travel)");
+    if(arr[8])
+        errList.emplace_back("travel route: travel error - file with only a single valid port (cannot run this travel)");
+    if(arr[9])
+        /*reserved*/
+        if(arr[10])
+            errList.emplace_back("containers at port: duplicate ID on port (ID rejected)");
+    if(arr[11])
+        errList.emplace_back("containers at port: ID already on ship (ID rejected)");
+    if(arr[12])
+        errList.emplace_back("containers at port: bad line format, missing or bad weight (ID rejected)");
+    if(arr[13])
+        errList.emplace_back("containers at port: bad line format, missing or bad port dest (ID rejected)");
+    if(arr[14])
+        errList.emplace_back("containers at port: bad line format, ID cannot be read (ignored)");
+    if(arr[15])
+        errList.emplace_back("containers at port: illegal ID check ISO 6346 (ID rejected)");
+    if(arr[16])
+        errList.emplace_back("containers at port: file cannot be read altogether (assuming no cargo to be loaded at this port)");
+    if(arr[17])
+        errList.emplace_back("containers at port: last port has waiting containers (ignored)");
+    if(arr[18])
+        errList.emplace_back("containers at port: total containers amount exceeds ship capacity (rejecting far containers)");
+
+    /*TODO need to add the list to general errors or something*/
+
+}
+
+void SimulatorObj:: initNewTravel() {
+    this->algErrorCodes = std::array<bool,NUM_OF_ERRORS>{false};
+    this->simErrorCodes = std::array<bool,NUM_OF_ERRORS>{false};
+    this->currTravelGeneralErrors.clear();
+    this->currTravelErrors.clear();
+    this->algInfo.clear();
+}
+
+/**
+ * This function sorts the algorithms output info list and assigning the order to the algorithms list
+ * such that:
+ * 1.sorting is based on --> 0 errors count(0 before -1..), then lowest instructions count
+ * @param outputInfo
+ * @param algorithms
+ */
+void sortAlgorithms(map<string,map<string,pair<int,int>>> &outputInfo,list<string> &algorithms){
+    map<string,pair<int,int>> algAndValues;
+    vector<std::tuple<string,int,int>> sortedVec;
+    for(auto &alg : algorithms){
+        algAndValues.insert(make_pair(alg,pair<int,int>()));
+    }
+
+    /*Gather the overall score of travel X algorithms*/
+    for(auto &algName : algorithms){
+        for(auto &travel : outputInfo){
+            if(travel.second.find(algName) != travel.second.end()){
+                algAndValues[algName].first += travel.second[algName].first;
+                algAndValues[algName].second += travel.second[algName].second;
+            }
+        }
+    }
+    for(auto &alg: algAndValues){
+        std::tuple<string,int,int> tup;
+        std::get<0>(tup) = alg.first;
+        std::get<1>(tup) = alg.second.first;
+        std::get<2>(tup) = alg.second.second;
+        sortedVec.emplace_back(tup);
+    }
+    /*first will occur algorithms with 0 errors and lowest instructions*/
+    std::sort(sortedVec.begin(),sortedVec.end(),[](const std::tuple<string,int,int> &t1,const std::tuple<string,int,int> &t2)
+            ->bool {
+        if(std::get<2>(t1) == std::get<2>(t2)){
+            return std::get<1>(t1) > std::get<1>(t2);
+        } else
+            return std::get<2>(t1) < std::get<2>(t2);
+    });
+    algorithms.clear();
+    for(auto& alg : sortedVec){
+        algorithms.emplace_back(std::get<0>(alg));
+    }
+
 }
 
 void SimulatorObj::initCalc(const string& file_path) {

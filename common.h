@@ -44,9 +44,9 @@
 /*----------------------Common Error Codes-------------------*/
 #define Plan_ZError     (1 << 0) /*Error at ship plan Z axis*/
 #define Plan_XYError    (1 << 1) /*Error at ship plan xy axis*/
-#define Plan_BadLine    (1 << 2) /*Error bad line reading*/
+#define Plan_BadLine    (1 << 2) /*Error bad line reading or duplicates*/
 #define Plan_Fatal      (1 << 3) /*Fatal Error in ship plan file*/
-#define Plan_Exist      (1 << 4) /*Error container block already exist at position*/
+#define Plan_Con        (1 << 4) /*Fatal Error already given x,y constraints with different Z coordinate*/
 #define Route_PortTwice (1 << 5) /*Port occurs 2 or more consecutive times*/
 #define Route_badPortS  (1 << 6) /*Bad port symbol*/
 #define Route_Fatal     (1 << 7) /*Fatal Error in route file*/

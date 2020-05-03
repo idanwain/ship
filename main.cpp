@@ -38,7 +38,6 @@ string mainOutputPath;
  */
 void initAlgorithmList(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algList){
 //    //TODO make polymorphic algorithm factory & change to smart pointers
-//      TODO init calc
 //    std::unique_ptr<AbstractAlgorithm> lifoAlgorithm = std::make_unique<Lifo_algorithm>();
 //    std::unique_ptr<AbstractAlgorithm> unsortedLifoAlgorithm = std::make_unique<Unsorted_Lifo_Algorithm>();
 //    std::unique_ptr<AbstractAlgorithm> erroneousAlgorithm = std::make_unique<Erroneous_algorithm>();
@@ -82,12 +81,30 @@ void initPaths(int argc,char** argv){
     mainTravelPath = argv[1];
 }
 
+/**
+ * This function gets the algorithms.so files from the mainAlgorithms path (if given or from current path)
+ * and saves the paths in the given vector.
+ * @param algPaths
+ */
+void getAlgSoFiles(vector<fs::path> &algPaths){
+    std::regex reg("_[0-9]+_[a-z]+.so");
+    for(const auto &entry : fs::directory_iterator(mainAlgorithmsPath)) {
+        if (!entry.is_directory()) {
+            if (std::regex_match(entry.path().filename().string(), reg)) {
+                algPaths.emplace_back(entry);
+            }
+        }
+    }
+}
+
 
 int main(int argc, char** argv) {
 
     vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec;
+    vector<fs::path> algPaths;
     initPaths(argc,argv);
     std::unique_ptr<SimulatorObj> simulator = std::make_unique<SimulatorObj>(mainTravelPath,mainOutputPath);
+    getAlgSoFiles(algPaths);
     initAlgorithmList(algVec);
 
     /*Cartesian Loop*/
@@ -96,9 +113,10 @@ int main(int argc, char** argv) {
         std::unique_ptr<Ship> mainShip = extractArgsForShip(currTravelName,*simulator);
         if(mainShip == nullptr){
             simulator->addOutputInfo(currTravelName);
-            continue; /* can happen if either route/map files are erroneous*/
+            simulator->initNewTravel();
+            continue;
         }
-        //TODO init calc here
+        mainShip->initCalc();
         for (auto &alg : algVec) {
             WeightBalanceCalculator algCalc;
             int errCode1 = alg.second->readShipPlan(travel_folder.second.at(PLAN).at(0).string());
@@ -110,7 +128,7 @@ int main(int argc, char** argv) {
             simulator->getShip().reset(nullptr);
         }
         simulator->addOutputInfo(currTravelName);
-        simulator->resetOutputLists();
+        simulator->initNewTravel();
         mainShip.reset(nullptr);
     }
     simulator->createResultsFile(mainTravelPath);
