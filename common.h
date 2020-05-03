@@ -25,8 +25,18 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include "Parser.h"
 #include <cmath>
+#include <string>
+#include <vector>
+#include <list>
+#include <regex>
+#include <filesystem>
+#include <iostream>
+#include <fstream>
+#include "ship.h"
+#include "Parser.h"
+#include "SimulatorObj.h"
+
 /*----------------------Prefix variables-------------------*/
 
 #define NUM_OF_ERRORS 19
@@ -63,7 +73,7 @@ bool isValidTravelName(const string& travelName);
 bool isValidPortName(const string& portName);
 bool isValidInteger(const string str);
 bool validateId(const string& str);
-std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contAtPortPath, std::unique_ptr<Ship>& simShip, int portNumber, list<string>& currAlgErrors, std::array<bool,NUM_OF_ERRORS> &errorsArr);
+std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contAtPortPath,int portNumber, list<string>& currAlgErrors,SimulatorObj* simulator);
 bool validateInstruction(string &instruction,string &id,vector<int> &coordinates,std::unique_ptr<Ship>& ship,std::map<string,string> &portContainers,int portNum);
 bool validateLoadInstruction(vector<int> &coordinates,std::unique_ptr<Ship>& ship);
 bool validateUnloadInstruction(vector<int> &coordinates,std::unique_ptr<Ship>& ship);

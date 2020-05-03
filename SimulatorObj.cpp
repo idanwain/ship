@@ -69,19 +69,20 @@ void SimulatorObj::insertPortFile(map<string, vector<fs::path> > &travelMap, str
 
     travelMap[portName].at(portNum-1) = entry;
 }
-void SimulatorObj::addErrorsInfo(string &travelName,map<string,list<string>> &ErrorsToAdd){
-    this->outputErrorsInfo.insert(make_pair(travelName,ErrorsToAdd));
+void SimulatorObj::addErrorsInfo(string &travelName){
+    this->outputErrorsInfo.insert(make_pair(travelName,currTravelErrors));
     this->outputErrorsInfo[travelName].insert(make_pair("general",this->currTravelGeneralErrors));
 }
 
-void SimulatorObj::clearCurrTravelErrorsList(){
-    this->currTravelGeneralErrors.clear();
-    this->currTravelErrors.clear();
+void SimulatorObj::addResultsInfo(string &travelName){
+    this->outputResultsInfo.insert(make_pair(travelName,algInfo));
 }
 
+void SimulatorObj::resetOutputLists(){
+    this->currTravelErrors.clear();
+    this->currTravelGeneralErrors.clear();
+    this->algInfo.clear();
 
-void SimulatorObj::addResultsInfo(string &travelName,map<string,pair<int,int>> &algInfo){
-    this->outputResultsInfo.insert(make_pair(travelName,algInfo));
 }
 
 map<string,map<string,list<string>>>& SimulatorObj::getErrorsInfo(){
@@ -91,12 +92,12 @@ map<string,map<string,list<string>>>& SimulatorObj::getErrorsInfo(){
 map<string,map<string,pair<int,int>>>& SimulatorObj::getResultsInfo(){
     return this->outputResultsInfo;
 }
-void SimulatorObj::addOutputInfo(string& travelName,map<string,pair<int,int>> &algResultInfo,map<string,list<string>> &ErrorsToAdd){
-    if(!ErrorsToAdd.empty()){
-        this->addErrorsInfo(travelName,ErrorsToAdd);
+void SimulatorObj::addOutputInfo(string& travelName){
+    if(!currTravelErrors.empty()){
+        this->addErrorsInfo(travelName);
     }
-    if(!algResultInfo.empty()){
-        this->addResultsInfo(travelName,algResultInfo);
+    if(!algInfo.empty()){
+        this->addResultsInfo(travelName);
     }
 }
 
@@ -105,7 +106,7 @@ map<string,map<string,vector<fs::path>>>& SimulatorObj::getInputFiles(){
 }
 
 std::array<bool,NUM_OF_ERRORS>& SimulatorObj::getCommonErrors(){
-    return this->commonErrorCodes;
+    return this->algErrorCodes;
 }
 
 std::array<bool,NUM_OF_SIM_ERRORS>& SimulatorObj:: getSimErrors(){
@@ -210,18 +211,18 @@ string createAlgorithmOutDirectory(const string &algName,const string &outputDir
     return algOutDirectory;
 }
 
-void SimulatorObj::runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,string &travelName,map<string,list<string>> &simCurrTravelErrors,map<string,pair<int,int>> &algInfo){
+void SimulatorObj::runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> &alg, string &travelName){
     list<string> simCurrAlgErrors;
     map<string,int> visitNumbersByPort;
     vector<std::shared_ptr<Port>> route = this->simShip->getRoute();
+    string algOpFolder = createAlgorithmOutDirectory(alg.first,mainOutputPath,travelName);
     for(int portNum = 0; portNum < (int)route.size(); portNum++){
         string portName = route[portNum]->get_name();
         int visitNumber = visitNumbersByPort[portName];
         fs::path portPath(this->inputFiles[travelName][portName][visitNumber]);
-        string algOpFolder = createAlgorithmOutDirectory(alg.first,mainOutputPath,travelName);
-        runCurrentPort(portName,portPath,portNum,alg,simCurrAlgErrors,algOpFolder,++visitNumbersByPort[portName],algInfo);
+        runCurrentPort(portName,portPath,portNum,alg,simCurrAlgErrors,algOpFolder,++visitNumbersByPort[portName]);
     }
-    simCurrTravelErrors.insert(make_pair(alg.first,simCurrAlgErrors));
+    currTravelErrors.insert(make_pair(alg.first, simCurrAlgErrors));
 }
 
 /**
@@ -237,13 +238,12 @@ void SimulatorObj::runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgor
  * @param algInfo           - stores the data of instructions count and errors count
  */
 void SimulatorObj::runCurrentPort(string &portName,fs::path &portPath,int portNum,pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,
-                    list<string> &simCurrAlgErrors,string &algOutputFolder,int visitNumber,map<string,pair<int,int>> &algInfo){
+                    list<string> &simCurrAlgErrors,string &algOutputFolder,int visitNumber){
 
     string inputPath,outputPath;
     int instructionsCount, errorsCount, algReturnValue;
     std::optional<pair<int,int>> result;
     pair<int,int> intAndError;
-    std::array<bool,NUM_OF_ERRORS> errors{false};
     if(portPath.empty())
         inputPath = "";
     else
@@ -251,9 +251,9 @@ void SimulatorObj::runCurrentPort(string &portName,fs::path &portPath,int portNu
 
     outputPath = algOutputFolder + PATH_SEPARATOR + portName + "_" + std::to_string(visitNumber) + ".crane_instructions";
     algReturnValue = alg.second->getInstructionsForCargo(inputPath,outputPath);
+    this->updateArrayOfCodes(algReturnValue,"alg");
 
-    initArrayOfErrors(errors,algReturnValue);
-    result = validateAlgorithm(outputPath,inputPath,simShip,portNum,simCurrAlgErrors,errors);
+    result = validateAlgorithm(outputPath,inputPath,portNum,simCurrAlgErrors,this);
     if(!result) return; //case there was an error in validateAlgorithm
 
     /*Incrementing the instructions count and errors count*/
@@ -267,13 +267,16 @@ void SimulatorObj::runCurrentPort(string &portName,fs::path &portPath,int portNu
     std::get<1>(algInfo[alg.first]) += errorsCount;
 }
 
-void SimulatorObj::updateSimulatorArrayOfCodes(int num){
-    std::array<bool,NUM_OF_ERRORS> numArr;
+void SimulatorObj::updateArrayOfCodes(int num, string type){
+    std::array<bool,NUM_OF_ERRORS> numArr{false};
     initArrayOfErrors(numArr,num);
     for(int i = 0; i < NUM_OF_ERRORS; i++){
-        if(numArr[i])
-            this->commonErrorCodes[i] = true;
+        if(numArr[i] && type == "alg")
+            this->algErrorCodes[i] = true;
+        else if(numArr[i] && type == "sim"){
+            this->simErrorCodes[i] = true;
+        }
     }
-
 }
+
 

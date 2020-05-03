@@ -24,9 +24,10 @@
 #include <regex>
 #include <filesystem>
 #include <iostream>
-#include "ship.h"
 #include <fstream>
-#include "SimulatorObj.h"
+#include "common.h"
+
+class SimulatorObj;
 
 using std::cout;
 using std::endl;
@@ -41,7 +42,6 @@ namespace fs = std::filesystem;
 #define FAIL_TO_READ_PATH "Failed to read from this file path "
 #define ROUTE "route"
 #define PLAN "plan"
-
 
 
 int extractPortNumFromFile(const string& fileName);

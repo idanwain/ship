@@ -85,31 +85,29 @@ void initPaths(int argc,char** argv){
 int main(int argc, char** argv) {
 
     vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec;
-    std::unique_ptr<SimulatorObj> simulator = std::make_unique<SimulatorObj>(mainTravelPath,mainOutputPath);
     initPaths(argc,argv);
+    std::unique_ptr<SimulatorObj> simulator = std::make_unique<SimulatorObj>(mainTravelPath,mainOutputPath);
     initAlgorithmList(algVec);
-
 
     /*Cartesian Loop*/
     for (auto &travel_folder : simulator->getInputFiles()) {
-        map<string,list<string>> simCurrTravelErrors;
         string currTravelName = travel_folder.first;
         std::unique_ptr<Ship> mainShip = extractArgsForShip(currTravelName,*simulator);
         if(mainShip == nullptr){
-            simulator->addErrorsInfo(currTravelName,simCurrTravelErrors);
-            simulator->clearCurrTravelErrorsList();
+            simulator->addOutputInfo(currTravelName);
             continue; /* can happen if either route/map files are erroneous*/
         }
         mainShip->initCalc();
-        map<string,pair<int,int>> algInfo; /*This is a list of algorithms and counting their errors and instruction per travel*/
         for (auto &alg : algVec) {
             int errCode1 = alg.second->readShipPlan(travel_folder.second.at(PLAN).at(0).string());
             int errCode2 = alg.second->readShipRoute(travel_folder.second.at(ROUTE).at(0).string());
+            simulator->updateArrayOfCodes(errCode1 + errCode2,"alg");
             simulator->setShip(mainShip);
-            simulator->runCurrentAlgorithm(alg,currTravelName,simCurrTravelErrors,algInfo);
+            simulator->runCurrentAlgorithm(alg,currTravelName);
             simulator->getShip().reset(nullptr);
         }
-        simulator->addOutputInfo(currTravelName,algInfo,simCurrTravelErrors);
+        simulator->addOutputInfo(currTravelName);
+        simulator->resetOutputLists();
         mainShip.reset(nullptr);
     }
     simulator->createResultsFile(mainTravelPath);

@@ -8,11 +8,16 @@
 #include <regex>
 #include <filesystem>
 #include <iostream>
-#include "ship.h"
 #include <fstream>
 #include "AbstractAlgorithm.h"
 #include "common.h"
-#include "outputHandler.h"
+
+#if defined(WIN32) || defined(_WIN32)
+#define PATH_SEPARATOR "\\"
+#else
+#define PATH_SEPARATOR "/"
+#endif
+
 
 using std::cout;
 using std::endl;
@@ -22,18 +27,20 @@ using std::vector;
 using std::pair;
 using std::map;
 namespace fs = std::filesystem;
-#define NUM_OF_ERRORS 19
+
 #define NUM_OF_SIM_ERRORS 2
+#define NUM_OF_ERRORS 19
 
 class SimulatorObj {
 
     map<string,map<string,pair<int,int>>> outputResultsInfo;
     map<string,map<string,list<string>>> outputErrorsInfo;
     map<string,map<string,vector<fs::path>>> inputFiles;
-    map<string,list<string>> currTravelErrors;
-    list<strings> currTravelGeneralErrors;
-    std::array<bool,NUM_OF_ERRORS> commonErrorCodes{false};
-    std::array<bool,NUM_OF_SIM_ERRORS> simErrorCodes{false};
+    map<string,pair<int,int>> algInfo; /*Including algorithm name, pair<instructions count, errors count>*/
+    map<string,list<string>> currTravelErrors; /*Including algorithm name, list of errors found by simulator*/
+    list<string> currTravelGeneralErrors;/*General errors per certain travel*/
+    std::array<bool,NUM_OF_ERRORS> algErrorCodes{false};
+    std::array<bool,NUM_OF_ERRORS> simErrorCodes{false};
     std::unique_ptr<Ship> simShip = nullptr;
 
     string mainOutputPath;
@@ -45,18 +52,18 @@ public:
     static void insertPortFile(map<string,vector<fs::path>> &travelMap,string &portName, int portNum, const fs::path &entry);
     void initListDirectories(string &path);
     void setShip(std::unique_ptr<Ship> &getShip);
-    void addErrorsInfo(string &travelName,map<string,list<string>> &ErrorsToAdd);
-    void addResultsInfo(string &travelName,map<string,pair<int,int>> &algInfo);
-    void addOutputInfo(string& travelName,map<string,pair<int,int>> &algResultInfo,map<string,list<string>> &ErrorsToAdd);
+    void addErrorsInfo(string &travelName);
+    void addResultsInfo(string &travelName);
+    void addOutputInfo(string& travelName);
     void createResultsFile(string path);
     void createErrorsFile(string path);
-    void runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,string &travelName,map<string,list<string>> &simCurrTravelErrors,map<string,pair<int,int>> &algInfo);
+    void runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> &alg, string &travelName);
     void runCurrentPort(string &portName,fs::path &portPath,int portNum,pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,
-                                      list<string> &simCurrAlgErrors,string &algOutputFolder,int visitNumber,map<string,pair<int,int>> &algInfo);
+                                      list<string> &simCurrAlgErrors,string &algOutputFolder,int visitNumber);
     void addNewTravelListErrors(list<string> &listErrors,string errListName);
     void addNewErrorToGeneralErrors(string msg);
-    void clearCurrTravelErrorsList();
-    void updateSimulatorArrayOfCodes(int num);
+    void updateArrayOfCodes(int num, string type);
+    void resetOutputLists();
     map<string,map<string,list<string>>>& getErrorsInfo();
     map<string,map<string,pair<int,int>>>& getResultsInfo();
     map<string,map<string,vector<fs::path>>>& getInputFiles();

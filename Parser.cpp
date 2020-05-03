@@ -207,18 +207,18 @@ std::unique_ptr<Ship> extractArgsForShip(string &travelName,SimulatorObj &simula
             simulator.addNewErrorToGeneralErrors("Error: Lack of plan file, ignoring this travel");
         return nullptr;
     }
-    file_path = travelFolder[PLAN].at(0).string();
+    file_path = travelFolder[PLAN].at(1).string();
     int resultInt = extractShipPlan(file_path,ship);
     if(resultInt == 0){
         resultInt = extractArgsForBlocks(ship,file_path,generalErrors);
-        simulator.updateSimulatorArrayOfCodes(resultInt);
+        simulator.updateArrayOfCodes(resultInt, "sim");
     }
     else {
         simulator.addNewErrorToGeneralErrors("Error: Fatal error occurred in plan file, ignoring this travel");
         return nullptr;
     }
 
-    file_path = travelFolder[ROUTE].at(0).string();
+    file_path = travelFolder[ROUTE].at(1).string();
     resultInt = extractTravelRoute(ship,file_path,generalErrors);
     if(resultInt == Route_Fatal){
         simulator.addNewErrorToGeneralErrors("Error: Fatal error occurred in route file, ignoring this travel");
@@ -228,7 +228,7 @@ std::unique_ptr<Ship> extractArgsForShip(string &travelName,SimulatorObj &simula
         simulator.addNewErrorToGeneralErrors("Error: Route file contains less then 2 valid ports, ignoring this travel");
         return nullptr;
     }
-    simulator.updateSimulatorArrayOfCodes(resultInt);
+    simulator.updateArrayOfCodes(resultInt, "sim");
     return ship;
 }
 

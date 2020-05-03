@@ -33,12 +33,13 @@ void execute(std::unique_ptr<Ship>& ship, char command, std::unique_ptr<Containe
  * @param portNumber - the current port number(to get reference were we are at the route)
  * @param currAlgErrors - the algorithm errors list to update
  */
-std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contAtPortPath, std::unique_ptr<Ship>& simShip, int portNumber, list<string>& currAlgErrors, std::array<bool,NUM_OF_ERRORS> &errorsArr){
+std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contAtPortPath,int portNumber, list<string>& currAlgErrors,SimulatorObj* simulator){
     std::ifstream instructionsFile;
     string line,id,instruction;
     pair<string,string> idAndInstruction;
     map<string,string> linesFromPortFile;
     int errorsCount = 0,instructionsCount = 0;
+
     instructionsFile.open(outputPath);
     parseDataFromPortFile(linesFromPortFile, contAtPortPath);
     if(instructionsFile.fail()) {
@@ -51,20 +52,20 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
         instruction = std::get<0>(idAndInstruction);
         id = std::get<1>(idAndInstruction);
         /*if the below statement pass test, then we can execute instruction or if it's reject then do nothing as we need to reject*/
-        if(validateInstruction(instruction, id, coordinates, simShip, linesFromPortFile, portNumber)){
+        if(validateInstruction(instruction, id, coordinates, simulator->getShip(), linesFromPortFile, portNumber)){
             if(instruction == "R")continue;
             coordinate one = std::tuple<int,int>(coordinates[0],coordinates[1]);
             std::unique_ptr<Container> cont = std::make_unique<Container>(id);
             if(instruction == "L") {
-                execute(simShip, instruction.at(0), cont, one, std::forward_as_tuple(-1, -1));
+                execute(simulator->getShip(), instruction.at(0), cont, one, std::forward_as_tuple(-1, -1));
             }
             else if(instruction == "U"){
-                execute(simShip, instruction.at(0), cont, one, std::forward_as_tuple(-1, -1));
+                execute(simulator->getShip(), instruction.at(0), cont, one, std::forward_as_tuple(-1, -1));
                 cont.reset(nullptr);
             }
             else if(instruction == "M"){
                 coordinate two = std::tuple<int,int>(coordinates[3],coordinates[4]);
-                execute(simShip, instruction.at(0), cont, one, two);
+                execute(simulator->getShip(), instruction.at(0), cont, one, two);
                 cont.reset(nullptr);
             }
             instructionsCount++;
@@ -591,5 +592,5 @@ void updateErrorNum(int* currError,int newError){
 }
 
 bool isValidInteger(const string str){
-    return std::regex_match(str, std::regex("[(-|+)|][0-9]+"));
+    return std::regex_match(str, std::regex("[(-|+)|]*[0-9]+"));
 }
