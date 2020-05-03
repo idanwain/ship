@@ -81,12 +81,30 @@ void initPaths(int argc,char** argv){
     mainTravelPath = argv[1];
 }
 
+/**
+ * This function gets the algorithms.so files from the mainAlgorithms path (if given or from current path)
+ * and saves the paths in the given vector.
+ * @param algPaths
+ */
+void getAlgSoFiles(vector<fs::path> &algPaths){
+    std::regex reg("_[0-9]+_[a-z]+.so");
+    for(const auto &entry : fs::directory_iterator(mainAlgorithmsPath)) {
+        if (!entry.is_directory()) {
+            if (std::regex_match(entry.path().filename().string(), reg)) {
+                algPaths.emplace_back(entry);
+            }
+        }
+    }
+}
+
 
 int main(int argc, char** argv) {
 
     vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec;
+    vector<fs::path> algPaths;
     initPaths(argc,argv);
     std::unique_ptr<SimulatorObj> simulator = std::make_unique<SimulatorObj>(mainTravelPath,mainOutputPath);
+    getAlgSoFiles(algPaths);
     initAlgorithmList(algVec);
 
     /*Cartesian Loop*/
@@ -95,19 +113,20 @@ int main(int argc, char** argv) {
         std::unique_ptr<Ship> mainShip = extractArgsForShip(currTravelName,*simulator);
         if(mainShip == nullptr){
             simulator->addOutputInfo(currTravelName);
-            continue; /* can happen if either route/map files are erroneous*/
+            simulator->initNewTravel();
+            continue;
         }
         mainShip->initCalc();
         for (auto &alg : algVec) {
             int errCode1 = alg.second->readShipPlan(travel_folder.second.at(PLAN).at(0).string());
             int errCode2 = alg.second->readShipRoute(travel_folder.second.at(ROUTE).at(0).string());
-            simulator->updateArrayOfCodes(errCode1 + errCode2,"alg");
+            simulator->updateArrayOfCodes(errCode1 + errCode2,"alg"); /*not mandatory*/
             simulator->setShip(mainShip);
             simulator->runCurrentAlgorithm(alg,currTravelName);
             simulator->getShip().reset(nullptr);
         }
         simulator->addOutputInfo(currTravelName);
-        simulator->resetOutputLists();
+        simulator->initNewTravel();
         mainShip.reset(nullptr);
     }
     simulator->createResultsFile(mainTravelPath);

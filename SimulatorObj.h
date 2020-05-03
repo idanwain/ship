@@ -11,6 +11,7 @@
 #include <fstream>
 #include "AbstractAlgorithm.h"
 #include "common.h"
+#include <algorithm>
 
 #if defined(WIN32) || defined(_WIN32)
 #define PATH_SEPARATOR "\\"
@@ -28,7 +29,6 @@ using std::pair;
 using std::map;
 namespace fs = std::filesystem;
 
-#define NUM_OF_SIM_ERRORS 2
 #define NUM_OF_ERRORS 19
 
 class SimulatorObj {
@@ -58,17 +58,19 @@ public:
     void createResultsFile(string path);
     void createErrorsFile(string path);
     void runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> &alg, string &travelName);
-    void runCurrentPort(string &portName,fs::path &portPath,int portNum,pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,
+    int runCurrentPort(string &portName,fs::path &portPath,int portNum,pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,
                                       list<string> &simCurrAlgErrors,string &algOutputFolder,int visitNumber);
     void addNewTravelListErrors(list<string> &listErrors,string errListName);
     void addNewErrorToGeneralErrors(string msg);
+    void addListOfGeneralErrors(list<string> &generalErrors);
     void updateArrayOfCodes(int num, string type);
-    void resetOutputLists();
+    void initNewTravel();
+    void createErrorsFromArray();
     map<string,map<string,list<string>>>& getErrorsInfo();
     map<string,map<string,pair<int,int>>>& getResultsInfo();
     map<string,map<string,vector<fs::path>>>& getInputFiles();
     std::array<bool,NUM_OF_ERRORS>& getCommonErrors();
-    std::array<bool,NUM_OF_SIM_ERRORS>& getSimErrors();
+    std::array<bool,NUM_OF_ERRORS>& getSimErrors();
     std::unique_ptr<Ship>& getShip();
 
 
@@ -76,10 +78,8 @@ public:
 
 /*----------------------Non Simulator object functions-------------------*/
 string createAlgorithmOutDirectory(const string &algName,const string &outputDirectory,const string &travelName);
+void sortAlgorithms(map<string,map<string,pair<int,int>>> &outputInfo,list<string> &algorithm);
 
-enum simErrorCodes {
-    S_NoPortFile    = (1 << 0),/*Simulator didn't find PortFile*/
-    S_NoRouteFile   = (1 << 1) /*Simulator didn't find RouteFile*/
-};
+
 
 #endif
