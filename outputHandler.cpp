@@ -82,7 +82,7 @@ void saveResultsInfo(std::map<string,list<int>> &results_map,vector<std::unique_
 void saveOutputInformation(std::map<string,list<int>> &results_map,
                            vector<std::unique_ptr<AbstractAlgorithm>> &algVec, string &travelName){
 
-    saveResultsInfo(results_map,algVec);
+    //saveResultsInfo(results_map,algVec);
 }
 
 

@@ -39,7 +39,6 @@ using std::pair;
 
 void saveResultsInfo(std::map<string,list<int>> &results_map,vector<std::unique_ptr<AbstractAlgorithm>>& algVec);
 void createErrorsFile(std::map<string,std::map<string,list<string>>> &simErrors,string path);
-string createAlgorithmOutDirectory(const string &algName,const string &outputDirectory,const string &travelName);
 void createResultsFile(map<string,map<string,pair<int,int>>>& output_map,string path);
 
 //list<string> createAlgListOfErrors(std::unique_ptr<AbstractAlgorithm>& alg);
