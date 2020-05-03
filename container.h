@@ -63,6 +63,8 @@ public:
 	}
 
 	Container(const std::string& id1): id(id1), weight(-1), source(nullptr), destination(nullptr),distanceFromDest(-1){}
+    explicit Container(int kg): id("WeightContainer"), weight(kg), source(nullptr), destination(nullptr),distanceFromDest(-1){}
+
     virtual ~Container();
 	int getWeight();
 	std::string getId();

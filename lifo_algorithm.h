@@ -22,6 +22,7 @@ class Lifo_algorithm: public AbstractAlgorithm {
     int portNum = 0;
     std::unique_ptr<Ship> pShip;
     std::shared_ptr<Port> pPort;
+    WeightBalanceCalculator calc;
 public:
     explicit Lifo_algorithm(): AbstractAlgorithm(){}
     ~Lifo_algorithm() override= default;
@@ -38,21 +39,6 @@ public:
     void loadContainers(char list_category, std::ofstream &output);
     void initContainersDistance(vector<Container> &vector);
 };
-
-
-//
-//class Lifo_algorithm: public Algorithm {
-//    const std::string name = "Lifo_algorithm";
-//public:
-//    explicit Lifo_algorithm(Ship* ship): Algorithm(ship){}
-//    ~Lifo_algorithm() = default;
-//    void getInstructionsForCrane(std::ofstream &output) override;
-//    const std::string getTypeName() const override;
-//    void unloadContainers(std::ofstream& output) override;
-//    void loadContainers(char list_category, std::ofstream &output) override;
-//    void unloadSingleContainer(std::ofstream &output, Container& con, char vecType, coordinate coor);
-//};
-
 
 #endif //SHIP1_LIFO_ALGORITHM_H
 

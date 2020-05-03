@@ -24,7 +24,6 @@ class Ship {
     std::vector<std::vector<std::vector<Container>>> shipMap;
     std::map<std::shared_ptr<Port>, std::vector<Container>> containersByPort;
     std::vector<std::shared_ptr<Port>> route;
-    std::shared_ptr<WeightBalanceCalculator> calculator;
     int freeSpace;
     int x, y, z;
 public:
@@ -73,7 +72,6 @@ public:
             }
             found = false;
         }
-        calculator = std::make_shared<WeightBalanceCalculator>(*shipToCopy->calculator); //TODO make copy ctor for calc (?) // might cause problem right now
     }
     ~Ship();
     std::tuple<int, int, int> getCoordinate(const Container& container);
@@ -83,7 +81,6 @@ public:
     std::map<std::shared_ptr<Port>,std::vector<Container>>& getContainersByPort();
     void initContainersByPort(std::vector<std::shared_ptr<Port>>& vector);
     void setRoute(std::vector<std::shared_ptr<Port>>& route);
-    int initCalc();
     int getAxis(const std::string& str) const;
     void getCoordinatesToHandle(std::set<coordinate> &coordinates_to_handle, std::vector<Container>& containers_to_unload);
     int getLowestFloorOfRelevantContainer(std::shared_ptr<Port>& pPort, coordinate coor);
@@ -91,14 +88,13 @@ public:
     void getColumn(coordinate coor, std::vector<Container>** column);
     int getFreeSpace() const;
     void getContainersToUnload(std::shared_ptr<Port>& port, std::vector<Container>** unload);
-    bool findColumnToMoveTo(coordinate old_coor, coordinate& new_coor, std::vector<Container>& containersToUnload, int weight);
-    void findColumnToLoad(coordinate &coor, bool &found, int kg);
+    bool findColumnToMoveTo(coordinate old_coor, coordinate& new_coor, std::vector<Container>& containersToUnload, int weight, WeightBalanceCalculator& calc);
+    void findColumnToLoad(coordinate &coor, bool &found, int kg, WeightBalanceCalculator& calc);
     void addContainer(Container& container, std::tuple<int,int> coordinate);
     void removeContainer(coordinate coor);
     void moveContainer(coordinate origin, coordinate dest);
     void updateFreeSpace(int num);
     bool isOnShip(Container &con);
-    std::shared_ptr<WeightBalanceCalculator> getCalc();
     std::shared_ptr<Port> getPortByNumber(int num);
 
 

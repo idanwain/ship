@@ -122,11 +122,8 @@ void Ship::getColumn(coordinate coor, std::vector<Container>** column) {
     *column = &(shipMap[std::get<0>(coor)][std::get<1>(coor)]);
 }
 
-std::shared_ptr<WeightBalanceCalculator> Ship::getCalc() {
-    return calculator;
-}
-
-bool Ship::findColumnToMoveTo(coordinate old_coor, coordinate& new_coor, std::vector<Container>& containersToUnload, int weight) {
+bool Ship::findColumnToMoveTo(coordinate old_coor, coordinate& new_coor,
+        std::vector<Container>& containersToUnload, int weight, WeightBalanceCalculator& calc) {
     std::set<coordinate> coordinates_to_check;
     this->getCoordinatesToHandle(coordinates_to_check, containersToUnload);
     int x = 0; int y = 0;
@@ -136,8 +133,8 @@ bool Ship::findColumnToMoveTo(coordinate old_coor, coordinate& new_coor, std::ve
             int capacity = this->shipMap[x][y].capacity();
             if(!std::count(coordinates_to_check.begin(), coordinates_to_check.end(), std::make_tuple(x,y)) &&
                 size < capacity &&
-                this->getCalc()->tryOperation('U', weight, std::get<0>(old_coor), std::get<1>(old_coor)) == APPROVED &&
-                this->getCalc()->tryOperation('L', weight, x, y) == APPROVED){
+                calc.tryOperation('U', weight, std::get<0>(old_coor), std::get<1>(old_coor)) == APPROVED &&
+                calc.tryOperation('L', weight, x, y) == APPROVED){
                     new_coor = std::make_tuple(x,y);
                     return true;
             }
@@ -154,23 +151,18 @@ void Ship::moveContainer(coordinate origin, coordinate dest) {
     shipMap[std::get<0>(origin)][std::get<1>(origin)].pop_back();
 }
 
-int Ship::initCalc() {
-    calculator = std::make_shared<WeightBalanceCalculator>(this);
-    return 0;
-}
-
 int Ship::getTopFloor(coordinate coor) {
     return shipMap[std::get<0>(coor)][std::get<1>(coor)].size();
 }
 
-void Ship::findColumnToLoad(coordinate &coor, bool &found, int kg) {
+void Ship::findColumnToLoad(coordinate &coor, bool &found, int kg, WeightBalanceCalculator& calc) {
     int x = 0; int y = 0;
     for(auto& coor_x : shipMap){
         for(auto& coor_y : coor_x){
             if(coor_y.empty()){}
             int size = shipMap[x][y].size(); int capacity = shipMap[x][y].capacity();
             if(size < capacity &&
-                    this->getCalc()->tryOperation('L', kg, x, y) == APPROVED && !found){
+                    calc.tryOperation('L', kg, x, y) == APPROVED && !found){
                 coor = std::make_tuple(x,y);
                 found = true;
                 break;

@@ -279,4 +279,10 @@ void SimulatorObj::updateArrayOfCodes(int num, string type){
     }
 }
 
+void SimulatorObj::initCalc(const string& file_path) {
+    simCalc.readShipPlan(file_path);
+}
 
+WeightBalanceCalculator SimulatorObj::getCalc() {
+    return simCalc;
+}

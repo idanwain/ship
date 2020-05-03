@@ -40,8 +40,9 @@ class SimulatorObj {
     map<string,list<string>> currTravelErrors; /*Including algorithm name, list of errors found by simulator*/
     list<string> currTravelGeneralErrors;/*General errors per certain travel*/
     std::array<bool,NUM_OF_ERRORS> algErrorCodes{false};
-    std::array<bool,NUM_OF_ERRORS> simErrorCodes{false};
+    std::array<bool,NUM_OF_SIM_ERRORS> simErrorCodes{false};
     std::unique_ptr<Ship> simShip = nullptr;
+    WeightBalanceCalculator simCalc;
 
     string mainOutputPath;
     string mainTravelPath;
@@ -51,6 +52,7 @@ public:
     };
     static void insertPortFile(map<string,vector<fs::path>> &travelMap,string &portName, int portNum, const fs::path &entry);
     void initListDirectories(string &path);
+    void initCalc(const string& file_path);
     void setShip(std::unique_ptr<Ship> &getShip);
     void addErrorsInfo(string &travelName);
     void addResultsInfo(string &travelName);
@@ -64,6 +66,7 @@ public:
     void addNewErrorToGeneralErrors(string msg);
     void updateArrayOfCodes(int num, string type);
     void resetOutputLists();
+    WeightBalanceCalculator getCalc();
     map<string,map<string,list<string>>>& getErrorsInfo();
     map<string,map<string,pair<int,int>>>& getResultsInfo();
     map<string,map<string,vector<fs::path>>>& getInputFiles();

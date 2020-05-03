@@ -38,6 +38,7 @@ string mainOutputPath;
  */
 void initAlgorithmList(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algList){
 //    //TODO make polymorphic algorithm factory & change to smart pointers
+//      TODO init calc
 //    std::unique_ptr<AbstractAlgorithm> lifoAlgorithm = std::make_unique<Lifo_algorithm>();
 //    std::unique_ptr<AbstractAlgorithm> unsortedLifoAlgorithm = std::make_unique<Unsorted_Lifo_Algorithm>();
 //    std::unique_ptr<AbstractAlgorithm> erroneousAlgorithm = std::make_unique<Erroneous_algorithm>();
@@ -97,11 +98,13 @@ int main(int argc, char** argv) {
             simulator->addOutputInfo(currTravelName);
             continue; /* can happen if either route/map files are erroneous*/
         }
-        mainShip->initCalc();
+        //TODO init calc here
         for (auto &alg : algVec) {
+            WeightBalanceCalculator algCalc;
             int errCode1 = alg.second->readShipPlan(travel_folder.second.at(PLAN).at(0).string());
             int errCode2 = alg.second->readShipRoute(travel_folder.second.at(ROUTE).at(0).string());
-            simulator->updateArrayOfCodes(errCode1 + errCode2,"alg");
+            int errCode3 = algCalc.readShipPlan(travel_folder.second.at(PLAN).at(0).string());
+            simulator->updateArrayOfCodes(errCode1 + errCode2 + errCode3,"alg");
             simulator->setShip(mainShip);
             simulator->runCurrentAlgorithm(alg,currTravelName);
             simulator->getShip().reset(nullptr);
