@@ -33,7 +33,8 @@ void execute(std::unique_ptr<Ship>& ship, char command, std::unique_ptr<Containe
  * @param portNumber - the current port number(to get reference were we are at the route)
  * @param currAlgErrors - the algorithm errors list to update
  */
-std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contAtPortPath,int portNumber, list<string>& currAlgErrors,SimulatorObj* simulator){
+std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contAtPortPath,
+        int portNumber, list<string>& currAlgErrors,SimulatorObj* simulator){
     std::ifstream instructionsFile;
     string line,id,instruction;
     pair<string,string> idAndInstruction;
