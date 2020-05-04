@@ -288,7 +288,7 @@ std::unique_ptr<Ship> extractArgsForShip(string &travelName,SimulatorObj &simula
  * @param map - the given map to save instruction by port id
  * @param inputPath - the input path of the port file
  */
-void parseDataFromPortFile(std::map<string,string>& map, string& inputPath){
+void parseDataFromPortFile(std::map<string,list<string>>& map, string& inputPath){
     std::ifstream inFile;
     string line;
     inFile.open(inputPath);
@@ -301,7 +301,11 @@ void parseDataFromPortFile(std::map<string,string>& map, string& inputPath){
         vector<string> parsedInfo = stringSplit(line,delim);
         if(parsedInfo.size() != 4)continue; /*case not enough information or too much*/
         string contID = parsedInfo.at(0);
-        map.insert(make_pair(contID,line));
+        if(map.find(contID) == map.end()){
+            list<string> ls;
+            map.insert(make_pair(contID,ls));
+        }
+        map[contID].emplace_back(line);
     }
     inFile.close();
 }

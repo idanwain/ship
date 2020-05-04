@@ -37,7 +37,7 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
     std::ifstream instructionsFile;
     string line,id,instruction;
     pair<string,string> idAndInstruction;
-    map<string,string> linesFromPortFile;
+    map<string,list<string>> linesFromPortFile;
     int errorsCount = 0,instructionsCount = 0;
 
     instructionsFile.open(outputPath);
@@ -110,7 +110,7 @@ void extractCraneInstruction(string &toParse, std::pair<string,string> &instruct
  * @param portNum
  * @return true iff the validation of instruction went successfully
  */
-bool validateInstruction(string &instruction,string &id, vector<int> &coordinates,std::unique_ptr<Ship>& ship,std::map<string,string>& portContainers,int portNum){
+bool validateInstruction(string &instruction,string &id, vector<int> &coordinates,std::unique_ptr<Ship>& ship,std::map<string,list<string>>& portContainers,int portNum){
     auto map = ship->getMap();
     bool isValid;
     if(instruction == "L"){
@@ -137,8 +137,8 @@ bool validateInstruction(string &instruction,string &id, vector<int> &coordinate
  * @param portNum - the current port number
  * @return true iff one of the tests failes
  */
-bool validateRejectInstruction(std::map<string,string>& portContainers, string& id,std::unique_ptr<Ship>& ship,int portNum){
-    string line = portContainers[id];
+bool validateRejectInstruction(std::map<string,list<string>>& portContainers, string& id,std::unique_ptr<Ship>& ship,int portNum){
+    string line = portContainers[id].front();
     auto parsedInfo = stringSplit(line,delim);
     string portName = parsedInfo.at(2) + " " + parsedInfo.at(3);
     VALIDATION reason = VALIDATION::Valid;/*might be used in exercise 2 to be more specific*/
@@ -146,8 +146,9 @@ bool validateRejectInstruction(std::map<string,string>& portContainers, string& 
     bool test3 = (ship->getRoute().at(portNum)->get_name() == portName);
     bool test2 = !isPortInRoute(portName,ship->getRoute(),portNum);
     bool test4 = ship->getFreeSpace() == 0; /*if != 0 that means this test didn't passed --> reject at this test failed*/
+    bool test5 = portContainers[id].size() > 1; /*case there are 2 lines with same id*/
     /*if one of the test fails, that means --> that reject at this instruction is necessary*/
-    return (test1 || test2 || test3 || test4);
+    return (test1 || test2 || test3 || test4 || test5);
 }
 
 /**

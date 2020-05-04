@@ -1,4 +1,3 @@
-
 #include "SimulatorObj.h"
 
 void SimulatorObj::setShip(std::unique_ptr<Ship> &getShip){
@@ -123,6 +122,8 @@ void SimulatorObj::createResultsFile(string path){
     list<string> travels;
     list<string> algNames;
     auto &output_map = this->outputResultsInfo;
+    if(output_map.empty())
+        return;
     path.append(PATH_SEPARATOR);
     path.append("simulation.results");
     inFile.open(path); //Default mode is writing to a file
@@ -153,7 +154,6 @@ void SimulatorObj::createResultsFile(string path){
         sumInstructions = 0;
         sumErrors = 0;
     }
-
     inFile.close();
 }
 
@@ -368,7 +368,7 @@ void sortAlgorithms(map<string,map<string,pair<int,int>>> &outputInfo,list<strin
         std::get<2>(tup) = alg.second.second;
         sortedVec.emplace_back(tup);
     }
-    /*first will occur algorithms with 0 errors and lowest instructions*/
+    /*sort by certain first will occur algorithms with 0 errors and lowest instructions*/
     std::sort(sortedVec.begin(),sortedVec.end(),[](const std::tuple<string,int,int> &t1,const std::tuple<string,int,int> &t2)
     ->bool {
         if(std::get<2>(t1) == std::get<2>(t2)){

@@ -18,6 +18,7 @@
  */
 #ifndef PARSER_HEADER
 #define PARSER_HEADER
+
 #include <string>
 #include <vector>
 #include <list>
@@ -51,7 +52,7 @@ std::unique_ptr<Ship> extractArgsForShip(string &travelName,SimulatorObj &simula
 pair<string,int> setBlocksByLine(std::string &str, std::unique_ptr<Ship> &ship,int lineNumber);
 void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str);
 int portAlreadyExist(std::vector<std::shared_ptr<Port>>& vec,string &str);
-void parseDataFromPortFile(std::map<string,string>& map, string &inputPath);
+void parseDataFromPortFile(std::map<string,list<string>>& map, string &inputPath);
 int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship);
 string extractPortNameFromFile(string fileName);
 //string* getPortNameFromFile(string &filePath);

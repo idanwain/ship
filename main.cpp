@@ -87,7 +87,7 @@ void initPaths(int argc,char** argv){
  * @param algPaths
  */
 void getAlgSoFiles(vector<fs::path> &algPaths){
-    std::regex reg("_[0-9]+_[a-z]+.so");
+    std::regex reg("_[0-9]+_[a-z]+\\.so");
     for(const auto &entry : fs::directory_iterator(mainAlgorithmsPath)) {
         if (!entry.is_directory()) {
             if (std::regex_match(entry.path().filename().string(), reg)) {
