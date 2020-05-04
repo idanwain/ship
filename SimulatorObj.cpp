@@ -13,7 +13,7 @@ void SimulatorObj::addNewErrorToGeneralErrors(string msg){
 }
 
 
-void SimulatorObj::initListDirectories(string &path){
+void SimulatorObj::initListOfTravels(string &path){
     string msg = " only sub folders allowed in main folder, file won't be included in the program";
     auto& directories = this->inputFiles;
     for(const auto &entry : fs::directory_iterator(path)){
@@ -122,8 +122,10 @@ void SimulatorObj::createResultsFile(string path){
     list<string> travels;
     list<string> algNames;
     auto &output_map = this->outputResultsInfo;
-    if(output_map.empty())
+    if(output_map.empty()){
+        P_NORESULTFILE;
         return;
+    }
     path.append(PATH_SEPARATOR);
     path.append("simulation.results");
     inFile.open(path); //Default mode is writing to a file
@@ -168,8 +170,10 @@ void SimulatorObj::createErrorsFile(string path) {
     const string spaces = "      ";//6spaces
     std::ofstream inFile;
     auto &simErrors = this->outputErrorsInfo;
-    if(simErrors.empty())
+    if(simErrors.empty()){
+        P_NOERRORFILE;
         return;
+    }
     path.append(PATH_SEPARATOR);
     path.append("simulation.errors");
     inFile.open(path);
@@ -190,36 +194,50 @@ void SimulatorObj::createErrorsFile(string path) {
     inFile.close();
 }
 
-/**
- * This function create an algorithm output directory per algorithm and travel in the main output directory
- * @param algName
- * @param outputDirectory
- * @param travelName
- * @return the full path of this directory
- */
-string createAlgorithmOutDirectory(const string &algName,const string &outputDirectory,const string &travelName){
-    string algOutDirectory = outputDirectory + PATH_SEPARATOR + algName + "_" + travelName + "_" + "crane_instructions";
-    fs::path directoryPath(algOutDirectory);
-    fs::path parentDirectory(outputDirectory);
-    if(!fs::exists(directoryPath)){
-        fs::create_directory(directoryPath,parentDirectory);
-    }
-    return algOutDirectory;
-}
 
 void SimulatorObj::runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> &alg, string &travelName){
     list<string> simCurrAlgErrors;
     map<string,int> visitNumbersByPort;
     int res = 0;
     vector<std::shared_ptr<Port>> route = this->simShip->getRoute();
-    string algOpFolder = createAlgorithmOutDirectory(alg.first,mainOutputPath,travelName);
-    for(int portNum = 0; portNum < (int)route.size() && res != -1; portNum++){
-        string portName = route[portNum]->get_name();
-        int visitNumber = visitNumbersByPort[portName];
-        fs::path portPath(this->inputFiles[travelName][portName][visitNumber]);
-        res = runCurrentPort(portName,portPath,portNum,alg,simCurrAlgErrors,algOpFolder,++visitNumbersByPort[portName]);
+    res = checkIfFatalErrorOccurred();
+    if(res != -1) {
+        string algInstructionsFolder = createAlgorithmOutDirectory(alg.first, mainOutputPath, travelName);
+        for (int portNum = 0; portNum < (int) route.size() && res != -1; portNum++) {
+            string portName = route[portNum]->get_name();
+            int visitNumber = visitNumbersByPort[portName];
+            fs::path portPath(this->inputFiles[travelName][portName][visitNumber]);
+            res = runCurrentPort(portName, portPath, portNum, alg, simCurrAlgErrors, algInstructionsFolder,
+                                 ++visitNumbersByPort[portName]);
+            compareIgnoredAlgErrsVsSimErrs(portName, visitNumber, simCurrAlgErrors);
+        }
     }
+    compareFatalAlgErrsAndSimErrs(simCurrAlgErrors);
     currTravelErrors.insert(make_pair(alg.first, simCurrAlgErrors));
+}
+
+int SimulatorObj::checkIfFatalErrorOccurred(){
+    if(algErrorCodes[3] || algErrorCodes[4] || algErrorCodes[7] || algErrorCodes[8])
+        return -1;
+    else
+        return 0;
+}
+
+void SimulatorObj::compareFatalAlgErrsAndSimErrs(list<string> &simCurrAlgErrors){
+    if(algErrorCodes[3] != simErrorCodes[3])
+        simCurrAlgErrors.emplace_back(PLAN_FATAL);
+    if(algErrorCodes[4] != simErrorCodes[4])
+        simCurrAlgErrors.emplace_back(DUPLICATE_XY);
+    if(algErrorCodes[7] != simErrorCodes[7])
+        simCurrAlgErrors.emplace_back(TRAVEL_FATAL);
+    if(algErrorCodes[8] != simErrorCodes[8])
+        simCurrAlgErrors.emplace_back(TRAVEL_SINGLEPORT);
+}
+
+void SimulatorObj::compareIgnoredAlgErrsVsSimErrs(string &portName,int visitNumber,list<string> &simCurrAlgErrors){
+    if(algErrorCodes[16] != simErrorCodes[16])
+        simCurrAlgErrors.emplace_back(NO_CARGO_TOLOAD(portName,visitNumber));
+
 }
 
 /**
@@ -248,9 +266,8 @@ int SimulatorObj::runCurrentPort(string &portName,fs::path &portPath,int portNum
 
     outputPath = algOutputFolder + PATH_SEPARATOR + portName + "_" + std::to_string(visitNumber) + ".crane_instructions";
     algReturnValue = alg.second->getInstructionsForCargo(inputPath,outputPath);
-    this->updateArrayOfCodes(algReturnValue,"alg");
-
-    result = validateAlgorithm(outputPath,inputPath,portNum,simCurrAlgErrors,this);
+    updateArrayOfCodes(algReturnValue,"alg");
+    result = validateAlgorithm(outputPath,inputPath,portNum,simCurrAlgErrors,this,portName,visitNumber);
     if(!result) return -1; //case there was an error in validateAlgorithm
 
     /*Incrementing the instructions count and errors count*/
@@ -264,6 +281,8 @@ int SimulatorObj::runCurrentPort(string &portName,fs::path &portPath,int portNum
     std::get<1>(algInfo[alg.first]) += errorsCount;
     return errorsCount;
 }
+
+
 
 void SimulatorObj::updateArrayOfCodes(int num, string type){
     std::array<bool,NUM_OF_ERRORS> numArr{false};
@@ -331,7 +350,7 @@ void SimulatorObj::createErrorsFromArray(){
 
 }
 
-void SimulatorObj:: initNewTravel() {
+void SimulatorObj:: prepareForNewTravel() {
     this->algErrorCodes = std::array<bool,NUM_OF_ERRORS>{false};
     this->simErrorCodes = std::array<bool,NUM_OF_ERRORS>{false};
     this->currTravelGeneralErrors.clear();
@@ -339,6 +358,27 @@ void SimulatorObj:: initNewTravel() {
     this->algInfo.clear();
 }
 
+void SimulatorObj::initCalc(const string& file_path) {
+    simCalc.readShipPlan(file_path);
+}
+
+WeightBalanceCalculator SimulatorObj::getCalc() {
+    return simCalc;
+}
+
+int SimulatorObj::checkContainersDidntHandle(map<string, list<string>> &idAndRawLine,list<string> &currAlgErrors,string &portName,int visitNum) {
+    int err = 0;
+    for(auto& idInstruction : idAndRawLine){
+        if(!idInstruction.second.empty()){
+            currAlgErrors.emplace_back(ERROR_IDNOTHANDLE(idInstruction.second.front(),portName,visitNum));
+            err= -1;
+        }
+    }
+    return err;
+}
+
+
+/*--------------------------------------------------NON OBJECT FUNCTIONS------------------------------------------*/
 /**
  * This function sorts the algorithms output info list and assigning the order to the algorithms list
  * such that:
@@ -384,10 +424,20 @@ void sortAlgorithms(map<string,map<string,pair<int,int>>> &outputInfo,list<strin
 
 }
 
-void SimulatorObj::initCalc(const string& file_path) {
-    simCalc.readShipPlan(file_path);
+/**
+ * This function create an algorithm output directory per algorithm and travel in the main output directory
+ * @param algName
+ * @param outputDirectory
+ * @param travelName
+ * @return the full path of this directory
+ */
+string createAlgorithmOutDirectory(const string &algName,const string &outputDirectory,const string &travelName){
+    string algOutDirectory = outputDirectory + PATH_SEPARATOR + algName + "_" + travelName + "_" + "crane_instructions";
+    fs::path directoryPath(algOutDirectory);
+    fs::path parentDirectory(outputDirectory);
+    if(!fs::exists(directoryPath)){
+        fs::create_directory(directoryPath,parentDirectory);
+    }
+    return algOutDirectory;
 }
 
-WeightBalanceCalculator SimulatorObj::getCalc() {
-    return simCalc;
-}

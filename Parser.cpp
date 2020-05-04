@@ -8,7 +8,7 @@
 int extractPortNumFromFile(const string& fileName){
     if(fileName.size() < 5) return 0;
     int dot = fileName.find(".");
-    int dash = fileName.find("_") + 1;
+    int dash = (int)fileName.find("_") + 1;
     string numPort = fileName.substr(dash, dot - dash);
     return atoi(numPort.data());
 
@@ -22,7 +22,7 @@ int extractPortNumFromFile(const string& fileName){
  * @param portNum - the current portName number
  * @param entry - the entry path
  */
-string extractPortNameFromFile(string fileName){
+string extractPortNameFromFile(const string& fileName){
     int index = fileName.find_first_of("_");
     string portName = fileName.substr(0,index);
     return portName;
@@ -58,7 +58,7 @@ void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str){
     if(str == "byFile"){
         str = "";
         while(getline(inFile,str)) {
-            if(!str.empty() && str.at(0) != '#') break; //comment symbol
+            if(!isCommentLine(str)) break; //comment symbol
         }
     }
 
@@ -145,7 +145,7 @@ int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const string& filePath, lis
     else {
         getline(inFile,line); /*first line is ship dimensions we already got them*/
         while (getline(inFile, line)){
-            if(!line.empty() && line.at(0) != '#') {/*if not commented line*/
+            if(!isCommentLine(line)) {/*if not commented line*/
                 pair = setBlocksByLine(line, ship, lineNumber);
                 num = std::get<1>(pair);
                 if (num != 0) {
@@ -294,9 +294,9 @@ void parseDataFromPortFile(std::map<string,list<string>>& map, string& inputPath
         return;
     }
     while(getline(inFile,line)){
-        if(!line.empty() && line.at(0) == '#')continue;
+        if(isCommentLine(line))continue;
         vector<string> parsedInfo = stringSplit(line,delim);
-        if(parsedInfo.size() != 4)continue; /*case not enough information or too much*/
+        if(parsedInfo.size() != 4)continue; /*case not enough information or too much TODO need to think again if not error*/
         string contID = parsedInfo.at(0);
         if(map.find(contID) == map.end()){
             list<string> ls;

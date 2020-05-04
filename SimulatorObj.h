@@ -48,10 +48,10 @@ class SimulatorObj {
     string mainTravelPath;
 public:
     SimulatorObj(string mainTravelPath, string outputPath): mainOutputPath(outputPath), mainTravelPath(mainTravelPath){
-        initListDirectories(mainTravelPath);
+        initListOfTravels(mainTravelPath);
     };
     static void insertPortFile(map<string,vector<fs::path>> &travelMap,string &portName, int portNum, const fs::path &entry);
-    void initListDirectories(string &path);
+    void initListOfTravels(string &path);
     void initCalc(const string& file_path);
     void setShip(std::unique_ptr<Ship> &getShip);
     void addErrorsInfo(string &travelName);
@@ -60,14 +60,18 @@ public:
     void createResultsFile(string path);
     void createErrorsFile(string path);
     void runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> &alg, string &travelName);
-    int runCurrentPort(string &portName,fs::path &portPath,int portNum,pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,
+    int  runCurrentPort(string &portName,fs::path &portPath,int portNum,pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,
                                       list<string> &simCurrAlgErrors,string &algOutputFolder,int visitNumber);
     void addNewTravelListErrors(list<string> &listErrors,string errListName);
     void addNewErrorToGeneralErrors(string msg);
     void addListOfGeneralErrors(list<string> &generalErrors);
     void updateArrayOfCodes(int num, string type);
-    void initNewTravel();
+    void prepareForNewTravel();
     void createErrorsFromArray();
+    int checkIfFatalErrorOccurred();
+    static int checkContainersDidntHandle(map<string, list<string>> &idAndRawLine,list<string> &currAlgErrors,string& portName, int visitNum);
+    void compareFatalAlgErrsAndSimErrs(list<string> &simCurrAlgErrors);
+    void compareIgnoredAlgErrsVsSimErrs(string &portName, int visitNumber, list<string> &simCurrAlgErrors);
     WeightBalanceCalculator getCalc();
     map<string,map<string,list<string>>>& getErrorsInfo();
     map<string,map<string,pair<int,int>>>& getResultsInfo();
@@ -75,8 +79,6 @@ public:
     std::array<bool,NUM_OF_ERRORS>& getCommonErrors();
     std::array<bool,NUM_OF_ERRORS>& getSimErrors();
     std::unique_ptr<Ship>& getShip();
-
-
 };
 
 /*----------------------Non Simulator object functions-------------------*/

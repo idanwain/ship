@@ -34,15 +34,15 @@ void execute(std::unique_ptr<Ship>& ship, char command, std::unique_ptr<Containe
  * @param currAlgErrors - the algorithm errors list to update
  */
 std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contAtPortPath,
-        int portNumber, list<string>& currAlgErrors,SimulatorObj* simulator){
+        int portNumber, list<string>& currAlgErrors,SimulatorObj* simulator,string& portName,int visitNumber){
     std::ifstream instructionsFile;
     string line,id,instruction;
     pair<string,string> idAndInstruction;
     map<string,list<string>> linesFromPortFile;
     int errorsCount = 0,instructionsCount = 0;
 
-    instructionsFile.open(outputPath);
     parseDataFromPortFile(linesFromPortFile, contAtPortPath);
+    instructionsFile.open(outputPath);
     if(instructionsFile.fail()) {
         P_ERROR_READPATH(outputPath);
         return std::nullopt;
@@ -70,14 +70,18 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
                 cont.reset(nullptr);
             }
             instructionsCount++;
+            linesFromPortFile[id].clear();
         }
         else{
-            currAlgErrors.emplace_back(ERROR_ContLine(id,instruction));
+            currAlgErrors.emplace_back(ERROR_CONTLINEINSTRUCTION(portName,visitNumber,instruction));
             errorsCount = -1;
             break;
         }
     }
     instructionsFile.close();
+    if(errorsCount != -1 && portNumber != (int)simulator->getShip()->getRoute().size() - 1)
+            errorsCount = SimulatorObj::checkContainersDidntHandle(linesFromPortFile,currAlgErrors,portName,visitNumber);
+
     return {std::pair<int,int>(instructionsCount,errorsCount)};
 }
 
@@ -396,7 +400,7 @@ int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,
     else {
         while (getline(inFile, line)) {
             temporalStatement = 0;
-            if (line.at(0) == '#') continue; //comment symbol
+            if (isCommentLine(line)) continue;
             else if (isValidPortName(line)) {
                 if(iscntrl(line[line.length() - 1])){
                     line = line.substr(0, line.length() - 1);
@@ -475,7 +479,7 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
     }
 
     while(getline(input,line)){
-        if (!line.empty() && line.at(0) == '#') continue; //comment symbol
+        if(isCommentLine(line)) continue; //comment symbol
         std::string id; int weight;
         std::shared_ptr<Port> dest;
         VALIDATION reason = VALIDATION::Valid;
@@ -552,6 +556,12 @@ bool isValidShipRouteFileName(const string& fileName){
 bool isValidShipMapFileName(const string& fileName){
     std::regex reg(".*\\.ship_plan");
     return std::regex_match(fileName,reg);
+}
+
+bool isCommentLine(const string& line){
+    std::regex commentLine("\\s*[#]+.*");
+    std::regex whiteSpaces(R"(\s*\t*\r*\n*)");
+    return (std::regex_match(line,commentLine) || std::regex_match(line,whiteSpaces));
 }
 
 /**

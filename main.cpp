@@ -105,32 +105,32 @@ int main(int argc, char** argv) {
     vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec;
     vector<fs::path> algPaths;
     initPaths(argc,argv);
-    std::unique_ptr<SimulatorObj> simulator = std::make_unique<SimulatorObj>(mainTravelPath,mainOutputPath);
+    SimulatorObj simulator(mainTravelPath,mainOutputPath);
     getAlgSoFiles(algPaths);
     initAlgorithmList(algVec);
 
     /*Cartesian Loop*/
-    for (auto &travel_folder : simulator->getInputFiles()) {
+    for (auto &travel_folder : simulator.getInputFiles()) {
         string currTravelName = travel_folder.first;
-        std::unique_ptr<Ship> mainShip = extractArgsForShip(currTravelName,*simulator);
+        std::unique_ptr<Ship> mainShip = extractArgsForShip(currTravelName,simulator);
         if(mainShip != nullptr){
             for (auto &alg : algVec) {
                 WeightBalanceCalculator algCalc;
                 int errCode1 = alg.second->readShipPlan(travel_folder.second.at(PLAN).at(0).string());
                 int errCode2 = alg.second->readShipRoute(travel_folder.second.at(ROUTE).at(0).string());
                 int errCode3 = algCalc.readShipPlan(travel_folder.second.at(PLAN).at(0).string());
-                simulator->updateArrayOfCodes(errCode1 + errCode2 + errCode3,"alg");
-                simulator->setShip(mainShip);
-                simulator->runCurrentAlgorithm(alg,currTravelName);
-                simulator->getShip().reset(nullptr);
+                simulator.updateArrayOfCodes(errCode1 + errCode2 + errCode3,"alg");
+                simulator.setShip(mainShip);
+                simulator.runCurrentAlgorithm(alg,currTravelName);
+                simulator.getShip().reset(nullptr);
             }
         }
-        simulator->addOutputInfo(currTravelName);
-        simulator->initNewTravel();
+        simulator.addOutputInfo(currTravelName);
+        simulator.prepareForNewTravel();
         mainShip.reset(nullptr);
     }
-    simulator->createResultsFile(mainTravelPath);
-    simulator->createErrorsFile(mainTravelPath);
+    simulator.createResultsFile(mainTravelPath);
+    simulator.createErrorsFile(mainTravelPath);
     destroyAlgVec(algVec);
     return (EXIT_SUCCESS);
  }
