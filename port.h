@@ -21,15 +21,19 @@
 #define PORT_HEADER
 
 
+
+
 #include <iostream>
 #include <cstring>
 #include <string>
 #include <iterator>
 #include <vector>
 #include <stack>
+class Ship; class Container;
 
-class Container;
-class Ship;
+/*----------------------Prefix variables-------------------*/
+enum class Type {PRIORITY = 'P', LOAD = 'L', UNLOAD = 'U', ARRIVED = 'A'};
+
 
 class Port {
     std::string name;
@@ -39,12 +43,12 @@ class Port {
     std::vector<Container> arrived;
 public:
     /*C'tor*/
-    Port(const std::string& name) : name(name){}
-    ~Port();
+Port(const std::string& name) : name(name){}
+~Port();
 
-    void addContainer(Container& container,char command);
+    void addContainer(Container& container,Type command);
     const std::string & get_name();
     bool operator==(const Port& p);
-    std::vector<Container>* getContainerVec(char type);
+    std::vector<Container>* getContainerVec(Type type);
 };
 #endif

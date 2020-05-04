@@ -19,49 +19,54 @@ void Lifo_algorithm::unloadContainers(std::ofstream& output){
         int lowest_floor = pShip->getLowestFloorOfRelevantContainer(pPort, coor);
         std::vector<Container>* column = nullptr;
         pShip->getColumn(coor, &column);
+        handleColumn(coor, column, lowest_floor, containersToUnload, output);
+    }
+}
 
-        for(auto con_iterator = column->end() - 1; !column->empty() && con_iterator >= column->begin();){
-            if(con_iterator - column->begin() == lowest_floor - 1) break;
-            //container's destination == this port
-            if(*(con_iterator->getDest()) == *pPort){
-                //calculator approved unload --> unload, record & move to next container
-                if(calc.tryOperation('U', con_iterator->getWeight(), std::get<0>(coor), std::get<1>(coor)) == APPROVED){
-                    unloadSingleContainer(output, *con_iterator, 'A', coor);
+void Lifo_algorithm::handleColumn(coordinate coor, std::vector<Container>* column, int lowest_floor,
+        std::vector<Container>* containersToUnload, std::ofstream& output){
+    int X = std::get<0>(coor); int Y =  std::get<1>(coor);
+    for(auto con_iterator = column->end() - 1; !column->empty() && con_iterator >= column->begin();){
+        if(con_iterator - column->begin() == lowest_floor - 1) break;
+        //container's destination == this port
+        if(*(con_iterator->getDest()) == *pPort){
+            //calculator approved unload --> unload, record & move to next container
+            if(calc.tryOperation('U', con_iterator->getWeight(), X, Y) == APPROVED){
+                unloadSingleContainer(output, *con_iterator, Type::ARRIVED, coor);
+                --con_iterator;
+            }
+                //calculator didnt approved unload --> record & move to next column
+            else{
+                writeToOutput(output, Action::REJECT, con_iterator->getId(), pShip->getCoordinate(*con_iterator));
+                break; //next column
+            }
+        }
+            //container's destination != this port
+        else {
+            coordinate new_spot;
+            //checks weight, space and efficiency.
+            bool found = pShip->findColumnToMoveTo(coor, new_spot, *containersToUnload, con_iterator->getWeight(), calc);
+            //didn't found a proper coordinate to move the container to
+            if(!found){
+                //if cant move, maybe can at least unload it, calculator approved unload --> unload, record & move to next container
+                if(calc.tryOperation('U', con_iterator->getWeight(), X, Y) == APPROVED){
+                    unloadSingleContainer(output, *con_iterator, Type::PRIORITY, coor);
                     --con_iterator;
                 }
                 //calculator didnt approved unload --> record & move to next column
-                else{
-                    writeToOutput(output, "R", con_iterator->getId(), pShip->getCoordinate(*con_iterator), std::forward_as_tuple(-1, -1, -1));
+                else {
+                    writeToOutput(output, Action::REJECT, con_iterator->getId(), pShip->getCoordinate(*con_iterator));
                     break; //next column
                 }
             }
-            //container's destination != this port
+            //found a proper coordinate to move the container to
             else {
-                coordinate new_spot;
-                //checks weight, space and efficiency.
-                bool found = pShip->findColumnToMoveTo(coor, new_spot, *containersToUnload, con_iterator->getWeight(), calc);
-                //didn't found a proper coordinate to move the container to
-                if(!found){
-                    //if cant move, maybe can at least unload it, calculator approved unload --> unload, record & move to next container
-                    if(calc.tryOperation('U', con_iterator->getWeight(), std::get<0>(coor), std::get<1>(coor)) == APPROVED){
-                        unloadSingleContainer(output, *con_iterator, 'P', coor);
-                        --con_iterator;
-                    }
-                    else{
-                        //calculator didnt approved unload --> record & move to next column
-                        writeToOutput(output, "R", con_iterator->getId(), pShip->getCoordinate(*con_iterator), std::forward_as_tuple(-1, -1, -1));
-                        break; //next column
-                    }
-                }
-                //found a proper coordinate to move the container to
-                else {
-                    std::tuple<int,int,int> old_coor = pShip->getCoordinate(*con_iterator);
-                    std::string id = con_iterator->getId();
-                    pShip->moveContainer(coor, new_spot);
-                    std::tuple<int,int,int> new_coor(std::get<0>(new_spot),std::get<1>(new_spot),pShip->getTopFloor(new_spot) - 1);
-                    writeToOutput(output,"M", id, old_coor, new_coor);
-                    --con_iterator;
-                }
+                std::tuple<int,int,int> old_coor = pShip->getCoordinate(*con_iterator);
+                std::string id = con_iterator->getId();
+                pShip->moveContainer(coor, new_spot);
+                std::tuple<int,int,int> new_coor(std::get<0>(new_spot),std::get<1>(new_spot),pShip->getTopFloor(new_spot) - 1);
+                writeToOutput(output,Action::MOVE, id, old_coor, new_coor);
+                --con_iterator;
             }
         }
     }
@@ -74,7 +79,7 @@ void Lifo_algorithm::unloadContainers(std::ofstream& output){
  *      -load containers in reverse order: far destination == lower spot on ship.
  * @param output - output file to write instructions for crane
  */
-void Lifo_algorithm::loadContainers(char list_category, std::ofstream& output){
+void Lifo_algorithm::loadContainers(Type list_category, std::ofstream& output){
     //get proper container's vector
     std::vector<Container>* load = pPort->getContainerVec(list_category);
     if(load == nullptr) return;
@@ -85,8 +90,8 @@ void Lifo_algorithm::loadContainers(char list_category, std::ofstream& output){
 
     //cut vector by free space on ship
     /*for exercise 3*/
-//    while(ship->getFreeSpace() < (int)load->size()){
-//        Algorithm::writeToOutput(output, "R", load->back().getId(), std::forward_as_tuple(-1, -1, -1), std::forward_as_tuple(-1, -1, -1));
+//    while(pShip->getFreeSpace() < (int)load->size()){
+//        writeToOutput(output, "R", load->back().getId());
 //        load->pop_back();
 //    }
 
@@ -106,9 +111,9 @@ void Lifo_algorithm::loadContainers(char list_category, std::ofstream& output){
 
         if(uniqueIdOnShip && validID && isInRoute && found){
             pShip->addContainer(*con, coor);
-            writeToOutput(output, "L", con->getId(), pShip->getCoordinate(*con), std::forward_as_tuple(-1, -1, -1));
+            writeToOutput(output, Action::LOAD, con->getId(), pShip->getCoordinate(*con));
         } else {
-        writeToOutput(output, "R", con->getId(), std::forward_as_tuple(-1, -1, -1), std::forward_as_tuple(-1, -1, -1));
+            writeToOutput(output, Action::REJECT, con->getId());
         }
         load->erase(con);
     }
@@ -118,13 +123,9 @@ int Lifo_algorithm::getPortNum() {
     return portNum;
 }
 
-const std::string Lifo_algorithm::getTypeName() const {
-    return this->name;
-}
-
-void Lifo_algorithm::unloadSingleContainer(std::ofstream &output,Container& con, char vecType, coordinate coor){
+void Lifo_algorithm::unloadSingleContainer(std::ofstream &output,Container& con, Type vecType, coordinate coor){
     pPort->addContainer(con, vecType);
-    writeToOutput(output, "U", con.getId(), pShip->getCoordinate(con), std::forward_as_tuple(-1, -1, -1));
+    writeToOutput(output, Action::UNLOAD, con.getId(), pShip->getCoordinate(con));
     pShip->removeContainer(coor);
 }
 
@@ -170,8 +171,8 @@ int Lifo_algorithm::getInstructionsForCargo(const std::string& input_full_path_a
     //unload containers from ship to port
     unloadContainers(output);
     //load containers from port to ship
-    loadContainers('P',output);
-    loadContainers('L',output);
+    loadContainers(Type::PRIORITY,output);
+    loadContainers(Type::LOAD,output);
 
     output.close();
     ++portNum;
