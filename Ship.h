@@ -9,8 +9,8 @@ class WeightBalanceCalculator; class Container; class Port;
 #include <list>
 #include <iterator>
 #include <map>
-#include "port.h"
-#include "container.h"
+#include "Port.h"
+#include "Container.h"
 #include <stack>
 #include <set>
 #include <algorithm>

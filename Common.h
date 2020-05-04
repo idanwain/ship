@@ -33,7 +33,7 @@
 #include <filesystem>
 #include <iostream>
 #include <fstream>
-#include "ship.h"
+#include "Ship.h"
 #include "Parser.h"
 #include "SimulatorObj.h"
 #include "AbstractAlgorithm.h"

@@ -23,8 +23,8 @@
 
 /*----------------------PRINT TO CONSOLE-------------------*/
 #define P_ERROR_READPATH(x)     std::cerr << "Failed to read from this file path " << x << std::endl
-#define P_NORESULTFILE         std::cout << "No results found, simulation.results file won't be created" << std::endl;
-#define P_NOERRORFILE          std::cout << "No errors found, simulation.errors file won't be created" << std::endl;
+#define P_NORESULTFILE          std::cout << "No results found, simulation.results file won't be created" << std::endl;
+#define P_NOERRORFILE           std::cout << "No errors found, simulation.errors file won't be created" << std::endl;
 
 
 

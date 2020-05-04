@@ -8,16 +8,16 @@ set(GCC_COVERAGE_LINK_FLAGS    "-lstdc++fs")
 add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
 
 add_executable(ship3
-        container.cpp
-        container.h
-        port.cpp
-        port.h
-        ship.cpp
-        ship.h
+        Container.cpp
+        Container.h
+        Port.cpp
+        Port.h
+        Ship.cpp
+        Ship.h
         main.cpp
         WeightBalanceCalculator.cpp WeightBalanceCalculator.h
         Parser.cpp Parser.h
-        common.cpp common.h
+        Common.cpp Common.h
         AbstractAlgorithm.h
-        lifo_algorithm.cpp lifo_algorithm.h
+        LifoAlgorithm.cpp LifoAlgorithm.h
         SimulatorObj.cpp SimulatorObj.h ErrorsInterface.h)

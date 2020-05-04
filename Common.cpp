@@ -1,4 +1,4 @@
-#include "common.h"
+#include "Common.h"
 
 /**
  * This function executes the command on the simulator ship map if all validation passed

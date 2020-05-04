@@ -1,4 +1,4 @@
-#include "ship.h"
+#include "Ship.h"
 
 /**
  * X - x coordinate ,  Y - y coordinate. ,  Z - floor number

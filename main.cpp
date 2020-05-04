@@ -15,11 +15,11 @@
  * Note* - if no output path given -> output files will be at the directory the main program runs from.
  */
 #include <string>
-#include "ship.h"
+#include "Ship.h"
 #include "Parser.h"
 #include "AbstractAlgorithm.h"
 #include "Unsorted_Lifo_Algorithm.h"
-#include "erroneous_algorithm.h"
+#include "ErroneousAlgorithm.h"
 #include "SimulatorObj.h"
 #include <memory>
 

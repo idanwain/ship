@@ -10,7 +10,7 @@
 #include <iostream>
 #include <fstream>
 #include "AbstractAlgorithm.h"
-#include "common.h"
+#include "Common.h"
 #include <algorithm>
 
 #if defined(WIN32) || defined(_WIN32)
