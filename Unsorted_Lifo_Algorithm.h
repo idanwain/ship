@@ -24,17 +24,20 @@ class Unsorted_Lifo_algorithm: public AbstractAlgorithm {
 public:
     explicit Unsorted_Lifo_algorithm(): AbstractAlgorithm(){}
     ~Unsorted_Lifo_algorithm() override= default;
+    /*-------------- Overriding Methods --------------*/
     int readShipPlan(const std::string& full_path_and_file_name) override;
     int readShipRoute(const std::string& full_path_and_file_name) override;
     int setWeightBalanceCalculator(WeightBalanceCalculator& calculator) override;
     int getInstructionsForCargo(
             const std::string& input_full_path_and_file_name,
             const std::string& output_full_path_and_file_name) override;
+    /*-------------- Supporting Methods --------------*/
     void unloadContainers(std::ofstream &output);
-    void unloadSingleContainer(std::ofstream &output, Container &con, char vecType, coordinate coor);
-    const string getTypeName() const;
+    void unloadSingleContainer(std::ofstream &output, Container &con, Type vecType, coordinate coor);
+    void loadContainers(Type list_category, std::ofstream &output);
     int getPortNum();
-    void loadContainers(char list_category, std::ofstream &output);
+    void handleColumn(coordinate coor, vector<Container> *column, int lowest_floor, vector<Container> *containersToUnload,
+                      std::ofstream &output);
 };
 
 #endif //SHIP1_UNSORTED_LIFO_ALGORITHM_H

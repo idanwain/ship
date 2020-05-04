@@ -1,14 +1,15 @@
 #include "port.h"
 #include "container.h"
+#include "common.h"
 #include <algorithm>
 #include <fstream>
 
-void Port::addContainer(Container& container, char command) {
+void Port::addContainer(Container& container, Type command) {
     switch(command){
-        case 'L': load.emplace_back(container); break;
-        case 'U': unload.emplace_back(container); break;
-        case 'A': arrived.emplace_back(container); break;
-        case 'P': priority.emplace_back(container); break;
+        case Type::LOAD: load.emplace_back(container); break;
+        case Type::UNLOAD: unload.emplace_back(container); break;
+        case Type::ARRIVED: arrived.emplace_back(container); break;
+        case Type::PRIORITY: priority.emplace_back(container); break;
         default: std::cout << "Invalid command, please enter L/U/A/P." << std::endl;
     }
 }
@@ -27,15 +28,12 @@ Port::~Port(){
     arrived.clear();
 }
 
-std::vector<Container>* Port::getContainerVec(char type){
-    if(type == 'L')
-        return &this->load;
-    else if(type == 'U')
-        return &this->unload;
-    else if(type == 'P')
-        return &this->priority;
-    else if(type == 'A')
-        return &this->arrived;
-
-    return nullptr;
+std::vector<Container>* Port::getContainerVec(Type type){
+    switch(type){
+        case Type::LOAD: return &this->load;
+        case Type::UNLOAD: return &this->unload;
+        case Type::PRIORITY: return &this->priority;
+        case Type::ARRIVED: return &this->arrived;
+        default: return nullptr;
+    }
 }

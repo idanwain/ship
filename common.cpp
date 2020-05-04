@@ -439,18 +439,22 @@ int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath)
 *************************************************************************/
 
 
-void writeToOutput(std::ofstream& output,
-                              const std::string& command, const std::string& id,
-                              const std::tuple<int,int,int>& pos, const std::tuple<int,int,int>& movedTo){
-    if(command == "R"){
-        output << command << ", " <<  id << std::endl;
-    } else if (command == "M") {
-        output << command << ", " <<  id << ", " << std::get<0>(pos) <<
-               ", " << std::get<1>(pos) << ", " << std::get<2>(pos) <<
-               ", " << std::get<0>(movedTo) << ", " << std::get<1>(movedTo) <<
-               ", " << std::get<2>(movedTo) << std::endl;
-    } else {
-        output << command << ", " <<  id << ", " << std::get<0>(pos) << ", " << std::get<1>(pos) << ", " << std::get<2>(pos) << std::endl;
+void writeToOutput(std::ofstream& output, AbstractAlgorithm::Action command, const std::string& id, const std::tuple<int,int,int> pos, const std::tuple<int,int,int>& movedTo){
+    switch(command) {
+        case AbstractAlgorithm::Action::REJECT:
+            output << static_cast<char>(command) << ", " << id << std::endl;
+            break;
+        case AbstractAlgorithm::Action::MOVE:
+            output << static_cast<char>(command) << ", " << id << ", " << std::get<0>(pos) <<
+                   ", " << std::get<1>(pos) << ", " << std::get<2>(pos) <<
+                   ", " << std::get<0>(movedTo) << ", " << std::get<1>(movedTo) <<
+                   ", " << std::get<2>(movedTo) << std::endl;
+            break;
+        case  AbstractAlgorithm::Action::LOAD:
+        case  AbstractAlgorithm::Action::UNLOAD:
+            output << static_cast<char>(command) << ", " << id << ", " << std::get<0>(pos) << ", " << std::get<1>(pos) << ", "
+                   << std::get<2>(pos) << std::endl;
+            break;
     }
 }
 
@@ -479,16 +483,16 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
             extractContainersData(line, id, weight, dest, ship);
             if(dest == nullptr) {
                 std::cout << id << ": "<< CONTAINER_NOT_IN_ROUTE << std::endl;
-                writeToOutput(output,"R", id,std::forward_as_tuple(-1,-1,-1) , std::forward_as_tuple(-1,-1,-1));
+                writeToOutput(output,AbstractAlgorithm::Action::REJECT, id);
             }
             else {
                 std::unique_ptr<Container> con = std::make_unique<Container>(id, weight,port, dest);
-                port->addContainer(*con, 'L');
+                port->addContainer(*con, Type::LOAD);
             }
         }
         else {
             if(reason != VALIDATION::Valid){
-                writeToOutput(output, "R", id, std::forward_as_tuple(-1,-1,-1), std::forward_as_tuple(-1,-1,-1));
+                writeToOutput(output, AbstractAlgorithm::Action::REJECT, id);
             }
         }
     }
@@ -521,8 +525,8 @@ void extractContainersData(const std::string& line, std::string &id, int &weight
                 port_name = item;
                 ++i;
                 break;
-            case 3:
-                port_name += " " + item;
+//            case 3:
+//                port_name += " " + item; //no spaces anymore
         }
     }
     auto dest_temp = ship->getPortByName(port_name);

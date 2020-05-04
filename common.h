@@ -36,6 +36,7 @@
 #include "ship.h"
 #include "Parser.h"
 #include "SimulatorObj.h"
+#include "AbstractAlgorithm.h"
 
 /*----------------------Prefix variables-------------------*/
 
@@ -94,8 +95,9 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
                      std::unique_ptr<Ship>& ship, std::shared_ptr<Port>& port);
 vector<string> stringSplit(string s, const char* delimiter);
 void writeToOutput(std::ofstream& output,
-                   const std::string& command, const std::string& id,
-                   const std::tuple<int,int,int>& pos, const std::tuple<int,int,int>& movedTo);
+                   AbstractAlgorithm::Action command, const std::string& id,
+                   const std::tuple<int,int,int> pos = std::forward_as_tuple(-1,-1,-1),
+                   const std::tuple<int,int,int>& movedTo = std::forward_as_tuple(-1,-1,-1));
 void initArrayOfErrors(std::array<bool,NUM_OF_ERRORS> &arr,int num);
 void updateErrorNum(int* currError,int newError);
 
