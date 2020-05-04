@@ -111,19 +111,17 @@ int main(int argc, char** argv) {
     for (auto &travel_folder : simulator->getInputFiles()) {
         string currTravelName = travel_folder.first;
         std::unique_ptr<Ship> mainShip = extractArgsForShip(currTravelName,*simulator);
-        if(mainShip == nullptr){
-            simulator->addOutputInfo(currTravelName);
-            simulator->initNewTravel();
-            continue;
-        }
-        mainShip->initCalc();
-        for (auto &alg : algVec) {
-            int errCode1 = alg.second->readShipPlan(travel_folder.second.at(PLAN).at(0).string());
-            int errCode2 = alg.second->readShipRoute(travel_folder.second.at(ROUTE).at(0).string());
-            simulator->updateArrayOfCodes(errCode1 + errCode2,"alg"); /*not mandatory*/
-            simulator->setShip(mainShip);
-            simulator->runCurrentAlgorithm(alg,currTravelName);
-            simulator->getShip().reset(nullptr);
+        if(mainShip != nullptr){
+            for (auto &alg : algVec) {
+                WeightBalanceCalculator algCalc;
+                int errCode1 = alg.second->readShipPlan(travel_folder.second.at(PLAN).at(0).string());
+                int errCode2 = alg.second->readShipRoute(travel_folder.second.at(ROUTE).at(0).string());
+                int errCode3 = algCalc.readShipPlan(travel_folder.second.at(PLAN).at(0).string());
+                simulator->updateArrayOfCodes(errCode1 + errCode2 + errCode3,"alg");
+                simulator->setShip(mainShip);
+                simulator->runCurrentAlgorithm(alg,currTravelName);
+                simulator->getShip().reset(nullptr);
+            }
         }
         simulator->addOutputInfo(currTravelName);
         simulator->initNewTravel();

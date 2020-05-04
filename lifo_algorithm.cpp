@@ -1,20 +1,5 @@
 #include "lifo_algorithm.h"
 #include "port.h"
-//
-///**
-// * this function manages the load / unload of containers and logs it into a file.
-// * @param output - output file to write instructions for crane
-// */
-//void  Lifo_algorithm::getInstructionsForCrane(std::ofstream &output) {
-//    //unload containers from ship to port
-//    unloadContainers(output);
-//
-//    //load containers from port to ship
-//    loadContainers('P',output);
-//    loadContainers('L',output);
-//}
-
-
 
 /**
  * This function unloads all the containers that need to be unloaded to port by these scheme:
@@ -40,7 +25,7 @@ void Lifo_algorithm::unloadContainers(std::ofstream& output){
             //container's destination == this port
             if(*(con_iterator->getDest()) == *pPort){
                 //calculator approved unload --> unload, record & move to next container
-                if(pShip->getCalc()->tryOperation('U', con_iterator->getWeight(), std::get<0>(coor), std::get<1>(coor)) == APPROVED){
+                if(calc.tryOperation('U', con_iterator->getWeight(), std::get<0>(coor), std::get<1>(coor)) == APPROVED){
                     unloadSingleContainer(output, *con_iterator, 'A', coor);
                     --con_iterator;
                 }
@@ -54,11 +39,11 @@ void Lifo_algorithm::unloadContainers(std::ofstream& output){
             else {
                 coordinate new_spot;
                 //checks weight, space and efficiency.
-                bool found = pShip->findColumnToMoveTo(coor, new_spot, *containersToUnload, con_iterator->getWeight());
+                bool found = pShip->findColumnToMoveTo(coor, new_spot, *containersToUnload, con_iterator->getWeight(), calc);
                 //didn't found a proper coordinate to move the container to
                 if(!found){
                     //if cant move, maybe can at least unload it, calculator approved unload --> unload, record & move to next container
-                    if(pShip->getCalc()->tryOperation('U', con_iterator->getWeight(), std::get<0>(coor), std::get<1>(coor)) == APPROVED){
+                    if(calc.tryOperation('U', con_iterator->getWeight(), std::get<0>(coor), std::get<1>(coor)) == APPROVED){
                         unloadSingleContainer(output, *con_iterator, 'P', coor);
                         --con_iterator;
                     }
@@ -110,7 +95,7 @@ void Lifo_algorithm::loadContainers(char list_category, std::ofstream& output){
         bool found = false;
         coordinate coor;
         int weight = con->getWeight();
-        pShip->findColumnToLoad(coor, found, weight);
+        pShip->findColumnToLoad(coor, found, weight, calc);
 
         bool validID = validateId(con->getId());
         auto route = pShip->getRoute();
@@ -168,7 +153,7 @@ int Lifo_algorithm::readShipRoute(const std::string& full_path_and_file_name) {
 }
 
 int Lifo_algorithm::setWeightBalanceCalculator(WeightBalanceCalculator& calculator) {
-    //TODO initialize calculator somehow
+    calc = calculator;
     return 0;
 }
 

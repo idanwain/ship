@@ -220,6 +220,7 @@ std::unique_ptr<Ship> extractArgsForShip(string &travelName,SimulatorObj &simula
     if(resultInt == 0){
         resultInt = extractArgsForBlocks(ship,file_path,generalErrors);
         simulator.addListOfGeneralErrors(generalErrors);
+        simulator.initCalc(file_path);
     }
     else {
         simulator.addNewErrorToGeneralErrors("Error: Fatal error occurred in plan file, ignoring this travel");

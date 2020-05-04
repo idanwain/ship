@@ -31,14 +31,12 @@ class Ship;
 enum BalanceStatus {APPROVED, X_IMBALANCED, Y_IMBALANCED, X_Y_IMBALANCED, FAILED};
 
 class WeightBalanceCalculator {
-    Ship* ship = nullptr;
+    std::vector<std::vector<std::vector<Container>>> shipMap;
 public:
-    explicit WeightBalanceCalculator(Ship* shipToCopy): ship(shipToCopy) {};
-
+    int readShipPlan(const std::string& full_path_and_file_name);
     BalanceStatus  tryOperation(char loadUnload, int kg, int X, int Y);
-    void checkLoad(std::tuple<bool, bool> &tuple, int kg, std::vector<Container> &vector);
-    void checkUnload(std::tuple<bool, bool> &tuple, int kg, std::vector<Container> &vector);
+    void checkLoad(std::tuple<bool, bool> &x_y_imbalance, int kg, std::vector<Container> &column);
+    void checkUnload(std::tuple<bool, bool> &x_y_imbalance, int kg, std::vector<Container> &column);
 };
-
 
 #endif

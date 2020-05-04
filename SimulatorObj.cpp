@@ -277,6 +277,7 @@ void SimulatorObj::updateArrayOfCodes(int num, string type){
     }
 }
 
+
 void SimulatorObj::addListOfGeneralErrors(list<string> &generalErrors){
     for(string &msg : generalErrors){
         this->currTravelGeneralErrors.emplace_back(msg);
@@ -307,8 +308,8 @@ void SimulatorObj::createErrorsFromArray(){
         errList.emplace_back("travel route: travel error - file with only a single valid port (cannot run this travel)");
     if(arr[9])
         /*reserved*/
-    if(arr[10])
-        errList.emplace_back("containers at port: duplicate ID on port (ID rejected)");
+        if(arr[10])
+            errList.emplace_back("containers at port: duplicate ID on port (ID rejected)");
     if(arr[11])
         errList.emplace_back("containers at port: ID already on ship (ID rejected)");
     if(arr[12])
@@ -370,7 +371,7 @@ void sortAlgorithms(map<string,map<string,pair<int,int>>> &outputInfo,list<strin
     }
     /*sort by certain first will occur algorithms with 0 errors and lowest instructions*/
     std::sort(sortedVec.begin(),sortedVec.end(),[](const std::tuple<string,int,int> &t1,const std::tuple<string,int,int> &t2)
-    ->bool {
+            ->bool {
         if(std::get<2>(t1) == std::get<2>(t2)){
             return std::get<1>(t1) > std::get<1>(t2);
         } else
@@ -383,7 +384,10 @@ void sortAlgorithms(map<string,map<string,pair<int,int>>> &outputInfo,list<strin
 
 }
 
+void SimulatorObj::initCalc(const string& file_path) {
+    simCalc.readShipPlan(file_path);
+}
 
-
-
-
+WeightBalanceCalculator SimulatorObj::getCalc() {
+    return simCalc;
+}

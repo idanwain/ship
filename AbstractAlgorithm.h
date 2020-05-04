@@ -3,9 +3,8 @@
 
 #pragma once
 
-#include "WeightBalanceCalculator.h"
 #include <string>
-//class WeightBalanceCalculator;
+class WeightBalanceCalculator;
 
 class AbstractAlgorithm {
 public:
