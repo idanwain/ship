@@ -23,9 +23,9 @@ It shall have the following methods:
       */
 class Ship;
 
-#include "ship.h"
+#include "Ship.h"
 #include <tuple>
-#include "container.h"
+#include "Container.h"
 
 
 enum BalanceStatus {APPROVED, X_IMBALANCED, Y_IMBALANCED, X_Y_IMBALANCED, FAILED};

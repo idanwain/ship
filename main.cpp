@@ -15,11 +15,11 @@
  * Note* - if no output path given -> output files will be at the directory the main program runs from.
  */
 #include <string>
-#include "ship.h"
+#include "Ship.h"
 #include "Parser.h"
 #include "AbstractAlgorithm.h"
 #include "Unsorted_Lifo_Algorithm.h"
-#include "erroneous_algorithm.h"
+#include "ErroneousAlgorithm.h"
 #include "SimulatorObj.h"
 #include <memory>
 
@@ -66,8 +66,10 @@ void destroyAlgVec(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algV
  */
 void initPaths(int argc,char** argv){
     string basePath = fs::current_path().string();
-    if(argc == 0)
-        exit(EXIT_FAILURE);
+    if(argc == 0) {
+        ERROR_NOTRAVELPATH;
+        exit(EXIT_SUCCESS);
+    }
     else if(argc == 2){
         mainAlgorithmsPath = basePath;
         mainOutputPath = basePath;
@@ -87,7 +89,7 @@ void initPaths(int argc,char** argv){
  * @param algPaths
  */
 void getAlgSoFiles(vector<fs::path> &algPaths){
-    std::regex reg("_[0-9]+_[a-z]+.so");
+    std::regex reg("_[0-9]+_[a-z]+\\.so");
     for(const auto &entry : fs::directory_iterator(mainAlgorithmsPath)) {
         if (!entry.is_directory()) {
             if (std::regex_match(entry.path().filename().string(), reg)) {
@@ -103,32 +105,32 @@ int main(int argc, char** argv) {
     vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec;
     vector<fs::path> algPaths;
     initPaths(argc,argv);
-    std::unique_ptr<SimulatorObj> simulator = std::make_unique<SimulatorObj>(mainTravelPath,mainOutputPath);
+    SimulatorObj simulator(mainTravelPath,mainOutputPath);
     getAlgSoFiles(algPaths);
     initAlgorithmList(algVec);
 
     /*Cartesian Loop*/
-    for (auto &travel_folder : simulator->getInputFiles()) {
+    for (auto &travel_folder : simulator.getInputFiles()) {
         string currTravelName = travel_folder.first;
-        std::unique_ptr<Ship> mainShip = extractArgsForShip(currTravelName,*simulator);
+        std::unique_ptr<Ship> mainShip = extractArgsForShip(currTravelName,simulator);
         if(mainShip != nullptr){
             for (auto &alg : algVec) {
                 WeightBalanceCalculator algCalc;
                 int errCode1 = alg.second->readShipPlan(travel_folder.second.at(PLAN).at(0).string());
                 int errCode2 = alg.second->readShipRoute(travel_folder.second.at(ROUTE).at(0).string());
                 int errCode3 = algCalc.readShipPlan(travel_folder.second.at(PLAN).at(0).string());
-                simulator->updateArrayOfCodes(errCode1 + errCode2 + errCode3,"alg");
-                simulator->setShip(mainShip);
-                simulator->runCurrentAlgorithm(alg,currTravelName);
-                simulator->getShip().reset(nullptr);
+                simulator.updateArrayOfCodes(errCode1 + errCode2 + errCode3,"alg");
+                simulator.setShip(mainShip);
+                simulator.runCurrentAlgorithm(alg,currTravelName);
+                simulator.getShip().reset(nullptr);
             }
         }
-        simulator->addOutputInfo(currTravelName);
-        simulator->initNewTravel();
+        simulator.addOutputInfo(currTravelName);
+        simulator.prepareForNewTravel();
         mainShip.reset(nullptr);
     }
-    simulator->createResultsFile(mainTravelPath);
-    simulator->createErrorsFile(mainTravelPath);
+    simulator.createResultsFile(mainTravelPath);
+    simulator.createErrorsFile(mainTravelPath);
     destroyAlgVec(algVec);
     return (EXIT_SUCCESS);
  }

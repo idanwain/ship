@@ -11,9 +11,9 @@
 
 #include <memory>
 #include "AbstractAlgorithm.h"
-#include "ship.h"
+#include "Ship.h"
 #include "Parser.h"
-#include "common.h"
+#include "Common.h"
 
 class Unsorted_Lifo_algorithm: public AbstractAlgorithm {
     const std::string name = "Unsorted_Lifo_algorithm";

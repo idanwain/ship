@@ -12,9 +12,9 @@
 
 #include <memory>
 #include "AbstractAlgorithm.h"
-#include "ship.h"
+#include "Ship.h"
 #include "Parser.h"
-#include "common.h"
+#include "Common.h"
 
 class Lifo_algorithm: public AbstractAlgorithm {
     const std::string name = "Lifo_algorithm";

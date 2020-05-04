@@ -1,4 +1,4 @@
-#include "common.h"
+#include "Common.h"
 
 /**
  * This function executes the command on the simulator ship map if all validation passed
@@ -21,7 +21,7 @@ void execute(std::unique_ptr<Ship>& ship, char command, std::unique_ptr<Containe
             ship->moveContainer(origin, dest);
             break;
         default:
-            std::cout << "Invalid command, please insert L/U/M commands." << std::endl;
+            CLANG_TIDY;
     }
 }
 
@@ -34,17 +34,17 @@ void execute(std::unique_ptr<Ship>& ship, char command, std::unique_ptr<Containe
  * @param currAlgErrors - the algorithm errors list to update
  */
 std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contAtPortPath,
-        int portNumber, list<string>& currAlgErrors,SimulatorObj* simulator){
+        int portNumber, list<string>& currAlgErrors,SimulatorObj* simulator,string& portName,int visitNumber){
     std::ifstream instructionsFile;
     string line,id,instruction;
     pair<string,string> idAndInstruction;
-    map<string,string> linesFromPortFile;
+    map<string,list<string>> linesFromPortFile;
     int errorsCount = 0,instructionsCount = 0;
 
-    instructionsFile.open(outputPath);
     parseDataFromPortFile(linesFromPortFile, contAtPortPath);
+    instructionsFile.open(outputPath);
     if(instructionsFile.fail()) {
-        std::cerr << FAIL_TO_READ_PATH + outputPath << endl;
+        P_ERROR_READPATH(outputPath);
         return std::nullopt;
     }
     while(getline(instructionsFile, line)){
@@ -70,15 +70,18 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
                 cont.reset(nullptr);
             }
             instructionsCount++;
+            linesFromPortFile[id].clear();
         }
         else{
-            string msg = "Error: container id: " + id + ", instruction: " + instruction;
-            currAlgErrors.emplace_back(msg);
+            currAlgErrors.emplace_back(ERROR_CONTLINEINSTRUCTION(portName,visitNumber,instruction));
             errorsCount = -1;
             break;
         }
     }
     instructionsFile.close();
+    if(errorsCount != -1 && portNumber != (int)simulator->getShip()->getRoute().size() - 1)
+            errorsCount = SimulatorObj::checkContainersDidntHandle(linesFromPortFile,currAlgErrors,portName,visitNumber);
+
     return {std::pair<int,int>(instructionsCount,errorsCount)};
 }
 
@@ -111,7 +114,7 @@ void extractCraneInstruction(string &toParse, std::pair<string,string> &instruct
  * @param portNum
  * @return true iff the validation of instruction went successfully
  */
-bool validateInstruction(string &instruction,string &id, vector<int> &coordinates,std::unique_ptr<Ship>& ship,std::map<string,string>& portContainers,int portNum){
+bool validateInstruction(string &instruction,string &id, vector<int> &coordinates,std::unique_ptr<Ship>& ship,std::map<string,list<string>>& portContainers,int portNum){
     auto map = ship->getMap();
     bool isValid;
     if(instruction == "L"){
@@ -138,8 +141,8 @@ bool validateInstruction(string &instruction,string &id, vector<int> &coordinate
  * @param portNum - the current port number
  * @return true iff one of the tests failes
  */
-bool validateRejectInstruction(std::map<string,string>& portContainers, string& id,std::unique_ptr<Ship>& ship,int portNum){
-    string line = portContainers[id];
+bool validateRejectInstruction(std::map<string,list<string>>& portContainers, string& id,std::unique_ptr<Ship>& ship,int portNum){
+    string line = portContainers[id].front();
     auto parsedInfo = stringSplit(line,delim);
     string portName = parsedInfo.at(2) + " " + parsedInfo.at(3);
     VALIDATION reason = VALIDATION::Valid;/*might be used in exercise 2 to be more specific*/
@@ -147,8 +150,9 @@ bool validateRejectInstruction(std::map<string,string>& portContainers, string& 
     bool test3 = (ship->getRoute().at(portNum)->get_name() == portName);
     bool test2 = !isPortInRoute(portName,ship->getRoute(),portNum);
     bool test4 = ship->getFreeSpace() == 0; /*if != 0 that means this test didn't passed --> reject at this test failed*/
+    bool test5 = portContainers[id].size() > 1; /*case there are 2 lines with same id*/
     /*if one of the test fails, that means --> that reject at this instruction is necessary*/
-    return (test1 || test2 || test3 || test4);
+    return (test1 || test2 || test3 || test4 || test5);
 }
 
 /**
@@ -390,19 +394,19 @@ int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,
 
     inFile.open(filePath);
     if (inFile.fail()) {
-        std::cerr << FAIL_TO_READ_PATH + filePath << endl;
+        P_ERROR_READPATH(filePath);
         returnStatement = Route_Fatal;
     }
     else {
         while (getline(inFile, line)) {
             temporalStatement = 0;
-            if (line.at(0) == '#') continue; //comment symbol
+            if (isCommentLine(line)) continue;
             else if (isValidPortName(line)) {
                 if(iscntrl(line[line.length() - 1])){
                     line = line.substr(0, line.length() - 1);
                 }
                 if(vec->at(vec->size()-1) && vec->at(vec->size()-1)->get_name() == line){
-                    generalErrors.emplace_back("Error: Port " + line + " occurs 2 or more consecutive times");
+                    generalErrors.emplace_back(ERROR_PORTTWICE(line));
                     temporalStatement = Route_PortTwice;
                 }
                 else if (!portAlreadyExist(*vec, line)) {
@@ -470,12 +474,12 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
     input.open(inputFullPathAndFileName);
 
     if(input.fail()){
-        std::cout << "Error Opening file, closing program" << std::endl;
-        exit(EXIT_FAILURE);
+        P_ERROR_READPATH(inputFullPathAndFileName);
+        return false;
     }
 
     while(getline(input,line)){
-        if (!line.empty() && line.at(0) == '#') continue; //comment symbol
+        if(isCommentLine(line)) continue; //comment symbol
         std::string id; int weight;
         std::shared_ptr<Port> dest;
         VALIDATION reason = VALIDATION::Valid;
@@ -540,7 +544,7 @@ void extractContainersData(const std::string& line, std::string &id, int &weight
  * @return true iff it's in the right format
  */
 bool isValidPortFileName(const string& fileName){
-    std::regex reg("[A-Za-z]{5}_[1-9]+.cargo_data");
+    std::regex reg("[A-Za-z]{5}_[1-9]+\\.cargo_data");
     return std::regex_match(fileName, reg);
 }
 
@@ -554,13 +558,19 @@ bool isValidShipMapFileName(const string& fileName){
     return std::regex_match(fileName,reg);
 }
 
+bool isCommentLine(const string& line){
+    std::regex commentLine("\\s*[#]+.*");
+    std::regex whiteSpaces(R"(\s*\t*\r*\n*)");
+    return (std::regex_match(line,commentLine) || std::regex_match(line,whiteSpaces));
+}
+
 /**
  * This function checks if the travel name folder is in the right format aka "Travel" followed by any valid numbers
  * @param travelName
  * @return true iff it's in the right format
  */
 bool isValidTravelName(const string& travelName){
-    std::regex reg("Travel[1-9]+");
+    std::regex reg("Travel\\s*[1-9a-zA-Z]+");
     return std::regex_match(travelName, reg);
 }
 

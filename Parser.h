@@ -8,7 +8,7 @@
 * isValidTravelName             - check if the name of the travel folder is valid name
 * portAlreadyExists             - checks in a given list of ports if the given port already exists, and pushes it back if so
 * orderListDirectories          - arranging the list of the travel directories with the following format map,route,port1,port2 etc..
-* initListDirectories           - initialize the list of the directories from a given root path and store it in a data structure
+* initListOfTravels           - initialize the list of the directories from a given root path and store it in a data structure
 * validateSequenceDirectories   - validating the each travel folder has a all valid files exists
 * setActualSize                 - gets a vector and "shrink" it to it's actual size
 * extractArgsForShip            - given ship_map and ship_route files it's builds a ship with a map and route from them
@@ -18,6 +18,7 @@
  */
 #ifndef PARSER_HEADER
 #define PARSER_HEADER
+
 #include <string>
 #include <vector>
 #include <list>
@@ -25,7 +26,8 @@
 #include <filesystem>
 #include <iostream>
 #include <fstream>
-#include "common.h"
+#include "Common.h"
+#include "ErrorsInterface.h"
 
 class SimulatorObj;
 
@@ -51,9 +53,9 @@ std::unique_ptr<Ship> extractArgsForShip(string &travelName,SimulatorObj &simula
 pair<string,int> setBlocksByLine(std::string &str, std::unique_ptr<Ship> &ship,int lineNumber);
 void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str);
 int portAlreadyExist(std::vector<std::shared_ptr<Port>>& vec,string &str);
-void parseDataFromPortFile(std::map<string,string>& map, string &inputPath);
+void parseDataFromPortFile(std::map<string,list<string>>& map, string &inputPath);
 int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship);
-string extractPortNameFromFile(string fileName);
+string extractPortNameFromFile(const string& fileName);
 //string* getPortNameFromFile(string &filePath);
 
 #endif
