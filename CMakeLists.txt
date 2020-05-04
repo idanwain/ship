@@ -17,8 +17,7 @@ add_executable(ship3
         main.cpp
         WeightBalanceCalculator.cpp WeightBalanceCalculator.h
         Parser.cpp Parser.h
-        outputHandler.cpp outputHandler.h
         common.cpp common.h
         AbstractAlgorithm.h
         lifo_algorithm.cpp lifo_algorithm.h
-        SimulatorObj.cpp SimulatorObj.h)
+        SimulatorObj.cpp SimulatorObj.h ErrorsInterface.h)

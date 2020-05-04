@@ -98,25 +98,21 @@ pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lin
         if(dim[2] > ship->getAxis("z"))
             std::get<1>(pair) = Plan_ZError;
 
-        std::get<0>(pair) = "Error: at line number " + std::to_string(lineNumber) + " One of the provided ship plan constraints exceeding the dimensions of the ship";
+        std::get<0>(pair) = ERROR_XYZ_DIM(lineNumber);
         return pair;
     }
 
     else if(dim[0] < 0 || dim[1] < 0 || dim[2] < 0){
-        std::get<0>(pair) = "Error: at line number " + std::to_string(lineNumber) + "bad line format";
+        std::get<0>(pair) = ERROR_BADLINE(lineNumber);
         std::get<1>(pair) = Plan_BadLine;
     }
     else if(!(*map)[dim[0]][dim[1]].empty()){
         if((*map)[dim[0]][dim[1]].size() == ship->getAxis("z")-dim[2]) {
-            std::get<0>(pair) = "Error: at line number " + std::to_string(lineNumber) + " constraint at (" +
-                                std::to_string(dim[0]) + "," + std::to_string(dim[1]) +
-                                ") already given with diff value";
+            std::get<0>(pair) = ERROR_DIFFVALUE(lineNumber, dim[0], dim[1]);
             std::get<1>(pair) = Plan_Con;
         }
             else {
-            std::get<0>(pair) = "Error: at line number " + std::to_string(lineNumber) + " constraint at (" +
-                                std::to_string(dim[0]) + "," + std::to_string(dim[1]) +
-                                ") already given with same value";
+            std::get<0>(pair) = ERROR_SAMEVALUE(lineNumber,dim[0],dim[1]);
             std::get<1>(pair) = Plan_BadLine;
         }
     }
@@ -135,7 +131,7 @@ pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lin
  * @param inFile - the file pointer
  * @return 0 if succeeded, specified return code otherwise.
  */
-int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const std::string& filePath, list<string> &generalErrors){
+int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const string& filePath, list<string> &generalErrors){
     string line;
     int lineNumber = 2, returnStatement = 0,num;
     std::ifstream inFile;
@@ -143,7 +139,7 @@ int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const std::string& filePath
 
     inFile.open(filePath);
     if (inFile.fail()) {
-        std::cerr << FAIL_TO_READ_PATH + filePath << endl;
+        P_ERROR_READPATH(filePath);
         returnStatement = Plan_Fatal;
     }
     else {
@@ -179,7 +175,7 @@ int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship){
 
     inFile.open(filePath);
     if (inFile.fail()) {
-        std::cerr << FAIL_TO_READ_PATH + filePath << endl;
+        P_ERROR_READPATH(filePath);
         returnStatement = Plan_Fatal;
     }
     else {
@@ -210,9 +206,9 @@ std::unique_ptr<Ship> extractArgsForShip(string &travelName,SimulatorObj &simula
 
     if(travelFolder.find(ROUTE) == travelFolder.end() || travelFolder.find(PLAN) == travelFolder.end()){
         if(travelFolder.find(ROUTE) == travelFolder.end())
-            simulator.addNewErrorToGeneralErrors("Error: Lack of route file, ignoring this travel");
+            simulator.addNewErrorToGeneralErrors(ERROR_LACKROUTE);
         else
-            simulator.addNewErrorToGeneralErrors("Error: Lack of plan file, ignoring this travel");
+            simulator.addNewErrorToGeneralErrors(ERROR_LACKPLAN);
         return nullptr;
     }
     file_path = travelFolder[PLAN].at(1).string();
@@ -223,7 +219,7 @@ std::unique_ptr<Ship> extractArgsForShip(string &travelName,SimulatorObj &simula
         simulator.initCalc(file_path);
     }
     else {
-        simulator.addNewErrorToGeneralErrors("Error: Fatal error occurred in plan file, ignoring this travel");
+        simulator.addNewErrorToGeneralErrors(ERROR_FATALPLAN);
         simulator.updateArrayOfCodes(resultInt, "sim");
         return nullptr;
     }
@@ -232,9 +228,9 @@ std::unique_ptr<Ship> extractArgsForShip(string &travelName,SimulatorObj &simula
     resultInt = extractTravelRoute(ship,file_path,generalErrors);
     if(resultInt == Route_Fatal || ship->getRoute().size() <= 1){
         if(resultInt == Route_Fatal)
-            simulator.addNewErrorToGeneralErrors("Error: Fatal error occurred in route file, ignoring this travel");
+            simulator.addNewErrorToGeneralErrors(ERROR_FATALROUTE);
         else
-            simulator.addNewErrorToGeneralErrors("Error: Route file contains less then 2 valid ports, ignoring this travel");
+            simulator.addNewErrorToGeneralErrors(ERROR_NOTENOUGHPORTS);
         simulator.addListOfGeneralErrors(generalErrors);
         return nullptr;
     }
@@ -294,7 +290,7 @@ void parseDataFromPortFile(std::map<string,list<string>>& map, string& inputPath
     string line;
     inFile.open(inputPath);
     if(inFile.fail()){
-        std::cerr << FAIL_TO_READ_PATH + inputPath << endl;
+        P_ERROR_READPATH(inputPath);
         return;
     }
     while(getline(inFile,line)){

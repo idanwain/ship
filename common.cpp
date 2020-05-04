@@ -21,7 +21,7 @@ void execute(std::unique_ptr<Ship>& ship, char command, std::unique_ptr<Containe
             ship->moveContainer(origin, dest);
             break;
         default:
-            std::cout << "Invalid command, please insert L/U/M commands." << std::endl;
+            CLANG_TIDY;
     }
 }
 
@@ -44,7 +44,7 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
     instructionsFile.open(outputPath);
     parseDataFromPortFile(linesFromPortFile, contAtPortPath);
     if(instructionsFile.fail()) {
-        std::cerr << FAIL_TO_READ_PATH + outputPath << endl;
+        P_ERROR_READPATH(outputPath);
         return std::nullopt;
     }
     while(getline(instructionsFile, line)){
@@ -72,8 +72,7 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
             instructionsCount++;
         }
         else{
-            string msg = "Error: container id: " + id + ", instruction: " + instruction;
-            currAlgErrors.emplace_back(msg);
+            currAlgErrors.emplace_back(ERROR_ContLine(id,instruction));
             errorsCount = -1;
             break;
         }
@@ -391,7 +390,7 @@ int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,
 
     inFile.open(filePath);
     if (inFile.fail()) {
-        std::cerr << FAIL_TO_READ_PATH + filePath << endl;
+        P_ERROR_READPATH(filePath);
         returnStatement = Route_Fatal;
     }
     else {
@@ -403,7 +402,7 @@ int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,
                     line = line.substr(0, line.length() - 1);
                 }
                 if(vec->at(vec->size()-1) && vec->at(vec->size()-1)->get_name() == line){
-                    generalErrors.emplace_back("Error: Port " + line + " occurs 2 or more consecutive times");
+                    generalErrors.emplace_back(ERROR_PORTTWICE(line));
                     temporalStatement = Route_PortTwice;
                 }
                 else if (!portAlreadyExist(*vec, line)) {
@@ -467,8 +466,8 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
     input.open(inputFullPathAndFileName);
 
     if(input.fail()){
-        std::cout << "Error Opening file, closing program" << std::endl;
-        exit(EXIT_FAILURE);
+        P_ERROR_READPATH(inputFullPathAndFileName);
+        return false;
     }
 
     while(getline(input,line)){
@@ -479,7 +478,7 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
         if(validateContainerData(line, reason, id, ship)) {
             extractContainersData(line, id, weight, dest, ship);
             if(dest == nullptr) {
-                std::cout << id << ": "<< CONTAINER_NOT_IN_ROUTE << std::endl;
+                std::cout << id << ": "<< CONTAINER_NOT_IN_ROUTE << std::endl; //TODO idan need to delete this algorithm not allowed to print those errors
                 writeToOutput(output,"R", id,std::forward_as_tuple(-1,-1,-1) , std::forward_as_tuple(-1,-1,-1));
             }
             else {
@@ -537,7 +536,7 @@ void extractContainersData(const std::string& line, std::string &id, int &weight
  * @return true iff it's in the right format
  */
 bool isValidPortFileName(const string& fileName){
-    std::regex reg("[A-Za-z]{5}_[1-9]+.cargo_data");
+    std::regex reg("[A-Za-z]{5}_[1-9]+\\.cargo_data");
     return std::regex_match(fileName, reg);
 }
 
@@ -557,7 +556,7 @@ bool isValidShipMapFileName(const string& fileName){
  * @return true iff it's in the right format
  */
 bool isValidTravelName(const string& travelName){
-    std::regex reg("Travel[1-9]+");
+    std::regex reg("Travel\\s*[1-9a-zA-Z]+");
     return std::regex_match(travelName, reg);
 }
 

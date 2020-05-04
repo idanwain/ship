@@ -27,6 +27,7 @@
 #include <iostream>
 #include <fstream>
 #include "common.h"
+#include "ErrorsInterface.h"
 
 class SimulatorObj;
 

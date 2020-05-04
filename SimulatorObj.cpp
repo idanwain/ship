@@ -18,7 +18,7 @@ void SimulatorObj::initListDirectories(string &path){
     auto& directories = this->inputFiles;
     for(const auto &entry : fs::directory_iterator(path)){
         if(!entry.is_directory()){
-            std::cerr << "Error: "  << entry.path().filename().string()  << msg << std::endl;
+            ERROR_NOTDIRECTORY(entry,msg);
             continue;
         }
         string travelName = entry.path().filename().string();
@@ -128,7 +128,7 @@ void SimulatorObj::createResultsFile(string path){
     path.append("simulation.results");
     inFile.open(path); //Default mode is writing to a file
     if(inFile.fail()){
-        std::cerr << "Error: failed to create results file" << std::endl;
+        ERROR_RESULTSFILE;
         exit(EXIT_FAILURE);
     }
     for(auto &map : output_map)//Get travel Names
@@ -174,8 +174,8 @@ void SimulatorObj::createErrorsFile(string path) {
     path.append("simulation.errors");
     inFile.open(path);
     if (inFile.fail()) {
-        std::cerr << "Error: failed to create errors file" << std::endl;
-        exit(EXIT_FAILURE);
+        ERROR_ERRORSFILE;
+        return;
     }
 
     for (auto &outterPair : simErrors) {

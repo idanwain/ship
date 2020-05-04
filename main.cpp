@@ -66,8 +66,10 @@ void destroyAlgVec(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algV
  */
 void initPaths(int argc,char** argv){
     string basePath = fs::current_path().string();
-    if(argc == 0)
-        exit(EXIT_FAILURE);
+    if(argc == 0) {
+        ERROR_NOTRAVELPATH;
+        exit(EXIT_SUCCESS);
+    }
     else if(argc == 2){
         mainAlgorithmsPath = basePath;
         mainOutputPath = basePath;
