@@ -26,8 +26,8 @@
 /*------------------------------Global Variables---------------------------*/
 
 string mainTravelPath;
-string mainAlgorithmsPath;
-string mainOutputPath;
+string mainAlgorithmsPath = fs::current_path().string();
+string mainOutputPath = fs::current_path().string();
 
 /*-----------------------------Utility Functions-------------------------*/
 
@@ -66,21 +66,23 @@ void destroyAlgVec(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algV
  */
 void initPaths(int argc,char** argv){
     string basePath = fs::current_path().string();
-    if(argc == 0) {
+    const string travelFlag = "-travel_path";
+    const string outputFlag = "-output_path";
+    const string algorithmFlag = "-algorithm_path";
+
+    for(int i = 1; i+1 < argc; i++){
+        if(argv[i] == travelFlag)
+            mainTravelPath = argv[i+1];
+        else if(argv[i] == outputFlag)
+            mainOutputPath = argv[i+1];
+        else if(argv[i] == algorithmFlag)
+            mainAlgorithmsPath = argv[i+1];
+    }
+
+    if(mainTravelPath.empty()) {
         ERROR_NOTRAVELPATH;
-        exit(EXIT_SUCCESS);
+        exit(EXIT_FAILURE);
     }
-    else if(argc == 2){
-        mainAlgorithmsPath = basePath;
-        mainOutputPath = basePath;
-    }
-    else if(argc == 3)
-        mainAlgorithmsPath = argv[2];
-    else{
-        mainAlgorithmsPath = argv[2];
-        mainOutputPath = argv[3];
-    }
-    mainTravelPath = argv[1];
 }
 
 /**
