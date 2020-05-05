@@ -85,6 +85,9 @@ map<string,map<string,pair<int,int>>>& SimulatorObj::getResultsInfo(){
     return this->outputResultsInfo;
 }
 void SimulatorObj::addOutputInfo(string& travelName){
+    if(!currTravelGeneralErrors.empty()){
+        currTravelErrors.insert(make_pair("general",currTravelGeneralErrors));
+    }
     if(!currTravelErrors.empty()){
         this->addErrorsInfo(travelName);
     }
@@ -206,7 +209,13 @@ void SimulatorObj::runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgor
         for (int portNum = 0; portNum < (int) route.size() && res != -1; portNum++) {
             string portName = route[portNum]->get_name();
             int visitNumber = visitNumbersByPort[portName];
-            fs::path portPath(this->inputFiles[travelName][portName][visitNumber]);
+            fs::path portPath;
+            try {
+                portPath = fs::path(this->inputFiles[travelName][portName][visitNumber]);
+            }
+            catch (const std::exception& e){
+                portPath = fs::path();
+            }
             res = runCurrentPort(portName, portPath, portNum, alg, simCurrAlgErrors, algInstructionsFolder,
                                  ++visitNumbersByPort[portName]);
             compareIgnoredAlgErrsVsSimErrs(portName, visitNumber, simCurrAlgErrors);

@@ -15,15 +15,15 @@
 #include "Parser.h"
 #include "Common.h"
 
-class Unsorted_Lifo_algorithm: public AbstractAlgorithm {
-    const std::string name = "Unsorted_Lifo_algorithm";
+class UnsortedLifoAlgorithm: public AbstractAlgorithm {
+    const std::string name = "UnsortedLifoAlgorithm";
     int portNum = 0;
     std::unique_ptr<Ship> pShip;
     std::shared_ptr<Port> pPort;
     WeightBalanceCalculator calc;
 public:
-    explicit Unsorted_Lifo_algorithm(): AbstractAlgorithm(){}
-    ~Unsorted_Lifo_algorithm() override= default;
+    explicit UnsortedLifoAlgorithm(): AbstractAlgorithm(){}
+    ~UnsortedLifoAlgorithm() override= default;
     /*-------------- Overriding Methods --------------*/
     int readShipPlan(const std::string& full_path_and_file_name) override;
     int readShipRoute(const std::string& full_path_and_file_name) override;

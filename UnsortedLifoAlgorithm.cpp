@@ -1,4 +1,4 @@
-#include "Unsorted_Lifo_Algorithm.h"
+#include "UnsortedLifoAlgorithm.h"
 #include "Port.h"
 
 /**
@@ -9,7 +9,7 @@
  *      - stop unload when hits the port's container
  * @param output - output file to write instructions for crane
  */
-void Unsorted_Lifo_algorithm::unloadContainers(std::ofstream& output){
+void UnsortedLifoAlgorithm::unloadContainers(std::ofstream& output){
     std::vector<Container>* containersToUnload = nullptr;
     pShip->getContainersToUnload(pPort, &containersToUnload);
     std::set<coordinate> coordinates_to_handle;
@@ -23,7 +23,7 @@ void Unsorted_Lifo_algorithm::unloadContainers(std::ofstream& output){
     }
 }
 
-void Unsorted_Lifo_algorithm::handleColumn(coordinate coor, std::vector<Container>* column, int lowest_floor,
+void UnsortedLifoAlgorithm::handleColumn(coordinate coor, std::vector<Container>* column, int lowest_floor,
                                   std::vector<Container>* containersToUnload, std::ofstream& output){
     int X = std::get<0>(coor); int Y =  std::get<1>(coor);
     for(auto con_iterator = column->end() - 1; !column->empty() && con_iterator >= column->begin();){
@@ -79,7 +79,7 @@ void Unsorted_Lifo_algorithm::handleColumn(coordinate coor, std::vector<Containe
  *      -load containers in reverse order: far destination == lower spot on ship.
  * @param output - output file to write instructions for crane
  */
-void Unsorted_Lifo_algorithm::loadContainers(Type list_category, std::ofstream& output){
+void UnsortedLifoAlgorithm::loadContainers(Type list_category, std::ofstream& output){
     //get proper container's vector
     std::vector<Container>* load = pPort->getContainerVec(list_category);
     if(load == nullptr) return;
@@ -107,31 +107,31 @@ void Unsorted_Lifo_algorithm::loadContainers(Type list_category, std::ofstream& 
     }
 }
 
-int Unsorted_Lifo_algorithm::getPortNum() {
+int UnsortedLifoAlgorithm::getPortNum() {
     return portNum;
 }
 
-void Unsorted_Lifo_algorithm::unloadSingleContainer(std::ofstream &output,Container& con, Type vecType, coordinate coor){
+void UnsortedLifoAlgorithm::unloadSingleContainer(std::ofstream &output,Container& con, Type vecType, coordinate coor){
     pPort->addContainer(con, vecType);
     writeToOutput(output, Action::UNLOAD, con.getId(), pShip->getCoordinate(con));
     pShip->removeContainer(coor);
 }
 
-int Unsorted_Lifo_algorithm::readShipPlan(const std::string& full_path_and_file_name){
+int UnsortedLifoAlgorithm::readShipPlan(const std::string& full_path_and_file_name){
     return extractShipPlan(full_path_and_file_name, this->pShip) ||
            extractArgsForBlocks(this->pShip, full_path_and_file_name);
 }
 
-int Unsorted_Lifo_algorithm::readShipRoute(const std::string& full_path_and_file_name) {
+int UnsortedLifoAlgorithm::readShipRoute(const std::string& full_path_and_file_name) {
     return extractTravelRoute(pShip, full_path_and_file_name);
 }
 
-int Unsorted_Lifo_algorithm::setWeightBalanceCalculator(WeightBalanceCalculator& calculator) {
+int UnsortedLifoAlgorithm::setWeightBalanceCalculator(WeightBalanceCalculator& calculator) {
     calc = calculator;
     return 0;
 }
 
-int Unsorted_Lifo_algorithm::getInstructionsForCargo(const std::string& input_full_path_and_file_name,
+int UnsortedLifoAlgorithm::getInstructionsForCargo(const std::string& input_full_path_and_file_name,
                                             const std::string& output_full_path_and_file_name) {
     this->pPort = pShip->getRoute().at(portNum);
     std::ofstream output(output_full_path_and_file_name);

@@ -20,4 +20,5 @@ add_executable(ship3
         Common.cpp Common.h
         AbstractAlgorithm.h
         LifoAlgorithm.cpp LifoAlgorithm.h
+        UnsortedLifoAlgorithm.cpp UnsortedLifoAlgorithm.h
         SimulatorObj.cpp SimulatorObj.h ErrorsInterface.h)
