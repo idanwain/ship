@@ -10,7 +10,7 @@
 * idExistOnShip             - check if given id already exist in ship map
 * isPortInRoute             - check if given port name exist in the following ports according to ship route
 * isValidPortName           - validating if given port name is in the right format (seaport code)
-* validateId                - validating container id
+* isValidId                - validating container id
 * validateContainerData     - validate container data line given in a cargo_data file
 * validateAlgorithm         - validating all algorithm crane instruction on a single port
 * validateInstruction       - validating single instruction
@@ -74,7 +74,8 @@ bool isValidTravelName(const string& travelName);
 bool isValidPortName(const string& portName);
 bool isValidInteger(const string str);
 bool isCommentLine(const string& line);
-bool validateId(const string& str);
+bool isValidId(const string& str);
+bool isNumber(const std::string& s);
 std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contAtPortPath,int portNumber, list<string>& currAlgErrors,SimulatorObj* simulator,string& portName,int visitNumber);
 bool validateInstruction(string &instruction,string &id,vector<int> &coordinates,std::unique_ptr<Ship>& ship,std::map<string,list<string>> &portContainers,int portNum);
 bool validateLoadInstruction(vector<int> &coordinates,std::unique_ptr<Ship>& ship);
@@ -89,7 +90,6 @@ void extractContainersData(const std::string& line, std::string &id, int &weight
 void extractCraneInstruction(string &toParse, std::pair<string,string>& instruction, vector<int> &coordinates);
 /*----------------------Rest of the functions-------------------*/
 void execute(std::unique_ptr<Ship>& ship, char command,std::unique_ptr<Container>& container, coordinate origin, coordinate dest);
-bool isNumber(const std::string& s);
 bool idExistOnShip(const string& id, std::unique_ptr<Ship>& ship);
 bool isPortInRoute(const string& portName, const vector<std::shared_ptr<Port>>& route, int portNum);
 bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream &output,
