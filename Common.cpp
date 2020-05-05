@@ -216,7 +216,7 @@ bool validateMoveInstruction(vector<int> &coordinates, vector<vector<vector<Cont
 bool validateContainerData(const std::string& line, VALIDATION& reason, std::string& id, std::unique_ptr<Ship>& ship) {
     int i=-1;
     auto data = stringSplit(line, delim);
-    if(data.size() != 4)
+    if(data.size() != 3)
         return false;
     std::string port_name;
 
@@ -244,9 +244,6 @@ bool validateContainerData(const std::string& line, VALIDATION& reason, std::str
         }
         else if (i == 2) {
             port_name = item;
-        }
-        else if(i == 3){
-            port_name += " " + item;
         }
     }
     bool dest = isValidPortName(port_name);
