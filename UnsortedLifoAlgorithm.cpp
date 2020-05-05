@@ -1,6 +1,8 @@
 #include "UnsortedLifoAlgorithm.h"
 #include "Port.h"
 
+REGISTER_ALGORITHM (UnsortedLifoAlgorithm)
+
 /**
  * This function unloads all the containers that need to be unloaded to port by these scheme:
  *      - get all containers to unload
@@ -28,38 +30,29 @@ void UnsortedLifoAlgorithm::handleColumn(coordinate coor, std::vector<Container>
     int X = std::get<0>(coor); int Y =  std::get<1>(coor);
     for(auto con_iterator = column->end() - 1; !column->empty() && con_iterator >= column->begin();){
         if(con_iterator - column->begin() == lowest_floor - 1) break;
-        //container's destination == this port
         if(*(con_iterator->getDest()) == *pPort){
-            //calculator approved unload --> unload, record & move to next container
             if(calc.tryOperation('U', con_iterator->getWeight(), X, Y) == APPROVED){
                 unloadSingleContainer(output, *con_iterator, Type::ARRIVED, coor);
                 --con_iterator;
             }
-                //calculator didnt approved unload --> record & move to next column
-            else{
+            else {
                 writeToOutput(output, Action::REJECT, con_iterator->getId(), pShip->getCoordinate(*con_iterator));
-                break; //next column
+                break;
             }
         }
-            //container's destination != this port
         else {
             coordinate new_spot;
-            //checks weight, space and efficiency.
             bool found = pShip->findColumnToMoveTo(coor, new_spot, *containersToUnload, con_iterator->getWeight(), calc);
-            //didn't found a proper coordinate to move the container to
             if(!found){
-                //if cant move, maybe can at least unload it, calculator approved unload --> unload, record & move to next container
                 if(calc.tryOperation('U', con_iterator->getWeight(), X, Y) == APPROVED){
                     unloadSingleContainer(output, *con_iterator, Type::PRIORITY, coor);
                     --con_iterator;
                 }
-                    //calculator didnt approved unload --> record & move to next column
                 else {
                     writeToOutput(output, Action::REJECT, con_iterator->getId(), pShip->getCoordinate(*con_iterator));
-                    break; //next column
+                    break;
                 }
             }
-                //found a proper coordinate to move the container to
             else {
                 std::tuple<int,int,int> old_coor = pShip->getCoordinate(*con_iterator);
                 std::string id = con_iterator->getId();
@@ -80,17 +73,15 @@ void UnsortedLifoAlgorithm::handleColumn(coordinate coor, std::vector<Container>
  * @param output - output file to write instructions for crane
  */
 void UnsortedLifoAlgorithm::loadContainers(Type list_category, std::ofstream& output){
-    //get proper container's vector
     std::vector<Container>* load = pPort->getContainerVec(list_category);
     if(load == nullptr) return;
-    //validate by: data, port is'nt in route, space, weight
     for(auto con = load->end() - 1; !load->empty() && con >= load->begin();--con){
         bool found = false;
         coordinate coor;
         int weight = con->getWeight();
         pShip->findColumnToLoad(coor, found, weight, calc);
 
-        bool validID = validateId(con->getId());
+        bool validID = isValidId(con->getId());
         auto route = pShip->getRoute();
         auto destName = con->getDest()->get_name();
         auto currPortNum = getPortNum();
@@ -135,18 +126,13 @@ int UnsortedLifoAlgorithm::getInstructionsForCargo(const std::string& input_full
                                             const std::string& output_full_path_and_file_name) {
     this->pPort = pShip->getRoute().at(portNum);
     std::ofstream output(output_full_path_and_file_name);
-    //parse the input data into
     if(!parseDataToPort(input_full_path_and_file_name, output, pShip, pPort)){
         std::cout << "CONTAINER_FILE_ERROR" << std::endl;
         return false;
     };
-
-    //unload containers from ship to port
     unloadContainers(output);
-    //load containers from port to ship
     loadContainers(Type::PRIORITY,output);
     loadContainers(Type::LOAD,output);
-
     output.close();
     ++portNum;
     return 0;

@@ -224,7 +224,7 @@ bool validateContainerData(const std::string& line, VALIDATION& reason, std::str
         ++i;
         if (i == 0) {
             id = item;
-            bool idBool = validateId(item);
+            bool idBool = isValidId(item);
             if(!idBool){
                 reason = VALIDATION::InvalidID;
                 return false;
@@ -316,30 +316,9 @@ std::vector<std::string> stringSplit(std::string s, const char* delimiter) {
  * @param str - the checked id
  * @return true iff it's in the right format
  */
-bool validateId(const std::string& str) {
-    int i = 0;
-    if (str.length() != 11){
-        return false;
-    }
-    for(auto letter : str){
-        if(i < 3){ // owner code
-            if(!isupper(letter)){
-                return false;
-            }
-        }
-        else if(i == 3){ // category identifier
-            if (letter != 'U' && letter != 'J' && letter != 'Z'){
-                return false;
-            }
-        }
-        else { // serial number & check digit
-            if(!isdigit(letter)){
-                return false;
-            }
-        }
-        ++i;
-    }
-    return true;
+bool isValidId(const std::string& str) {
+    std::regex reg("[A-Z]{3}[UJZ][1-9]{7}");
+    return std::regex_match(str, reg);
 }
 
 /**

@@ -14,7 +14,11 @@
 #include "Ship.h"
 #include "Parser.h"
 #include "Common.h"
+#include "AlgorithmRegistration.h"
 
+
+class UnsortedLifoAlgorithm: public AbstractAlgorithm {
+    const std::string name = "Unsorted_Lifo_algorithm";
 class UnsortedLifoAlgorithm: public AbstractAlgorithm {
     const std::string name = "UnsortedLifoAlgorithm";
     int portNum = 0;

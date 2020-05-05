@@ -15,16 +15,17 @@
 #include "Ship.h"
 #include "Parser.h"
 #include "Common.h"
+#include "AlgorithmRegistration.h"
 
-class Lifo_algorithm: public AbstractAlgorithm {
-    const std::string name = "Lifo_algorithm";
+class LifoAlgorithm: public AbstractAlgorithm {
+    const std::string name = "LifoAlgorithm";
     int portNum = 0;
     std::unique_ptr<Ship> pShip;
     std::shared_ptr<Port> pPort;
     WeightBalanceCalculator calc;
 public:
-    explicit Lifo_algorithm(): AbstractAlgorithm(){}
-    ~Lifo_algorithm() override= default;
+    explicit LifoAlgorithm(): AbstractAlgorithm(){}
+    ~LifoAlgorithm() override= default;
     /*-------------- Overriding Methods --------------*/
     int readShipPlan(const std::string& full_path_and_file_name) override;
     int readShipRoute(const std::string& full_path_and_file_name) override;
