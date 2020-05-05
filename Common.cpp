@@ -54,7 +54,10 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
         id = std::get<1>(idAndInstruction);
         /*if the below statement pass test, then we can execute instruction or if it's reject then do nothing as we need to reject*/
         if(validateInstruction(instruction, id, coordinates, simulator->getShip(), linesFromPortFile, portNumber)){
-            if(instruction == "R")continue;
+            if(instruction == "R"){
+                linesFromPortFile[id].clear();
+                continue;
+            }
             coordinate one = std::tuple<int,int>(coordinates[0],coordinates[1]);
             std::unique_ptr<Container> cont = std::make_unique<Container>(id);
             if(instruction == "L") {
@@ -144,7 +147,7 @@ bool validateInstruction(string &instruction,string &id, vector<int> &coordinate
 bool validateRejectInstruction(std::map<string,list<string>>& portContainers, string& id,std::unique_ptr<Ship>& ship,int portNum){
     string line = portContainers[id].front();
     auto parsedInfo = stringSplit(line,delim);
-    string portName = parsedInfo.at(2) + " " + parsedInfo.at(3);
+    string portName = parsedInfo.at(2);
     VALIDATION reason = VALIDATION::Valid;/*might be used in exercise 2 to be more specific*/
     bool test1 = !validateContainerData(line,reason,id,ship);
     bool test3 = (ship->getRoute().at(portNum)->get_name() == portName);
@@ -381,7 +384,7 @@ int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,
                 if(iscntrl(line[line.length() - 1])){
                     line = line.substr(0, line.length() - 1);
                 }
-                if(vec->at(vec->size()-1) && vec->at(vec->size()-1)->get_name() == line){
+                if(vec->size() > 0 && vec->at(vec->size()-1) && vec->at(vec->size()-1)->get_name() == line){
                     generalErrors.emplace_back(ERROR_PORTTWICE(line));
                     temporalStatement = Route_PortTwice;
                 }
@@ -525,7 +528,7 @@ bool isValidPortFileName(const string& fileName){
 }
 
 bool isValidShipRouteFileName(const string& fileName){
-    std::regex reg(".*\\.route");
+    std::regex reg(".*\\.ship_route");
     return std::regex_match(fileName,reg);
 }
 

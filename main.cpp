@@ -18,9 +18,9 @@
 #include "Ship.h"
 #include "Parser.h"
 #include "AbstractAlgorithm.h"
-#include "Unsorted_Lifo_Algorithm.h"
-#include "ErroneousAlgorithm.h"
+#include "UnsortedLifoAlgorithm.h"
 #include "SimulatorObj.h"
+#include "LifoAlgorithm.h"
 #include <memory>
 
 /*------------------------------Global Variables---------------------------*/
@@ -37,14 +37,14 @@ string mainOutputPath = fs::current_path().string();
  * @param ship
  */
 void initAlgorithmList(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algList){
-//    //TODO make polymorphic algorithm factory & change to smart pointers
+////    //TODO make polymorphic algorithm factory & change to smart pointers
 //    std::unique_ptr<AbstractAlgorithm> lifoAlgorithm = std::make_unique<Lifo_algorithm>();
-//    std::unique_ptr<AbstractAlgorithm> unsortedLifoAlgorithm = std::make_unique<Unsorted_Lifo_Algorithm>();
-//    std::unique_ptr<AbstractAlgorithm> erroneousAlgorithm = std::make_unique<Erroneous_algorithm>();
-//    algList.emplace_back(std::move(lifoAlgorithm));
-//    algList.emplace_back(unsortedLifoAlgorithm);
-//    algList.emplace_back(erroneousAlgorithm);
-//    //init alg data
+//    std::unique_ptr<AbstractAlgorithm> unsortedLifoAlgorithm = std::make_unique<UnsortedLifoAlgorithm>();
+//    pair<string,std::unique_ptr<AbstractAlgorithm>> pair("Lifo_algorithm",std::make_unique<Lifo_algorithm>());
+    algList.emplace_back(make_pair("Lifo_algorithm",std::make_unique<LifoAlgorithm>()));
+    algList.emplace_back(make_pair("UnsortedLifoAlgorithm",std::make_unique<UnsortedLifoAlgorithm>()));
+
+
     /*TODO need to init the algList with alg name and the algorithm object*/
 }
 
@@ -118,9 +118,9 @@ int main(int argc, char** argv) {
         if(mainShip != nullptr){
             for (auto &alg : algVec) {
                 WeightBalanceCalculator algCalc;
-                int errCode1 = alg.second->readShipPlan(travel_folder.second.at(PLAN).at(0).string());
-                int errCode2 = alg.second->readShipRoute(travel_folder.second.at(ROUTE).at(0).string());
-                int errCode3 = algCalc.readShipPlan(travel_folder.second.at(PLAN).at(0).string());
+                int errCode1 = alg.second->readShipPlan(travel_folder.second.at(PLAN).at(1).string());
+                int errCode2 = alg.second->readShipRoute(travel_folder.second.at(ROUTE).at(1).string());
+                int errCode3 = algCalc.readShipPlan(travel_folder.second.at(PLAN).at(1).string());
                 simulator.updateArrayOfCodes(errCode1 + errCode2 + errCode3,"alg");
                 simulator.setShip(mainShip);
                 simulator.runCurrentAlgorithm(alg,currTravelName);

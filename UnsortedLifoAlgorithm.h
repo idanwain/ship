@@ -18,7 +18,7 @@
 
 
 class UnsortedLifoAlgorithm: public AbstractAlgorithm {
-    const std::string name = "Unsorted_Lifo_algorithm";
+    const std::string name = "UnsortedLifoAlgorithm";
     int portNum = 0;
     std::unique_ptr<Ship> pShip;
     std::shared_ptr<Port> pPort;
