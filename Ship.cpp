@@ -207,6 +207,19 @@ std::shared_ptr<Port> Ship:: getPortByNumber(size_t num){
     }
     return this->route[num];
 }
+/** temp */
+void Ship::printSizeAndCapacity() {
+    auto& map = this->shipMap;
+    int coor_x = 0, coor_y = 0;
+    for(auto& x : map){
+        for(auto& y : x){
+            std::cout << "(" << coor_x << "," << coor_y << "): Size " << map[coor_x][coor_y].size() << " Capacity " << map[coor_x][coor_y].capacity() << std::endl;
+            ++coor_y;
+        }
+        coor_y = 0;
+        ++coor_x;
+    }
+}
 
 /*This function for ex2 purposes*/
 //std::tuple<int,int> Ship::find_min_floor(){

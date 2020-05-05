@@ -63,7 +63,7 @@
 #define C_LastPortCont  (1 << 17)/*Last port has awaiting containers*/
 #define C_ExceedsCap    (1 << 18)/*total containers amount exceeds ship cap*/
 
-enum class VALIDATION {InvalidID, ExistID, InvalidPort, Valid};
+enum class VALIDATION {InvalidID, InvalidWeight, ExistID, InvalidPort, Valid};
 
 
 /*----------------------Validate functions-------------------*/

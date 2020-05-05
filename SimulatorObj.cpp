@@ -208,10 +208,19 @@ void SimulatorObj::runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgor
         string algInstructionsFolder = createAlgorithmOutDirectory(alg.first, mainOutputPath, travelName);
         for (int portNum = 0; portNum < (int) route.size() && res != -1; portNum++) {
             string portName = route[portNum]->get_name();
+            cout << portName << endl;
             int visitNumber = visitNumbersByPort[portName];
             fs::path portPath;
             try {
-                portPath = fs::path(this->inputFiles[travelName][portName][visitNumber]);
+                auto map = this->inputFiles[travelName];
+                auto vec = map[portName];
+                if(vec.empty()){
+                    vec.resize(1);
+                }
+                cout << "before visit" << endl;
+                auto visit = vec.at(visitNumber);
+                cout << "after visit" << endl;
+                portPath = fs::path(visit);
             }
             catch (const std::exception& e){
                 portPath = fs::path();
@@ -268,13 +277,20 @@ int SimulatorObj::runCurrentPort(string &portName,fs::path &portPath,int portNum
     int instructionsCount, errorsCount, algReturnValue;
     std::optional<pair<int,int>> result;
     pair<int,int> intAndError;
-    if(portPath.empty())
+    if(portPath.empty()){
         inputPath = "";
-    else
+        cout << "in if statement" << endl;
+    }
+    else {
         inputPath =  portPath.string();
+        cout << "input paht: " << inputPath << endl;
+    }
 
     outputPath = algOutputFolder + PATH_SEPARATOR + portName + "_" + std::to_string(visitNumber) + ".crane_instructions";
+    cout << "before getInstructionsForCargo" << endl;
+    cout << alg.first << endl;
     algReturnValue = alg.second->getInstructionsForCargo(inputPath,outputPath);
+
     updateArrayOfCodes(algReturnValue,"alg");
     result = validateAlgorithm(outputPath,inputPath,portNum,simCurrAlgErrors,this,portName,visitNumber);
     if(!result) return -1; //case there was an error in validateAlgorithm

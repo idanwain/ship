@@ -41,6 +41,7 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
     map<string,list<string>> linesFromPortFile;
     int errorsCount = 0,instructionsCount = 0;
 
+    cout << "before file opening" << endl;
     parseDataFromPortFile(linesFromPortFile, contAtPortPath);
     instructionsFile.open(outputPath);
     if(instructionsFile.fail()) {
@@ -242,6 +243,8 @@ bool validateContainerData(const std::string& line, VALIDATION& reason, std::str
         if(i == 1) {
             bool weight = isNumber(item);
             if(!weight){
+                std::cout << item << std::endl;
+                reason = VALIDATION::InvalidWeight;
                 return false;
             }
         }
@@ -317,7 +320,7 @@ std::vector<std::string> stringSplit(std::string s, const char* delimiter) {
  * @return true iff it's in the right format
  */
 bool isValidId(const std::string& str) {
-    std::regex reg("[A-Z]{3}[UJZ][1-9]{7}");
+    std::regex reg("[A-Z]{3}[UJZ][0-9]{7}");
     return std::regex_match(str, reg);
 }
 
@@ -450,6 +453,7 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
     std::string line;
     std::ifstream input;
 
+    if(inputFullPathAndFileName == "") return true;
     input.open(inputFullPathAndFileName);
 
     if(input.fail()){
@@ -464,13 +468,13 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
         VALIDATION reason = VALIDATION::Valid;
         if(validateContainerData(line, reason, id, ship)) {
             extractContainersData(line, id, weight, dest, ship);
-            if(dest == nullptr) {
-                std::cout << id << ": "<< CONTAINER_NOT_IN_ROUTE << std::endl;
-                writeToOutput(output,AbstractAlgorithm::Action::REJECT, id);
-            }
-            else {
+            if(dest != nullptr && !(*dest == *port) && dest->get_name() != "NOT_IN_ROUTE") {
                 std::unique_ptr<Container> con = std::make_unique<Container>(id, weight,port, dest);
                 port->addContainer(*con, Type::LOAD);
+            }
+            else {
+                std::cout << id << ": "<< CONTAINER_NOT_IN_ROUTE << std::endl;
+                writeToOutput(output,AbstractAlgorithm::Action::REJECT, id);
             }
         }
         else {
@@ -513,7 +517,7 @@ void extractContainersData(const std::string& line, std::string &id, int &weight
         }
     }
     auto dest_temp = ship->getPortByName(port_name);
-    if(!dest_temp){
+    if(dest_temp){
         dest = dest_temp;
     }
 }

@@ -38,6 +38,11 @@ public:
             }
         }
         this->shipMap = map;
+        for(int i = 0; i < x; i++){
+            for(int j = 0; j < y; j++){
+                this->shipMap[i][j].reserve(z);
+            }
+        }
         this->x = x;
         this->y = y;
         this->z = z;
@@ -96,6 +101,9 @@ public:
     void updateFreeSpace(int num);
     bool isOnShip(Container &con);
     std::shared_ptr<Port> getPortByNumber(size_t num);
+    /** TEMP! */
+    void printSizeAndCapacity();
+
 
 
 };

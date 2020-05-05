@@ -146,11 +146,13 @@ int LifoAlgorithm::setWeightBalanceCalculator(WeightBalanceCalculator& calculato
 
 int LifoAlgorithm::getInstructionsForCargo(const std::string& input_full_path_and_file_name,
                                             const std::string& output_full_path_and_file_name) {
+    if(portNum > pShip->getRoute().size()) portNum = 0;
     this->pPort = pShip->getRoute().at(portNum);
     std::ofstream output(output_full_path_and_file_name);
     if(!parseDataToPort(input_full_path_and_file_name, output, pShip, pPort)){
         std::cout << "CONTAINER_FILE_ERROR" << std::endl;
-        return false;
+        output.close();
+        return -1;
     };
     unloadContainers(output);
     loadContainers(Type::PRIORITY,output);

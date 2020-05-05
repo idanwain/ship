@@ -124,6 +124,7 @@ int UnsortedLifoAlgorithm::setWeightBalanceCalculator(WeightBalanceCalculator& c
 
 int UnsortedLifoAlgorithm::getInstructionsForCargo(const std::string& input_full_path_and_file_name,
                                             const std::string& output_full_path_and_file_name) {
+    if(portNum > pShip->getRoute().size()) portNum = 0;
     this->pPort = pShip->getRoute().at(portNum);
     std::ofstream output(output_full_path_and_file_name);
     if(!parseDataToPort(input_full_path_and_file_name, output, pShip, pPort)){

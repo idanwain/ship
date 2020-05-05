@@ -107,11 +107,11 @@ pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lin
         std::get<1>(pair) = Plan_BadLine;
     }
     else if(!(*map)[dim[0]][dim[1]].empty()){
-        if((*map)[dim[0]][dim[1]].size() == ship->getAxis("z")-dim[2]) {
+        if((*map)[dim[0]][dim[1]].size() != ship->getAxis("z")-dim[2]) {
             std::get<0>(pair) = ERROR_DIFFVALUE(lineNumber, dim[0], dim[1]);
             std::get<1>(pair) = Plan_Con;
         }
-            else {
+        else {
             std::get<0>(pair) = ERROR_SAMEVALUE(lineNumber,dim[0],dim[1]);
             std::get<1>(pair) = Plan_BadLine;
         }
@@ -215,6 +215,7 @@ std::unique_ptr<Ship> extractArgsForShip(string &travelName,SimulatorObj &simula
     int resultInt = extractShipPlan(file_path,ship);
     if(resultInt == 0){
         resultInt = extractArgsForBlocks(ship,file_path,generalErrors);
+        //TODO handle resultIn in case of terminal error
         simulator.addListOfGeneralErrors(generalErrors);
         simulator.initCalc(file_path);
     }
