@@ -19,7 +19,6 @@
 #include "Parser.h"
 #include "AbstractAlgorithm.h"
 #include "UnsortedLifoAlgorithm.h"
-#include "ErroneousAlgorithm.h"
 #include "SimulatorObj.h"
 #include "LifoAlgorithm.h"
 #include <memory>
@@ -42,7 +41,7 @@ void initAlgorithmList(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &
 //    std::unique_ptr<AbstractAlgorithm> lifoAlgorithm = std::make_unique<Lifo_algorithm>();
 //    std::unique_ptr<AbstractAlgorithm> unsortedLifoAlgorithm = std::make_unique<UnsortedLifoAlgorithm>();
 //    pair<string,std::unique_ptr<AbstractAlgorithm>> pair("Lifo_algorithm",std::make_unique<Lifo_algorithm>());
-    algList.emplace_back(make_pair("Lifo_algorithm",std::make_unique<Lifo_algorithm>()));
+    algList.emplace_back(make_pair("Lifo_algorithm",std::make_unique<LifoAlgorithm>()));
     algList.emplace_back(make_pair("UnsortedLifoAlgorithm",std::make_unique<UnsortedLifoAlgorithm>()));
 
 

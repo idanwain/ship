@@ -296,7 +296,7 @@ void parseDataFromPortFile(std::map<string,list<string>>& map, string& inputPath
     while(getline(inFile,line)){
         if(isCommentLine(line))continue;
         vector<string> parsedInfo = stringSplit(line,delim);
-        if(parsedInfo.size() != 4)continue; /*case not enough information or too much TODO need to think again if not error*/
+        if(parsedInfo.size() != 3)continue; /*case not enough information or too much TODO need to think again if not error*/
         string contID = parsedInfo.at(0);
         if(map.find(contID) == map.end()){
             list<string> ls;

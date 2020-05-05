@@ -54,7 +54,10 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
         id = std::get<1>(idAndInstruction);
         /*if the below statement pass test, then we can execute instruction or if it's reject then do nothing as we need to reject*/
         if(validateInstruction(instruction, id, coordinates, simulator->getShip(), linesFromPortFile, portNumber)){
-            if(instruction == "R")continue;
+            if(instruction == "R"){
+                linesFromPortFile[id].clear();
+                continue;
+            }
             coordinate one = std::tuple<int,int>(coordinates[0],coordinates[1]);
             std::unique_ptr<Container> cont = std::make_unique<Container>(id);
             if(instruction == "L") {
@@ -144,7 +147,7 @@ bool validateInstruction(string &instruction,string &id, vector<int> &coordinate
 bool validateRejectInstruction(std::map<string,list<string>>& portContainers, string& id,std::unique_ptr<Ship>& ship,int portNum){
     string line = portContainers[id].front();
     auto parsedInfo = stringSplit(line,delim);
-    string portName = parsedInfo.at(2) + " " + parsedInfo.at(3);
+    string portName = parsedInfo.at(2);
     VALIDATION reason = VALIDATION::Valid;/*might be used in exercise 2 to be more specific*/
     bool test1 = !validateContainerData(line,reason,id,ship);
     bool test3 = (ship->getRoute().at(portNum)->get_name() == portName);
@@ -216,7 +219,7 @@ bool validateMoveInstruction(vector<int> &coordinates, vector<vector<vector<Cont
 bool validateContainerData(const std::string& line, VALIDATION& reason, std::string& id, std::unique_ptr<Ship>& ship) {
     int i=-1;
     auto data = stringSplit(line, delim);
-    if(data.size() != 4)
+    if(data.size() != 3)
         return false;
     std::string port_name;
 
@@ -244,9 +247,6 @@ bool validateContainerData(const std::string& line, VALIDATION& reason, std::str
         }
         else if (i == 2) {
             port_name = item;
-        }
-        else if(i == 3){
-            port_name += " " + item;
         }
     }
     bool dest = isValidPortName(port_name);
