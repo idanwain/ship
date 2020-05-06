@@ -39,7 +39,7 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
     string line,id,instruction;
     pair<string,string> idAndInstruction;
     map<string,list<string>> linesFromPortFile;
-    int errorsCount = 0,instructionsCount = 0;
+    int errorsCount = 0,instructionsCount = 0,kg = 0;
 
     cout << "before file opening" << endl;
     parseDataFromPortFile(linesFromPortFile, contAtPortPath);
@@ -54,7 +54,7 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
         instruction = std::get<0>(idAndInstruction);
         id = std::get<1>(idAndInstruction);
         /*if the below statement pass test, then we can execute instruction or if it's reject then do nothing as we need to reject*/
-        if(validateInstruction(instruction, id, coordinates, simulator->getShip(), linesFromPortFile, portNumber)){
+        if(validateInstruction(instruction, id, coordinates, simulator, linesFromPortFile, portNumber)){
             if(instruction == "R"){
                 linesFromPortFile[id].clear();
                 continue;
@@ -83,6 +83,7 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
         }
     }
     instructionsFile.close();
+    /*Final check, if there are any containers were on containers at port file that the algorithm didnt handle properly*/
     if(errorsCount != -1 && portNumber != (int)simulator->getShip()->getRoute().size() - 1)
             errorsCount = SimulatorObj::checkContainersDidntHandle(linesFromPortFile,currAlgErrors,portName,visitNumber);
 
@@ -118,20 +119,25 @@ void extractCraneInstruction(string &toParse, std::pair<string,string> &instruct
  * @param portNum
  * @return true iff the validation of instruction went successfully
  */
-bool validateInstruction(string &instruction,string &id, vector<int> &coordinates,std::unique_ptr<Ship>& ship,std::map<string,list<string>>& portContainers,int portNum){
-    auto map = ship->getMap();
+bool validateInstruction(string &instruction,string &id, vector<int> &coordinates,SimulatorObj* sim,std::map<string,list<string>>& portContainers,int portNum){
     bool isValid;
+    /*TODO problem here --> i try to get the kg of the container from the
+     * port containers raw data but if unload operation then container id won;t appear here it will crash.
+     * furthermore, if it's load operation of container that the algorithm just unloaded then it also won't appear here,
+     * and then at the load operation i won't able to know what is the weight*/
+    //auto parsedInfo = stringSplit(portContainers.at(id).front(),delim);
+    int kg = 1;
     if(instruction == "L"){
-        isValid =  validateLoadInstruction(coordinates, ship);
+        isValid =  validateLoadInstruction(coordinates, sim,kg);
     }
     else if(instruction == "U"){
-        isValid =  validateUnloadInstruction(coordinates, ship);
+        isValid =  validateUnloadInstruction(coordinates, sim);
     }
     else if(instruction == "R"){
-        isValid = validateRejectInstruction(portContainers, id, ship, portNum);
+        isValid = validateRejectInstruction(portContainers, id, sim, portNum);
     }
     else {
-        isValid = validateMoveInstruction(coordinates, *map);
+        isValid = validateMoveInstruction(coordinates, sim);
     }
     return isValid;
 }
@@ -145,16 +151,23 @@ bool validateInstruction(string &instruction,string &id, vector<int> &coordinate
  * @param portNum - the current port number
  * @return true iff one of the tests failes
  */
-bool validateRejectInstruction(std::map<string,list<string>>& portContainers, string& id,std::unique_ptr<Ship>& ship,int portNum){
+bool validateRejectInstruction(std::map<string,list<string>>& portContainers, string& id,SimulatorObj* sim,int portNum){
     string line = portContainers[id].front();
     auto parsedInfo = stringSplit(line,delim);
+    auto &ship = sim->getShip();
     string portName = parsedInfo.at(2);
+    int kg = 0;
     VALIDATION reason = VALIDATION::Valid;/*might be used in exercise 2 to be more specific*/
+    if(isValidInteger(parsedInfo.at(1)))
+        kg = atoi(parsedInfo.at(1).data());
+
     bool test1 = !validateContainerData(line,reason,id,ship);
     bool test3 = (ship->getRoute().at(portNum)->get_name() == portName);
     bool test2 = !isPortInRoute(portName,ship->getRoute(),portNum);
     bool test4 = ship->getFreeSpace() == 0; /*if != 0 that means this test didn't passed --> reject at this test failed*/
     bool test5 = portContainers[id].size() > 1; /*case there are 2 lines with same id*/
+    //bool test6 = BalanceStatus ::APPROVED != sim->getCalc().tryOperation('L',kg,-1,-1);
+    //TODO test 6 not good, as it need to be load operation but it doesn't check all options!!!
     /*if one of the test fails, that means --> that reject at this instruction is necessary*/
     return (test1 || test2 || test3 || test4 || test5);
 }
@@ -165,14 +178,18 @@ bool validateRejectInstruction(std::map<string,list<string>>& portContainers, st
  * @param ship - to get ship map
  * @return true iff all tests were failed
  */
-bool validateLoadInstruction(vector<int> &coordinates,std::unique_ptr<Ship>& ship){
+bool validateLoadInstruction(vector<int> &coordinates,SimulatorObj* sim,int kg){
     int x = coordinates[0],y = coordinates[1], z = coordinates[2];
+    auto &ship = sim->getShip();
     auto map = ship->getMap();
+    std::tuple<bool,bool> tup(true,true);
+    /*Check if the position of the x,y axis is out of bounds*/
     if((x < 0 || x > ship->getAxis("x")) && (y < 0 || y > ship->getAxis("y"))) return false;
-    else if((int)(*map).at(x).at(y).size() != z) return false;
-    /*if not in size --> either in lower level which is wrong, or floating in the air*/
-    /*else if(check weight balance)
-    To exercise 2 need to check also weight*/
+    /*Check if the position of z axis is out of bounds*/
+    if((int)(*map).at(x).at(y).size() != z) return false;
+    /*Check if the weight balance is approved*/
+    sim->getCalc().checkLoad(tup,kg,map->at(x).at(y));
+    if(!std::get<0>(tup) && !std::get<1>(tup)) return false;
     return true;
 }
 
@@ -182,16 +199,22 @@ bool validateLoadInstruction(vector<int> &coordinates,std::unique_ptr<Ship>& shi
  * @param ship - to get ship map
  * @return true iff all tests were failed
  */
-bool validateUnloadInstruction(vector<int> &coordinates,std::unique_ptr<Ship>& ship){
+bool validateUnloadInstruction(vector<int> &coordinates,SimulatorObj* sim){
     int x = coordinates[0],y = coordinates[1], z = coordinates[2];
-    auto map = ship->getMap();
+    auto &ship = sim->getShip();
+    auto &map = *ship->getMap();
+    std::tuple<bool,bool> tup(true,true);
+    /*Check if the position of the x,y axis is out of bounds*/
     if((x < 0 || x > ship->getAxis("x")) && (y < 0 || y > ship->getAxis("y"))) return false;
-    else if((int)(*map).at(x).at(y).size() != z+1) return false;
-    else if((*map).at(x).at(y).at(z).getId() == "block") return false;
-    /*if z is not the top floor available container then we can't unload from this position
-      if position (x,y,z) at map is block container then we can't move them*/
-    /*else if(check weight calculator)
-     * To exercise 2 need to check also weight*/
+    /*Check if the position of z axis is out of bounds*/
+    if((int)(map).at(x).at(y).size() != z+1) return false;
+    /*Check if the container at x,y,z is block container*/
+    if((map).at(x).at(y).at(z).getId() == "block") return false;
+    /*Check if weight balance is approved*/
+    else {
+        sim->getCalc().checkUnload(tup, map.at(x).at(y).at(z).getWeight(), map.at(x).at(y));
+        if (!std::get<0>(tup) && !std::get<1>(tup)) return false;
+    }
     return true;
 }
 
@@ -202,10 +225,23 @@ bool validateUnloadInstruction(vector<int> &coordinates,std::unique_ptr<Ship>& s
  * @param map - ship's map
  * @return true iff it passed all tests
  */
-bool validateMoveInstruction(vector<int> &coordinates, vector<vector<vector<Container>>>& map){
+bool validateMoveInstruction(vector<int> &coordinates, SimulatorObj* sim){
     int x1 = coordinates[0],y1 = coordinates[1],z1 = coordinates[2];
     int x2 = coordinates[3],y2 = coordinates[4],z2 = coordinates[5];
-    return (((int)(map.at(x1).at(y1).size()) == z1 + 1) && ((int)(map.at(x2).at(y2).size()) == z2));
+    std::tuple<bool,bool> tup(true,true);
+    auto &map = *(sim->getShip()->getMap());
+    int kg = 0;
+    /*Check if the position of z axis is out of bounds*/
+    if((int) (map.at(x1).at(y1).size()) != z1 + 1 || (int) (map.at(x2).at(y2).size()) != z2) return false;
+    /*Check if weight balance approved for unload*/
+    kg = map.at(x1).at(y1).at(z1).getWeight();
+    sim->getCalc().checkUnload(tup,kg,map.at(x1).at(y1));
+    if(!std::get<0>(tup) && !std::get<1>(tup)) return false;
+    /*Check if weight balance approved for load*/
+    sim->getCalc().checkLoad(tup,kg,map.at(x2).at(y2));
+    if(!std::get<0>(tup) && !std::get<1>(tup)) return false;
+
+    return true;
 }
 
 /**

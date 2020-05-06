@@ -52,8 +52,7 @@ public:
     };
     static void insertPortFile(map<string,vector<fs::path>> &travelMap,string &portName, int portNum, const fs::path &entry);
     void initListOfTravels(string &path);
-    void initCalc(const string& file_path);
-    void setShip(std::unique_ptr<Ship> &getShip);
+    void setShipAndCalculator(std::unique_ptr<Ship> &getShip,const string& file_path);
     void addErrorsInfo(string &travelName);
     void addResultsInfo(string &travelName);
     void addOutputInfo(string& travelName);
@@ -68,7 +67,8 @@ public:
     void updateArrayOfCodes(int num, string type);
     void prepareForNewTravel();
     void createErrorsFromArray();
-    int checkIfFatalErrorOccurred();
+    int checkIfFatalErrorOccurred(string type);
+    static bool errorExists(map<string,list<string>> &travelErrors);
     static int checkContainersDidntHandle(map<string, list<string>> &idAndRawLine,list<string> &currAlgErrors,string& portName, int visitNum);
     void compareFatalAlgErrsAndSimErrs(list<string> &simCurrAlgErrors);
     void compareIgnoredAlgErrsVsSimErrs(string &portName, int visitNumber, list<string> &simCurrAlgErrors);
@@ -79,6 +79,8 @@ public:
     std::array<bool,NUM_OF_ERRORS>& getCommonErrors();
     std::array<bool,NUM_OF_ERRORS>& getSimErrors();
     std::unique_ptr<Ship>& getShip();
+    fs::path getPathOfCurrentPort(string& travelName,string& portName,int visitNumber);
+
 };
 
 /*----------------------Non Simulator object functions-------------------*/

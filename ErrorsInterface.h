@@ -29,7 +29,7 @@
 
 
 /*----------------------Validation Errors-------------------*/
-#define ERROR_CONTLINEINSTRUCTION(x,y,z)        "Error: Algorithm instructed not a valid instruction at port "+ x + "visit number " + toString(y) + " instruction: " + z
+#define ERROR_CONTLINEINSTRUCTION(x,y,z)        "Error: Algorithm instructed not a valid instruction at port "+ x + " visit number " + toString(y) + " instruction: " + z
 #define PLAN_FATAL                              "Error: Algorithm indicated there's a fatal error in plan file --> simulator rejects"
 #define DUPLICATE_XY                            "Error: Algorithm indicated there's a to (x,y) constraints with different Z value --> simulator rejects"
 #define TRAVEL_FATAL                            "Error: Algorithm indicates there's a fatal error in route file --> simulator rejects"
