@@ -21,4 +21,4 @@ add_executable(
         UnsortedLifoAlgorithm.cpp   UnsortedLifoAlgorithm.h
         SimulatorObj.cpp            SimulatorObj.h
         AlgorithmRegistration.cpp AlgorithmRegistration.h
-)
+        AlgorithmFactoryRegistrar.cpp AlgorithmFactoryRegistrar.h)

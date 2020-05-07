@@ -42,6 +42,7 @@ class SimulatorObj {
     std::array<bool,NUM_OF_ERRORS> algErrorCodes{false};
     std::array<bool,NUM_OF_ERRORS> simErrorCodes{false};
     std::unique_ptr<Ship> simShip = nullptr;
+    std::shared_ptr<Port> pPort;
     WeightBalanceCalculator simCalc;
 
     string mainOutputPath;
