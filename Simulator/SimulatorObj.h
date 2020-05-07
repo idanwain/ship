@@ -9,8 +9,8 @@
 #include <filesystem>
 #include <iostream>
 #include <fstream>
-#include "AbstractAlgorithm.h"
-#include "Common.h"
+#include "../Interface/AbstractAlgorithm.h"
+#include "../Common/Common.h"
 #include <algorithm>
 
 #if defined(WIN32) || defined(_WIN32)
@@ -79,6 +79,7 @@ public:
     std::array<bool,NUM_OF_ERRORS>& getSimErrors();
     std::unique_ptr<Ship>& getShip();
     fs::path getPathOfCurrentPort(string& travelName,string& portName,int visitNumber);
+    std::shared_ptr<Port> getPort();
 
 /*----------------------static functions-------------------*/
     static bool errorExists(map<string,list<string>> &travelErrors);

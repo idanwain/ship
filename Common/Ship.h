@@ -15,7 +15,7 @@ class WeightBalanceCalculator; class Container; class Port;
 #include <set>
 #include <algorithm>
 #include <memory>
-#include "WeightBalanceCalculator.h"
+#include "../Interface/WeightBalanceCalculator.h"
 
 typedef std::tuple<int,int> coordinate;
 const char delim[] = {',','\t','\r',' ', '\n'};

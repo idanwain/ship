@@ -15,12 +15,12 @@
  * Note* - if no output path given -> output files will be at the directory the main program runs from.
  */
 #include <string>
-#include "Ship.h"
-#include "Parser.h"
-#include "AbstractAlgorithm.h"
-#include "UnsortedLifoAlgorithm.h"
-#include "SimulatorObj.h"
-#include "LifoAlgorithm.h"
+#include "Common/Ship.h"
+#include "Common/Parser.h"
+#include "Interface/AbstractAlgorithm.h"
+#include "Algorithm/UnsortedLifoAlgorithm.h"
+#include "Simulator/SimulatorObj.h"
+#include "Algorithm/LifoAlgorithm.h"
 #include <memory>
 
 /*------------------------------Global Variables---------------------------*/

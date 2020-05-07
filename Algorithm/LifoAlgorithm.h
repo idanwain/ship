@@ -11,11 +11,12 @@
 #define SHIP1_LIFO_ALGORITHM_H
 
 #include <memory>
-#include "AbstractAlgorithm.h"
-#include "Ship.h"
-#include "Parser.h"
-#include "Common.h"
-#include "AlgorithmRegistration.h"
+#include "../Interface/AbstractAlgorithm.h"
+#include "../Common/Ship.h"
+#include "../Common/Parser.h"
+#include "../Common/Common.h"
+#include "../Interface/AlgorithmRegistration.h"
+#include "../Interface/WeightBalanceCalculator.h"
 
 class LifoAlgorithm: public AbstractAlgorithm {
     const std::string name = "LifoAlgorithm";

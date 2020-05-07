@@ -1,5 +1,5 @@
 #include "WeightBalanceCalculator.h"
-#include "Parser.h"
+#include "../Common/Parser.h"
 
 BalanceStatus WeightBalanceCalculator::tryOperation(char loadUnload, int kg, int X, int Y) {
     std::tuple<bool, bool> x_y_imbalance;

@@ -8,14 +8,14 @@
  * @param origin
  * @param dest
  */
-void execute(std::unique_ptr<Ship>& ship, char command, std::unique_ptr<Container>& container, coordinate origin, coordinate dest) {
+void execute(std::unique_ptr<Ship>& ship, char command, std::unique_ptr<Container>& container, coordinate origin, coordinate dest, std::shared_ptr<Port> port) {
     switch (command) {
         case 'L':
             ship->addContainer(*container, origin);
             break;
         case 'U':
+            port->addContainer(*container, Type::PRIORITY);
             ship->removeContainer(origin);
-            container.reset(nullptr);
             break;
         case 'M':
             ship->moveContainer(origin, dest);
@@ -62,15 +62,15 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
             coordinate one = std::tuple<int,int>(coordinates[0],coordinates[1]);
             std::unique_ptr<Container> cont = std::make_unique<Container>(id);
             if(instruction == "L") {
-                execute(simulator->getShip(), instruction.at(0), cont, one, std::forward_as_tuple(-1, -1));
+                execute(simulator->getShip(), instruction.at(0), cont, one, std::forward_as_tuple(-1, -1), simulator->getPort());
             }
             else if(instruction == "U"){
-                execute(simulator->getShip(), instruction.at(0), cont, one, std::forward_as_tuple(-1, -1));
+                execute(simulator->getShip(), instruction.at(0), cont, one, std::forward_as_tuple(-1, -1), simulator->getPort());
                 cont.reset(nullptr);
             }
             else if(instruction == "M"){
                 coordinate two = std::tuple<int,int>(coordinates[3],coordinates[4]);
-                execute(simulator->getShip(), instruction.at(0), cont, one, two);
+                execute(simulator->getShip(), instruction.at(0), cont, one, two, simulator->getPort());
                 cont.reset(nullptr);
             }
             instructionsCount++;

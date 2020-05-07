@@ -10,15 +10,17 @@ add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
 add_executable(
         ship1
         main.cpp
-        Container.cpp               Container.h
-        Port.cpp                    Port.h
-        Ship.cpp                    Ship.h
-        WeightBalanceCalculator.cpp WeightBalanceCalculator.h
-        Parser.cpp                  Parser.h
-        Common.cpp                  Common.h
-                                    AbstractAlgorithm.h
-        LifoAlgorithm.cpp           LifoAlgorithm.h
-        UnsortedLifoAlgorithm.cpp   UnsortedLifoAlgorithm.h
-        SimulatorObj.cpp            SimulatorObj.h
-        AlgorithmRegistration.cpp AlgorithmRegistration.h
-        AlgorithmFactoryRegistrar.cpp AlgorithmFactoryRegistrar.h)
+        Common/Container.cpp                            Common/Container.h
+        Common/Port.cpp                                 Common/Port.h
+        Common/Ship.cpp                                 Common/Ship.h
+        Interface/WeightBalanceCalculator.cpp           Interface/WeightBalanceCalculator.h
+        Common/Parser.cpp                               Common/Parser.h
+        Common/Common.cpp                               Common/Common.h
+                                                        Interface/ErrorsInterface.h
+                                                        ../Interface/AbstractAlgorithm.h
+        Algorithm/LifoAlgorithm.cpp                     Algorithm/LifoAlgorithm.h
+        Algorithm/UnsortedLifoAlgorithm.cpp             Algorithm/UnsortedLifoAlgorithm.h
+        Simulator/SimulatorObj.cpp                      Simulator/SimulatorObj.h
+        Interface/AlgorithmRegistration.cpp             Interface/AlgorithmRegistration.h
+        Simulator/AlgorithmFactoryRegistrar.cpp         Simulator/AlgorithmFactoryRegistrar.h
+)

@@ -5,8 +5,8 @@
 #include <map>
 #include <functional>
 #include <memory>
-#include "AbstractAlgorithm.h"
-#include "AlgorithmRegistration.h"
+#include "../Interface/AbstractAlgorithm.h"
+#include "../Interface/AlgorithmRegistration.h"
 
 class AlgorithmFactoryRegistrar {
     static AlgorithmFactoryRegistrar registrar;

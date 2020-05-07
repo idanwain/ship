@@ -35,8 +35,12 @@
 #include <fstream>
 #include "Ship.h"
 #include "Parser.h"
-#include "SimulatorObj.h"
-#include "AbstractAlgorithm.h"
+#include "../Simulator/SimulatorObj.h"
+#include "../Interface/AbstractAlgorithm.h"
+#include "../Interface/ErrorsInterface.h"
+#include "../Interface/WeightBalanceCalculator.h"
+
+
 
 /*----------------------Prefix variables-------------------*/
 
@@ -89,7 +93,7 @@ int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath)
 void extractContainersData(const std::string& line, std::string &id, int &weight, std::shared_ptr<Port>& dest, std::unique_ptr<Ship>& ship);
 void extractCraneInstruction(string &toParse, std::pair<string,string>& instruction, vector<int> &coordinates);
 /*----------------------Rest of the functions-------------------*/
-void execute(std::unique_ptr<Ship>& ship, char command,std::unique_ptr<Container>& container, coordinate origin, coordinate dest);
+void execute(std::unique_ptr<Ship>& ship, char command,std::unique_ptr<Container>& container, coordinate origin, coordinate dest, std::shared_ptr<Port> port);
 bool idExistOnShip(const string& id, std::unique_ptr<Ship>& ship);
 bool isPortInRoute(const string& portName, const vector<std::shared_ptr<Port>>& route, int portNum);
 bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream &output,

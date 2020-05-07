@@ -10,11 +10,12 @@
 #define SHIP1_UNSORTED_LIFO_ALGORITHM_H
 
 #include <memory>
-#include "AbstractAlgorithm.h"
-#include "Ship.h"
-#include "Parser.h"
-#include "Common.h"
-#include "AlgorithmRegistration.h"
+#include "../Interface/AbstractAlgorithm.h"
+#include "../Common/Ship.h"
+#include "../Common/Parser.h"
+#include "../Common/Common.h"
+#include "../Interface/AlgorithmRegistration.h"
+#include "../Interface/WeightBalanceCalculator.h"
 
 
 class UnsortedLifoAlgorithm: public AbstractAlgorithm {

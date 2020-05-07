@@ -237,6 +237,9 @@ void SimulatorObj::runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgor
         string algInstructionsFolder = SimulatorObj::createAlgorithmOutDirectory(alg.first, mainOutputPath, travelName);
         for (int portNum = 0; portNum < (int) route.size() && res != -1; portNum++) {
             string portName = route[portNum]->get_name();
+
+            pPort = this->simShip->getPortByName(portName);
+
             cout << portName << endl;
             int visitNumber = visitNumbersByPort[portName];
             fs::path portPath = getPathOfCurrentPort(travelName,portName,visitNumber);
@@ -504,5 +507,9 @@ string SimulatorObj::createAlgorithmOutDirectory(const string &algName,const str
         fs::create_directory(directoryPath,parentDirectory);
     }
     return algOutDirectory;
+}
+
+std::shared_ptr<Port> SimulatorObj::getPort() {
+    return pPort;
 }
 
