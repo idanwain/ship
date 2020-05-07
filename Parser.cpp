@@ -202,7 +202,7 @@ std::unique_ptr<Ship> extractArgsForShip(string &travelName,SimulatorObj &simula
     vector<std::shared_ptr<Port>> travelRoute;
     std::unique_ptr<Ship> ship;
     list<string> generalErrors;
-    auto &travelFolder = simulator.getInputFiles()[travelName];
+    auto &travelFolder = simulator.getTravels()[travelName];
 
     if(travelFolder.find(ROUTE) == travelFolder.end() || travelFolder.find(PLAN) == travelFolder.end()){
         if(travelFolder.find(ROUTE) == travelFolder.end())
@@ -211,19 +211,22 @@ std::unique_ptr<Ship> extractArgsForShip(string &travelName,SimulatorObj &simula
             simulator.addNewErrorToGeneralErrors(ERROR_LACKPLAN);
         return nullptr;
     }
+    /*Handle ship plan file*/
     file_path = travelFolder[PLAN].at(1).string();
     int resultInt = extractShipPlan(file_path,ship);
     if(resultInt == 0){
         resultInt = extractArgsForBlocks(ship,file_path,generalErrors);
-        //TODO handle resultIn in case of terminal error
+        simulator.updateArrayOfCodes(resultInt,"sim");
         simulator.addListOfGeneralErrors(generalErrors);
-        simulator.initCalc(file_path);
+        if(simulator.checkIfFatalErrorOccurred("sim") == -1)
+            return nullptr;
     }
     else {
         simulator.addNewErrorToGeneralErrors(ERROR_FATALPLAN);
         simulator.updateArrayOfCodes(resultInt, "sim");
         return nullptr;
     }
+    /*Handle ship route file*/
     generalErrors.clear();
     file_path = travelFolder[ROUTE].at(1).string();
     resultInt = extractTravelRoute(ship,file_path,generalErrors);

@@ -77,11 +77,11 @@ bool isCommentLine(const string& line);
 bool isValidId(const string& str);
 bool isNumber(const std::string& s);
 std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contAtPortPath,int portNumber, list<string>& currAlgErrors,SimulatorObj* simulator,string& portName,int visitNumber);
-bool validateInstruction(string &instruction,string &id,vector<int> &coordinates,std::unique_ptr<Ship>& ship,std::map<string,list<string>> &portContainers,int portNum);
-bool validateLoadInstruction(vector<int> &coordinates,std::unique_ptr<Ship>& ship);
-bool validateUnloadInstruction(vector<int> &coordinates,std::unique_ptr<Ship>& ship);
-bool validateMoveInstruction(vector<int> &coordinates, vector<vector<vector<Container>>>& map);
-bool validateRejectInstruction(std::map<string,list<string>>& portContainers, string& id,std::unique_ptr<Ship>& ship,int portNum);
+bool validateInstruction(string &instruction,string &id,vector<int> &coordinates,SimulatorObj* sim,std::map<string,list<string>> &portContainers,int portNum);
+bool validateLoadInstruction(vector<int> &coordinates,SimulatorObj* sim,int kg);
+bool validateUnloadInstruction(vector<int> &coordinates,SimulatorObj* sim);
+bool validateMoveInstruction(vector<int> &coordinates, SimulatorObj* sim);
+bool validateRejectInstruction(std::map<string,list<string>>& portContainers, string& id,SimulatorObj* sim,int portNum);
 bool validateContainerData(const string& line, VALIDATION& reason, string& id, std::unique_ptr<Ship>& ship);
 /*----------------------Extract functions-------------------*/
 int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,list<string> &generalErrors);

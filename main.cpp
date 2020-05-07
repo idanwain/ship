@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
     initAlgorithmList(algVec);
 
     /*Cartesian Loop*/
-    for (auto &travel_folder : simulator.getInputFiles()) {
+    for (auto &travel_folder : simulator.getTravels()) {
         string currTravelName = travel_folder.first;
         std::unique_ptr<Ship> mainShip = extractArgsForShip(currTravelName,simulator);
         if(mainShip != nullptr){
@@ -121,10 +121,9 @@ int main(int argc, char** argv) {
                 int errCode1 = alg.second->readShipPlan(travel_folder.second.at(PLAN).at(1).string());
                 int errCode2 = alg.second->readShipRoute(travel_folder.second.at(ROUTE).at(1).string());
                 int errCode3 = algCalc.readShipPlan(travel_folder.second.at(PLAN).at(1).string());
-//                alg.second->printSizeAndCapacity();
                 alg.second->setWeightBalanceCalculator(algCalc);
-                simulator.updateArrayOfCodes(errCode1 + errCode2 + errCode3,"alg");
-                simulator.setShip(mainShip);
+                simulator.updateArrayOfCodes(errCode1 + errCode2,"alg");
+                simulator.setShipAndCalculator(mainShip,travel_folder.second.at(PLAN).at(1).string());
                 simulator.runCurrentAlgorithm(alg,currTravelName);
                 simulator.getShip().reset(nullptr);
             }
