@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
     initAlgorithmList(algVec);
 
     /*Cartesian Loop*/
-    for (auto &travel_folder : simulator.getInputFiles()) {
+    for (auto &travel_folder : simulator.getTravels()) {
         string currTravelName = travel_folder.first;
         std::unique_ptr<Ship> mainShip = extractArgsForShip(currTravelName,simulator);
         if(mainShip != nullptr){

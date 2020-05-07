@@ -202,7 +202,7 @@ std::unique_ptr<Ship> extractArgsForShip(string &travelName,SimulatorObj &simula
     vector<std::shared_ptr<Port>> travelRoute;
     std::unique_ptr<Ship> ship;
     list<string> generalErrors;
-    auto &travelFolder = simulator.getInputFiles()[travelName];
+    auto &travelFolder = simulator.getTravels()[travelName];
 
     if(travelFolder.find(ROUTE) == travelFolder.end() || travelFolder.find(PLAN) == travelFolder.end()){
         if(travelFolder.find(ROUTE) == travelFolder.end())
