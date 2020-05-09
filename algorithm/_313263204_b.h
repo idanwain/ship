@@ -10,23 +10,25 @@
 #define SHIP1_UNSORTED_LIFO_ALGORITHM_H
 
 #include <memory>
-#include "../Interface/AbstractAlgorithm.h"
-#include "../Common/Ship.h"
-#include "../Common/Parser.h"
-#include "../Common/Common.h"
-#include "../Interface/AlgorithmRegistration.h"
-#include "../Interface/WeightBalanceCalculator.h"
+#include "../interfaces/AbstractAlgorithm.h"
+#include "../common/Ship.h"
+#include "../common/Parser.h"
+#include "../common/Common.h"
+#include "../interfaces/AlgorithmRegistration.h"
+#include "../interfaces/WeightBalanceCalculator.h"
+#include "../common/Port.h"
 
 
-class UnsortedLifoAlgorithm: public AbstractAlgorithm {
-    const std::string name = "UnsortedLifoAlgorithm";
+
+class _313263204_b: public AbstractAlgorithm {
+    const std::string name = "_313263204_b";
     int portNum = 0;
     std::unique_ptr<Ship> pShip;
     std::shared_ptr<Port> pPort;
     WeightBalanceCalculator calc;
 public:
-    explicit UnsortedLifoAlgorithm(): AbstractAlgorithm(){}
-    ~UnsortedLifoAlgorithm() override= default;
+    explicit _313263204_b(): AbstractAlgorithm(){}
+    ~_313263204_b() override= default;
     /*-------------- Overriding Methods --------------*/
     int readShipPlan(const std::string& full_path_and_file_name) override;
     int readShipRoute(const std::string& full_path_and_file_name) override;

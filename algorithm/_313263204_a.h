@@ -1,5 +1,5 @@
 /**
- * This module represents a Lifo Algorithm.
+ * This module represents a Lifo algorithm.
  * That means, according to ship's space constrains, a container with farther destination
  * will be loaded to lower spot on deck.
  * First, it unloads containers relative with this port.
@@ -11,22 +11,23 @@
 #define SHIP1_LIFO_ALGORITHM_H
 
 #include <memory>
-#include "../Interface/AbstractAlgorithm.h"
-#include "../Common/Ship.h"
-#include "../Common/Parser.h"
-#include "../Common/Common.h"
-#include "../Interface/AlgorithmRegistration.h"
-#include "../Interface/WeightBalanceCalculator.h"
+#include "../interfaces/AbstractAlgorithm.h"
+#include "../common/Ship.h"
+#include "../common/Parser.h"
+#include "../common/Common.h"
+#include "../interfaces/AlgorithmRegistration.h"
+#include "../interfaces/WeightBalanceCalculator.h"
+#include "../common/Port.h"
 
-class LifoAlgorithm: public AbstractAlgorithm {
-    const std::string name = "LifoAlgorithm";
+class _313263204_a: public AbstractAlgorithm {
+    const std::string name = "_313263204_a";
     int portNum = 0;
     std::unique_ptr<Ship> pShip;
     std::shared_ptr<Port> pPort;
     WeightBalanceCalculator calc;
 public:
-    explicit LifoAlgorithm(): AbstractAlgorithm(){}
-    ~LifoAlgorithm() override= default;
+    explicit _313263204_a(): AbstractAlgorithm(){}
+    ~_313263204_a() override= default;
     /*-------------- Overriding Methods --------------*/
     int readShipPlan(const std::string& full_path_and_file_name) override;
     int readShipRoute(const std::string& full_path_and_file_name) override;

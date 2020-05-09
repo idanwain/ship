@@ -28,8 +28,7 @@ Unsorted_Lifo_Algorithm.o: Unsorted_Lifo_Algorithm.cpp Unsorted_Lifo_Algorithm.h
 	$(COMP) $(CPP_COMP_FLAG) -c $*.cpp
 WeightBalanceCalculator.o: WeightBalanceCalculator.cpp WeightBalanceCalculator.h
 	$(COMP) $(CPP_COMP_FLAG) -c $*.cpp
-erroneous_algorithm.o: erroneous_algorithm.cpp erroneous_algorithm.h
-	$(COMP) $(CPP_COMP_FLAG) -c $*.cpp
+
 
 
 clean:

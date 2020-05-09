@@ -15,12 +15,10 @@
  * Note* - if no output path given -> output files will be at the directory the main program runs from.
  */
 #include <string>
-#include "Common/Ship.h"
-#include "Common/Parser.h"
-#include "Interface/AbstractAlgorithm.h"
-#include "Algorithm/UnsortedLifoAlgorithm.h"
-#include "Simulator/SimulatorObj.h"
-#include "Algorithm/LifoAlgorithm.h"
+#include "../common/Ship.h"
+#include "../common/Parser.h"
+#include "../algorithm/_313263204_a.h"
+#include "../algorithm/_313263204_b.h"
 #include <memory>
 
 /*------------------------------Global Variables---------------------------*/
@@ -37,15 +35,9 @@ string mainOutputPath = fs::current_path().string();
  * @param ship
  */
 void initAlgorithmList(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algList){
-////    //TODO make polymorphic algorithm factory & change to smart pointers
-//    std::unique_ptr<AbstractAlgorithm> lifoAlgorithm = std::make_unique<Lifo_algorithm>();
-//    std::unique_ptr<AbstractAlgorithm> unsortedLifoAlgorithm = std::make_unique<UnsortedLifoAlgorithm>();
-//    pair<string,std::unique_ptr<AbstractAlgorithm>> pair("Lifo_algorithm",std::make_unique<Lifo_algorithm>());
-    algList.emplace_back(make_pair("Lifo_algorithm",std::make_unique<LifoAlgorithm>()));
-    algList.emplace_back(make_pair("UnsortedLifoAlgorithm",std::make_unique<UnsortedLifoAlgorithm>()));
-
-
-    /*TODO need to init the algList with alg name and the algorithm object*/
+    //TODO iterate the map @AlgorithmFactoryRegistrar & initialize each algorithm that dynamically registered to the program.
+    algList.emplace_back(make_pair("_313263204_a",std::make_unique<_313263204_a>()));
+    algList.emplace_back(make_pair("_313263204_b",std::make_unique<_313263204_b>()));
 }
 
 /**
@@ -122,7 +114,7 @@ int main(int argc, char** argv) {
                 int errCode2 = alg.second->readShipRoute(travel_folder.second.at(ROUTE).at(1).string());
                 int errCode3 = algCalc.readShipPlan(travel_folder.second.at(PLAN).at(1).string());
                 alg.second->setWeightBalanceCalculator(algCalc);
-                simulator.updateArrayOfCodes(errCode1 + errCode2,"alg");
+                simulator.updateArrayOfCodes(errCode1 + errCode2 + errCode3,"alg");
                 simulator.setShipAndCalculator(mainShip,travel_folder.second.at(PLAN).at(1).string());
                 simulator.runCurrentAlgorithm(alg,currTravelName);
                 simulator.getShip().reset(nullptr);

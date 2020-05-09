@@ -1,6 +1,8 @@
 #ifndef SHIP1_WEIGHTBALANCECALCULATOR_H
 #define SHIP1_WEIGHTBALANCECALCULATOR_H
 
+#include <string>
+
 /**
  * The calculator shall be initiated by the simulation with the ship plan file:
   readShipPlan(const std::string& full_path_and_file_name)
@@ -20,23 +22,19 @@ It shall have the following methods:
       The balance calculator doesn’t have a “move” operation,
       as for balance purposes “move” is actually an “unload” followed by “load”.
       First the “unload” has to be approved, then the “load”.
-      */
-class Ship;
-
-#include "../Common/Ship.h"
-#include <tuple>
-#include "../Common/Container.h"
-
+*/
 
 enum BalanceStatus {APPROVED, X_IMBALANCED, Y_IMBALANCED, X_Y_IMBALANCED, FAILED};
 
 class WeightBalanceCalculator {
-    std::vector<std::vector<std::vector<Container>>> shipMap;
+    //ex.3
+//    std::vector<std::vector<std::vector<Container>>> shipMap;
 public:
     int readShipPlan(const std::string& full_path_and_file_name);
     BalanceStatus  tryOperation(char loadUnload, int kg, int X, int Y);
-    void checkLoad(std::tuple<bool, bool> &x_y_imbalance, int kg, std::vector<Container> &column);
-    void checkUnload(std::tuple<bool, bool> &x_y_imbalance, int kg, std::vector<Container> &column);
+    //ex.3
+//    void checkLoad(std::tuple<bool, bool> &x_y_imbalance, int kg, std::vector<Container> &column);
+//    void checkUnload(std::tuple<bool, bool> &x_y_imbalance, int kg, std::vector<Container> &column);
 };
 
 #endif

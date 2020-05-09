@@ -107,7 +107,7 @@ pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lin
         std::get<1>(pair) = Plan_BadLine;
     }
     else if(!(*map)[dim[0]][dim[1]].empty()){
-        if((*map)[dim[0]][dim[1]].size() != ship->getAxis("z")-dim[2]) {
+        if(static_cast<int>((*map)[dim[0]][dim[1]].size()) != ship->getAxis("z")-dim[2]) {
             std::get<0>(pair) = ERROR_DIFFVALUE(lineNumber, dim[0], dim[1]);
             std::get<1>(pair) = Plan_Con;
         }

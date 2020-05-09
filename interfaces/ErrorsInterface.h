@@ -29,15 +29,15 @@
 
 
 /*----------------------Validation Errors-------------------*/
-#define ERROR_CONTLINEINSTRUCTION(x,y,z)        "Error: Algorithm instructed not a valid instruction at port "+ x + " visit number " + toString(y) + " instruction: " + z
-#define PLAN_FATAL                              "Error: Algorithm indicated there's a fatal error in plan file --> simulator rejects"
-#define DUPLICATE_XY                            "Error: Algorithm indicated there's a to (x,y) constraints with different Z value --> simulator rejects"
-#define TRAVEL_FATAL                            "Error: Algorithm indicates there's a fatal error in route file --> simulator rejects"
-#define TRAVEL_SINGLEPORT                       "Error: Algorithm indicates there's a 0 or 1 ports in route file --> simulator rejects"
-#define NO_CARGO_TOLOAD(x,y)                    "Error: Algorithm indicates there's no cargo to load at port " + x + " visit number " + toString(y) + " --> simulator rejects"
-#define ERROR_IDNOTHANDLE(x,y,z)                "Error: Algorithm didn't handled this cargo_data line: " + x +" at port " + y + " visit number " + toString(z)
+#define ERROR_CONTLINEINSTRUCTION(x,y,z)        "Error: algorithm instructed not a valid instruction at port "+ x + " visit number " + toString(y) + " instruction: " + z
+#define PLAN_FATAL                              "Error: algorithm indicated there's a fatal error in plan file --> simulator rejects"
+#define DUPLICATE_XY                            "Error: algorithm indicated there's a to (x,y) constraints with different Z value --> simulator rejects"
+#define TRAVEL_FATAL                            "Error: algorithm indicates there's a fatal error in route file --> simulator rejects"
+#define TRAVEL_SINGLEPORT                       "Error: algorithm indicates there's a 0 or 1 ports in route file --> simulator rejects"
+#define NO_CARGO_TOLOAD(x,y)                    "Error: algorithm indicates there's no cargo to load at port " + x + " visit number " + toString(y) + " --> simulator rejects"
+#define ERROR_IDNOTHANDLE(x,y,z)                "Error: algorithm didn't handled this cargo_data line: " + x +" at port " + y + " visit number " + toString(z)
 
-/*----------------------Simulator Errors-------------------*/
+/*----------------------simulator Errors-------------------*/
 #define ERROR_RESULTSFILE       std::cerr << "Error: failed to create results file" << std::endl;
 #define ERROR_ERRORSFILE        std::cerr << "Error: failed to create errors file" << std::endl;
 #define ERROR_NOTDIRECTORY(x,y) std::cerr << "Error: "  << x.path().filename().string()  << y << std::endl;

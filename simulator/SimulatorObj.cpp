@@ -202,7 +202,7 @@ void SimulatorObj::createErrorsFile(string path) {
             }
             for (auto &innerPair : simErrors[outterPair.first]) {
                 if (!innerPair.second.empty()) {
-                    inFile << spaces << innerPair.first + ":" << '\n'; //Algorithm name
+                    inFile << spaces << innerPair.first + ":" << '\n'; //algorithm name
                     for (string &msg : innerPair.second) {
                         inFile << spaces + spaces << msg << '\n'; //error msg list for this alg in this travel
                     }

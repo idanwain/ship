@@ -1,7 +1,7 @@
 #ifndef SHIP_HEADER
 #define SHIP_HEADER
 
-class WeightBalanceCalculator; class Container; class Port;
+class Container; class Port;
 
 #include <iostream>
 #include <cstring>
@@ -15,7 +15,7 @@ class WeightBalanceCalculator; class Container; class Port;
 #include <set>
 #include <algorithm>
 #include <memory>
-#include "../Interface/WeightBalanceCalculator.h"
+#include "../interfaces/WeightBalanceCalculator.h"
 
 typedef std::tuple<int,int> coordinate;
 const char delim[] = {',','\t','\r',' ', '\n'};
@@ -102,7 +102,7 @@ public:
     bool isOnShip(Container &con);
     std::shared_ptr<Port> getPortByNumber(size_t num);
     /** TEMP! */
-    void printSizeAndCapacity();
+//    void printSizeAndCapacity();
 
 
 

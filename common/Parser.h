@@ -19,6 +19,8 @@
 #ifndef PARSER_HEADER
 #define PARSER_HEADER
 
+class Common;
+
 #include <string>
 #include <vector>
 #include <list>
@@ -27,9 +29,7 @@
 #include <iostream>
 #include <fstream>
 #include "Common.h"
-#include "../Interface/ErrorsInterface.h"
-
-class SimulatorObj;
+#include "../interfaces/ErrorsInterface.h"
 
 using std::cout;
 using std::endl;

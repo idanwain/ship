@@ -2,6 +2,8 @@
 #ifndef SIMULATOROBJ_H
 #define SIMULATOROBJ_H
 
+class Common;
+
 #include <string>
 #include <vector>
 #include <list>
@@ -9,9 +11,11 @@
 #include <filesystem>
 #include <iostream>
 #include <fstream>
-#include "../Interface/AbstractAlgorithm.h"
-#include "../Common/Common.h"
+#include "../interfaces/AbstractAlgorithm.h"
+#include "../common/Common.h"
 #include <algorithm>
+#include "../interfaces/WeightBalanceCalculator.h"
+
 
 #if defined(WIN32) || defined(_WIN32)
 #define PATH_SEPARATOR "\\"

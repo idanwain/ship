@@ -1,7 +1,6 @@
-#include "LifoAlgorithm.h"
-#include "../Common/Port.h"
+#include "_313263204_b.h"
 
-REGISTER_ALGORITHM (LifoAlgorithm)
+REGISTER_ALGORITHM (_313263204_b)
 
 /**
  * This function unloads all the containers that need to be unloaded to port by these scheme:
@@ -11,7 +10,7 @@ REGISTER_ALGORITHM (LifoAlgorithm)
  *      - stop unload when hits the port's container
  * @param output - output file to write instructions for crane
  */
-void LifoAlgorithm::unloadContainers(std::ofstream& output){
+void _313263204_b::unloadContainers(std::ofstream& output){
     std::vector<Container>* containersToUnload = nullptr;
     pShip->getContainersToUnload(pPort, &containersToUnload);
     std::set<coordinate> coordinates_to_handle;
@@ -25,8 +24,8 @@ void LifoAlgorithm::unloadContainers(std::ofstream& output){
     }
 }
 
-void LifoAlgorithm::handleColumn(coordinate coor, std::vector<Container>* column, int lowest_floor,
-        std::vector<Container>* containersToUnload, std::ofstream& output){
+void _313263204_b::handleColumn(coordinate coor, std::vector<Container>* column, int lowest_floor,
+                                std::vector<Container>* containersToUnload, std::ofstream& output){
     int X = std::get<0>(coor); int Y =  std::get<1>(coor);
     for(auto con_iterator = column->end() - 1; !column->empty() && con_iterator >= column->begin();){
         if(con_iterator - column->begin() == lowest_floor - 1) break;
@@ -35,7 +34,7 @@ void LifoAlgorithm::handleColumn(coordinate coor, std::vector<Container>* column
                 unloadSingleContainer(output, *con_iterator, Type::ARRIVED, coor);
                 --con_iterator;
             }
-            else{
+            else {
                 writeToOutput(output, Action::REJECT, con_iterator->getId(), pShip->getCoordinate(*con_iterator));
                 break;
             }
@@ -72,16 +71,9 @@ void LifoAlgorithm::handleColumn(coordinate coor, std::vector<Container>* column
  *      -load containers in reverse order: far destination == lower spot on ship.
  * @param output - output file to write instructions for crane
  */
-void LifoAlgorithm::loadContainers(Type list_category, std::ofstream& output){
+void _313263204_b::loadContainers(Type list_category, std::ofstream& output){
     std::vector<Container>* load = pPort->getContainerVec(list_category);
     if(load == nullptr) return;
-    initContainersDistance(*load);
-    std::sort(load->begin(), load->end());
-    /*for exercise 3*/
-//    while(pShip->getFreeSpace() < (int)load->size()){
-//        writeToOutput(output, "R", load->back().getId());
-//        load->pop_back();
-//    }
     for(auto con = load->end() - 1; !load->empty() && con >= load->begin();--con){
         bool found = false;
         coordinate coor;
@@ -105,54 +97,38 @@ void LifoAlgorithm::loadContainers(Type list_category, std::ofstream& output){
     }
 }
 
-int LifoAlgorithm::getPortNum() {
+int _313263204_b::getPortNum() {
     return portNum;
 }
 
-void LifoAlgorithm::unloadSingleContainer(std::ofstream &output,Container& con, Type vecType, coordinate coor){
+void _313263204_b::unloadSingleContainer(std::ofstream &output, Container& con, Type vecType, coordinate coor){
     pPort->addContainer(con, vecType);
     writeToOutput(output, Action::UNLOAD, con.getId(), pShip->getCoordinate(con));
     pShip->removeContainer(coor);
 }
 
-void LifoAlgorithm::initContainersDistance(std::vector<Container> &vector) {
-    auto route = this->pShip->getRoute();
-    for(auto port = route.rbegin(); port != route.rend(); ++port){
-        int distance = std::distance(port, route.rend() - portNum);
-        if(distance <= 0){
-            break;
-        }
-        for(auto& con : vector){
-            if((*(*port)) == *(con.getDest())){
-                con.setDistance(distance);
-            }
-        }
-    }
-}
-
-int LifoAlgorithm::readShipPlan(const std::string& full_path_and_file_name){
+int _313263204_b::readShipPlan(const std::string& full_path_and_file_name){
     return extractShipPlan(full_path_and_file_name, this->pShip) ||
-        extractArgsForBlocks(this->pShip, full_path_and_file_name);
+           extractArgsForBlocks(this->pShip, full_path_and_file_name);
 }
 
-int LifoAlgorithm::readShipRoute(const std::string& full_path_and_file_name) {
+int _313263204_b::readShipRoute(const std::string& full_path_and_file_name) {
     return extractTravelRoute(pShip, full_path_and_file_name);
 }
 
-int LifoAlgorithm::setWeightBalanceCalculator(WeightBalanceCalculator& calculator) {
+int _313263204_b::setWeightBalanceCalculator(WeightBalanceCalculator& calculator) {
     calc = calculator;
     return 0;
 }
 
-int LifoAlgorithm::getInstructionsForCargo(const std::string& input_full_path_and_file_name,
-                                            const std::string& output_full_path_and_file_name) {
-    if(portNum > pShip->getRoute().size()) portNum = 0;
+int _313263204_b::getInstructionsForCargo(const std::string& input_full_path_and_file_name,
+                                          const std::string& output_full_path_and_file_name) {
+    if(portNum > static_cast<int>(pShip->getRoute().size())) portNum = 0;
     this->pPort = pShip->getRoute().at(portNum);
     std::ofstream output(output_full_path_and_file_name);
     if(!parseDataToPort(input_full_path_and_file_name, output, pShip, pPort)){
         std::cout << "CONTAINER_FILE_ERROR" << std::endl;
-        output.close();
-        return -1;
+        return false;
     };
     unloadContainers(output);
     loadContainers(Type::PRIORITY,output);

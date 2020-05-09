@@ -25,6 +25,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+class SimulatorObj;
+
 #include <cmath>
 #include <string>
 #include <vector>
@@ -35,10 +37,10 @@
 #include <fstream>
 #include "Ship.h"
 #include "Parser.h"
-#include "../Simulator/SimulatorObj.h"
-#include "../Interface/AbstractAlgorithm.h"
-#include "../Interface/ErrorsInterface.h"
-#include "../Interface/WeightBalanceCalculator.h"
+#include "Port.h"
+#include "../simulator/SimulatorObj.h"
+#include "../interfaces/ErrorsInterface.h"
+#include "../interfaces/WeightBalanceCalculator.h"
 
 
 
@@ -46,7 +48,7 @@
 
 #define NUM_OF_ERRORS 19
 
-/*----------------------Common Error Codes-------------------*/
+/*----------------------common Error Codes-------------------*/
 #define Plan_ZError     (1 << 0) /*Error at ship plan Z axis*/
 #define Plan_XYError    (1 << 1) /*Error at ship plan xy axis*/
 #define Plan_BadLine    (1 << 2) /*Error bad line reading or duplicates*/
