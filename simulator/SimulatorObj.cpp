@@ -13,6 +13,27 @@ void SimulatorObj::addNewErrorToGeneralErrors(string msg){
     this->currTravelGeneralErrors.emplace_back(msg);
 }
 
+/**
+ * This function iterates over the travel cargo_data files and checks if there are ports
+ * with cargo_data files that doesn't exist in the route
+ * @param travelName
+ */
+void SimulatorObj::compareRoutePortsVsCargoDataPorts(string &travelName){
+    auto vecPorts = this->simShip->getRoute();
+    auto travelCargoDataFiles = this->Travels[travelName];
+    /*Erase all ports that exist in the travel map as their cargo files are necessary*/
+    for(auto &port : vecPorts){
+        if(!travelCargoDataFiles.at(port->get_name()).empty())
+            travelCargoDataFiles.erase(port->get_name());
+    }
+    travelCargoDataFiles.erase(ROUTE);
+    travelCargoDataFiles.erase(PLAN);
+    for(auto &pair : travelCargoDataFiles){
+        this->addNewErrorToGeneralErrors(ERROR_NOPORTEXISTINTRAVEL(pair.first));
+    }
+
+}
+
 
 void SimulatorObj::initListOfTravels(string &path){
     string msg = " only sub folders allowed in main folder, file won't be included in the program";

@@ -15,11 +15,11 @@
 
 
 /*----------------------ERRORS IN ROUTE FILE-------------------*/
-#define ERROR_LACKROUTE         "route: Lack of route file, ignoring this travel"
-#define ERROR_FATALROUTE        "route: Fatal error occurred, ignoring this travel"
-#define ERROR_NOTENOUGHPORTS    "route: File contains less then 2 valid ports, ignoring this travel"
-#define ERROR_PORTTWICE(x)      "route: Port " + x + " occurs 2 or more consecutive times"
-
+#define ERROR_LACKROUTE              "route: Lack of route file, ignoring this travel"
+#define ERROR_FATALROUTE             "route: Fatal error occurred, ignoring this travel"
+#define ERROR_NOTENOUGHPORTS         "route: File contains less then 2 valid ports, ignoring this travel"
+#define ERROR_PORTTWICE(x)           "route: Port " + x + " occurs 2 or more consecutive times"
+#define ERROR_NOPORTEXISTINTRAVEL(p) "Error: this port " + p + " has cargo_data file but not in route, ignoring his cargo files"
 
 /*----------------------PRINT TO CONSOLE-------------------*/
 #define P_ERROR_READPATH(x)     std::cerr << "Failed to read from this file path " << x << std::endl

@@ -75,6 +75,7 @@ public:
     int checkIfFatalErrorOccurred(string type);
     void compareFatalAlgErrsAndSimErrs(list<string> &simCurrAlgErrors);
     void compareIgnoredAlgErrsVsSimErrs(string &portName, int visitNumber, list<string> &simCurrAlgErrors);
+    void compareRoutePortsVsCargoDataPorts(string& travelName);
     WeightBalanceCalculator getCalc();
     map<string,map<string,list<string>>>& getErrorsInfo();
     map<string,map<string,pair<int,int>>>& getResultsInfo();

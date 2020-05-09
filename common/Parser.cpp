@@ -238,7 +238,7 @@ std::unique_ptr<Ship> extractArgsForShip(string &travelName,SimulatorObj &simula
         simulator.addListOfGeneralErrors(generalErrors);
         return nullptr;
     }
-
+    simulator.compareRoutePortsVsCargoDataPorts(travelName);
     simulator.updateArrayOfCodes(resultInt, "sim");
     return ship;
 }
