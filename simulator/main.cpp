@@ -40,6 +40,7 @@ void initAlgorithmList(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &
     algList.emplace_back(make_pair("_313263204_a",std::make_unique<_313263204_a>()));
     algList.emplace_back(make_pair("_313263204_b",std::make_unique<_313263204_b>()));
     for(auto &entry: AlgorithmFactoryRegistrar::getRegistrar().getMap()){
+        //TODO dl open?
         algList.emplace_back(make_pair(entry.first,entry.second()));
     }
 }
@@ -98,21 +99,27 @@ void getAlgSoFiles(vector<fs::path> &algPaths){
 }
 
 void compareSoVsRegisteredAlgs(vector<fs::path> algPaths){
-        
-
+        auto &map = AlgorithmFactoryRegistrar::getRegistrar().getMap();
+        for(auto &algPath : algPaths){
+            string algName = algPath.filename().string();
+            int pos = algName.find_last_of(".so");
+            string realAlgName = algName.substr(0,pos);
+            if(map.find(realAlgName) == map.end()){
+                P_ALGNOTREGISTER(realAlgName);
+            }
+        }
 }
 
 
 int main(int argc, char** argv) {
 
     vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec;
-    vector<pair<string,std::function<std::unique_ptr<AbstractAlgorithm>()>>> algFunctors;
     vector<fs::path> algPaths;
     initPaths(argc,argv);
     SimulatorObj simulator(mainTravelPath,mainOutputPath);
     getAlgSoFiles(algPaths);
     initAlgorithmList(algVec);
-    compareSoVsRegisteredAlgs(algPaths,algFunctors);
+    compareSoVsRegisteredAlgs(algPaths);
 
     /*Cartesian Loop*/
     for (auto &travel_folder : simulator.getTravels()) {
