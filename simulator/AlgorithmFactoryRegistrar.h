@@ -7,6 +7,7 @@
 #include <memory>
 #include "../interfaces/AbstractAlgorithm.h"
 #include "../interfaces/AlgorithmRegistration.h"
+#include "SimulatorObj.h"
 
 class AlgorithmFactoryRegistrar {
     static AlgorithmFactoryRegistrar registrar;

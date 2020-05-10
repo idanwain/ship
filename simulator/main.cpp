@@ -17,9 +17,8 @@
 #include <string>
 #include "../common/Ship.h"
 #include "../common/Parser.h"
-#include "../algorithm/_313263204_a.h"
-#include "../algorithm/_313263204_b.h"
 #include "AlgorithmFactoryRegistrar.h"
+#include <dlfcn.h>
 #include <memory>
 
 /*------------------------------Global Variables---------------------------*/
@@ -27,6 +26,14 @@
 string mainTravelPath;
 string mainAlgorithmsPath = fs::current_path().string();
 string mainOutputPath = fs::current_path().string();
+
+/*------------------------------Shared Objects Deleter ---------------------------*/
+
+struct DlCloser {
+    void operator()(void *dlhandle) const noexcept {
+        dlclose(dlhandle);
+    }
+};
 
 /*-----------------------------Utility Functions-------------------------*/
 
@@ -37,10 +44,9 @@ string mainOutputPath = fs::current_path().string();
  */
 void initAlgorithmList(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algList){
     //TODO iterate the map @AlgorithmFactoryRegistrar & initialize each algorithm that dynamically registered to the program.
-    algList.emplace_back(make_pair("_313263204_a",std::make_unique<_313263204_a>()));
-    algList.emplace_back(make_pair("_313263204_b",std::make_unique<_313263204_b>()));
+//    algList.emplace_back(make_pair("_313263204_a",std::make_unique<_313263204_a>()));
+//    algList.emplace_back(make_pair("_313263204_b",std::make_unique<_313263204_b>()));
     for(auto &entry: AlgorithmFactoryRegistrar::getRegistrar().getMap()){
-        //TODO dl open?
         algList.emplace_back(make_pair(entry.first,entry.second()));
     }
 }
@@ -98,14 +104,30 @@ void getAlgSoFiles(vector<fs::path> &algPaths){
     }
 }
 
-void compareSoVsRegisteredAlgs(vector<fs::path> algPaths){
+void loadRegisteredSoAlgorithms(vector<fs::path>& algPaths, vector<std::unique_ptr<void, DlCloser>>& SharedObjs){
         auto &map = AlgorithmFactoryRegistrar::getRegistrar().getMap();
+        std::cout << "so alg map:" << std::endl;
+        for(auto& entry : map){
+            std::cout << entry.first << std::endl;
+        }
         for(auto &algPath : algPaths){
             string algName = algPath.filename().string();
-            int pos = algName.find_last_of(".so");
-            string realAlgName = algName.substr(0,pos);
-            if(map.find(realAlgName) == map.end()){
-                P_ALGNOTREGISTER(realAlgName);
+            auto pos = algName.find_last_of(".so");
+            if(pos != std::string::npos){
+
+                string realAlgName = algName.substr(0,pos);
+                if(map.find(realAlgName) == map.end()){
+                    P_ALGNOTREGISTER(realAlgName);
+                }
+                else {
+                    //TODO dlopen
+                    std::unique_ptr<void, DlCloser> soAlg(dlopen(algPath.c_str(), RTLD_LAZY));
+                    if(!soAlg){
+                        std::cerr << "dlopen failed" << dlerror() << std::endl;
+                    } else {
+                        SharedObjs.emplace_back(std::move(soAlg));
+                    }
+                }
             }
         }
 }
@@ -114,15 +136,16 @@ void compareSoVsRegisteredAlgs(vector<fs::path> algPaths){
 int main(int argc, char** argv) {
 
     vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec;
+    vector<std::unique_ptr<void, DlCloser>> SharedObjs;
     vector<fs::path> algPaths;
     initPaths(argc,argv);
     SimulatorObj simulator(mainTravelPath,mainOutputPath);
     getAlgSoFiles(algPaths);
-    initAlgorithmList(algVec);
-    compareSoVsRegisteredAlgs(algPaths);
+    loadRegisteredSoAlgorithms(algPaths, SharedObjs);
 
     /*Cartesian Loop*/
     for (auto &travel_folder : simulator.getTravels()) {
+        initAlgorithmList(algVec);
         string currTravelName = travel_folder.first;
         std::unique_ptr<Ship> mainShip = extractArgsForShip(currTravelName,simulator);
         if(mainShip != nullptr){

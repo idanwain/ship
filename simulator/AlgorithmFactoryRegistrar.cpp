@@ -1,5 +1,4 @@
 #include "AlgorithmFactoryRegistrar.h"
-#include <windows.h>
 #include <string>
 #include <iostream>
 #include <filesystem>
@@ -10,11 +9,8 @@ AlgorithmFactoryRegistrar AlgorithmFactoryRegistrar::registrar;
 
 void AlgorithmFactoryRegistrar::registerAlgorithmFactory(std::function<std::unique_ptr<AbstractAlgorithm>()> algorithmFactory) {
     std::string algTypeidName = typeid(*algorithmFactory()).name();
-    auto format = ".cpp";
-    std::string path = fs::current_path().string() + "\\..\\algorithm";
-    std::cout << path << std::endl;
-    std::cout << algTypeidName << std::endl;
-    //TODO USE PATH SEPRATOR
+    auto format = ".so";
+    std::string path = fs::current_path().string() + PATH_SEPARATOR + ".." + PATH_SEPARATOR + "algorithm";
     //TODO Need to access algorithm folder
 
     for(auto& entry: fs::directory_iterator(path)){
