@@ -19,6 +19,7 @@
 #include "../common/Parser.h"
 #include "../algorithm/_313263204_a.h"
 #include "../algorithm/_313263204_b.h"
+#include "AlgorithmFactoryRegistrar.h"
 #include <memory>
 
 /*------------------------------Global Variables---------------------------*/
@@ -38,6 +39,9 @@ void initAlgorithmList(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &
     //TODO iterate the map @AlgorithmFactoryRegistrar & initialize each algorithm that dynamically registered to the program.
     algList.emplace_back(make_pair("_313263204_a",std::make_unique<_313263204_a>()));
     algList.emplace_back(make_pair("_313263204_b",std::make_unique<_313263204_b>()));
+    for(auto &entry: AlgorithmFactoryRegistrar::getRegistrar().getMap()){
+        algList.emplace_back(make_pair(entry.first,entry.second()));
+    }
 }
 
 /**
@@ -93,15 +97,22 @@ void getAlgSoFiles(vector<fs::path> &algPaths){
     }
 }
 
+void compareSoVsRegisteredAlgs(vector<fs::path> algPaths){
+        
+
+}
+
 
 int main(int argc, char** argv) {
 
     vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec;
+    vector<pair<string,std::function<std::unique_ptr<AbstractAlgorithm>()>>> algFunctors;
     vector<fs::path> algPaths;
     initPaths(argc,argv);
     SimulatorObj simulator(mainTravelPath,mainOutputPath);
     getAlgSoFiles(algPaths);
     initAlgorithmList(algVec);
+    compareSoVsRegisteredAlgs(algPaths,algFunctors);
 
     /*Cartesian Loop*/
     for (auto &travel_folder : simulator.getTravels()) {

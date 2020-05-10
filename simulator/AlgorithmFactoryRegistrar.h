@@ -13,6 +13,8 @@ class AlgorithmFactoryRegistrar {
     std::map<std::string, std::function<std::unique_ptr<AbstractAlgorithm>()>> map;
 public:
     void registerAlgorithmFactory(std::function<std::unique_ptr<AbstractAlgorithm>()> algorithmFactory);
+    std::map<std::string, std::function<std::unique_ptr<AbstractAlgorithm>()>>& getMap();
+
     static AlgorithmFactoryRegistrar& getRegistrar();
 };
 
