@@ -248,6 +248,7 @@ void SimulatorObj::runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgor
         string algInstructionsFolder = SimulatorObj::createAlgorithmOutDirectory(alg.first, mainOutputPath,travel->getName());
         for (int portNum = 0; portNum < (int) route.size() && res != -1; portNum++) {
             string portName = route[portNum]->get_name();
+
             pPort = this->simShip->getPortByName(portName);
             cout << portName << endl;
             int visitNumber = visitNumbersByPort[portName];
@@ -334,16 +335,12 @@ int SimulatorObj::runCurrentPort(string &portName,fs::path &portPath,int portNum
     pair<int,int> intAndError;
     if(portPath.empty()){
         inputPath = "";
-        cout << "in if statement" << endl;
     }
     else {
         inputPath =  portPath.string();
-        cout << "input paht: " << inputPath << endl;
     }
 
     outputPath = algOutputFolder + PATH_SEPARATOR + portName + "_" + std::to_string(visitNumber) + ".crane_instructions";
-    cout << "before getInstructionsForCargo" << endl;
-    cout << alg.first << endl;
     algReturnValue = alg.second->getInstructionsForCargo(inputPath,outputPath);
 
     updateArrayOfCodes(algReturnValue,"alg");
