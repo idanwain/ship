@@ -42,7 +42,6 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
     int errorsCount = 0,instructionsCount = 0;
 //    int kg = 0; ex. 3
 
-    cout << "before file opening" << endl;
     parseDataFromPortFile(linesFromPortFile, contAtPortPath);
     instructionsFile.open(outputPath);
     if(instructionsFile.fail()) {
@@ -499,7 +498,6 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
                 port->addContainer(*con, Type::LOAD);
             }
             else {
-                std::cout << id << ": "<< CONTAINER_NOT_IN_ROUTE << std::endl;
                 writeToOutput(output,AbstractAlgorithm::Action::REJECT, id);
             }
         }

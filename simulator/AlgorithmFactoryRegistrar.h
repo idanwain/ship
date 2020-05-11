@@ -11,10 +11,10 @@
 
 class AlgorithmFactoryRegistrar {
     static AlgorithmFactoryRegistrar registrar;
-    std::map<std::string, std::function<std::unique_ptr<AbstractAlgorithm>()>> map;
+    std::vector<std::function<std::unique_ptr<AbstractAlgorithm>()>> vec;
 public:
     void registerAlgorithmFactory(std::function<std::unique_ptr<AbstractAlgorithm>()> algorithmFactory);
-    std::map<std::string, std::function<std::unique_ptr<AbstractAlgorithm>()>>& getMap();
+    std::vector<std::function<std::unique_ptr<AbstractAlgorithm>()>>& getVec();
 
     static AlgorithmFactoryRegistrar& getRegistrar();
 };

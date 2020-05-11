@@ -42,11 +42,8 @@ struct DlCloser {
  * @param algList
  * @param ship
  */
-void initAlgorithmList(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algList){
-    //TODO iterate the map @AlgorithmFactoryRegistrar & initialize each algorithm that dynamically registered to the program.
-//    algList.emplace_back(make_pair("_313263204_a",std::make_unique<_313263204_a>()));
-//    algList.emplace_back(make_pair("_313263204_b",std::make_unique<_313263204_b>()));
-    for(auto &entry: AlgorithmFactoryRegistrar::getRegistrar().getMap()){
+void initAlgorithmList(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algList, map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>>& map){
+    for(auto &entry: map){
         algList.emplace_back(make_pair(entry.first,entry.second()));
     }
 }
@@ -104,48 +101,52 @@ void getAlgSoFiles(vector<fs::path> &algPaths){
     }
 }
 
-void loadRegisteredSoAlgorithms(vector<fs::path>& algPaths, vector<std::unique_ptr<void, DlCloser>>& SharedObjs){
-        auto &map = AlgorithmFactoryRegistrar::getRegistrar().getMap();
-        std::cout << "so alg map:" << std::endl;
-        for(auto& entry : map){
-            std::cout << entry.first << std::endl;
-        }
-        for(auto &algPath : algPaths){
-            string algName = algPath.filename().string();
-            auto pos = algName.find_last_of(".so");
-            if(pos != std::string::npos){
-
-                string realAlgName = algName.substr(0,pos);
-                if(map.find(realAlgName) == map.end()){
-                    P_ALGNOTREGISTER(realAlgName);
-                }
-                else {
-                    //TODO dlopen
-                    std::unique_ptr<void, DlCloser> soAlg(dlopen(algPath.c_str(), RTLD_LAZY));
-                    if(!soAlg){
-                        std::cerr << "dlopen failed" << dlerror() << std::endl;
-                    } else {
-                        SharedObjs.emplace_back(std::move(soAlg));
-                    }
-                }
-            }
-        }
+void dynamicLoadSoFiles(vector<fs::path>& algPaths, vector<std::unique_ptr<void, DlCloser>>& SharedObjs){
+   for(auto& path : algPaths){
+       std::unique_ptr<void, DlCloser> soAlg(dlopen(path.c_str(), RTLD_LAZY));
+       if(!soAlg){
+           std::cerr << "dlopen failed" << dlerror() << std::endl;
+       } else {
+           SharedObjs.emplace_back(std::move(soAlg));
+       }
+   }
 }
 
+void parseRegisteredAlg(vector<fs::path>& algPaths, map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>>& map) {
+    auto &vec = AlgorithmFactoryRegistrar::getRegistrar().getVec();
+
+    for (auto &algPath : algPaths) {
+        string algName = algPath.filename().string();
+        algName = algName.substr(0, algName.find(".so"));
+        bool isRegistered = false;
+
+        for (auto &algFactory : vec) {
+            std::string algTypeidName = typeid(*algFactory()).name();
+            if (algTypeidName.find(algName) != std::string::npos) {
+                isRegistered = true;
+                map.insert({algName, algFactory});
+                break;
+            }
+        }
+        if (!isRegistered) P_ALGNOTREGISTER(algName);
+    }
+}
 
 int main(int argc, char** argv) {
 
+    map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>> map;
     vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec;
     vector<std::unique_ptr<void, DlCloser>> SharedObjs;
     vector<fs::path> algPaths;
     initPaths(argc,argv);
     SimulatorObj simulator(mainTravelPath,mainOutputPath);
     getAlgSoFiles(algPaths);
-    loadRegisteredSoAlgorithms(algPaths, SharedObjs);
+    dynamicLoadSoFiles(algPaths, SharedObjs);
+    parseRegisteredAlg(algPaths, map);
 
     /*Cartesian Loop*/
     for (auto &travel_folder : simulator.getTravels()) {
-        initAlgorithmList(algVec);
+        initAlgorithmList(algVec, map);
         string currTravelName = travel_folder.first;
         std::unique_ptr<Ship> mainShip = extractArgsForShip(currTravelName,simulator);
         if(mainShip != nullptr){
@@ -164,10 +165,12 @@ int main(int argc, char** argv) {
         simulator.addOutputInfo(currTravelName);
         simulator.prepareForNewTravel();
         mainShip.reset(nullptr);
+        destroyAlgVec(algVec);
     }
     simulator.createResultsFile(mainTravelPath);
     simulator.createErrorsFile(mainTravelPath);
-    destroyAlgVec(algVec);
+    std::cerr << "IN MAIN LAST ROW" << endl;
+    std::cerr << "NOTICE: this core dump happens only at the end of the program" << endl;
     return (EXIT_SUCCESS);
  }
 
