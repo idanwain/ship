@@ -5,39 +5,39 @@ void SimulatorObj::setShipAndCalculator(std::unique_ptr<Ship> &getShip,const str
     simCalc.readShipPlan(file_path);
 }
 
-void SimulatorObj::addNewTravelListErrors(list<string> &listErrors,string errListName){
-    this->currTravelErrors.insert(make_pair(errListName,listErrors));
-}
-
-void SimulatorObj::addNewErrorToGeneralErrors(string msg){
-    this->currTravelGeneralErrors.emplace_back(msg);
-}
 
 /**
  * This function iterates over the travel cargo_data files and checks if there are ports
- * with cargo_data files that doesn't exist in the route
- * @param travelName
+ * with cargo_data files that doesn't exist in the route.
+ * also it compares the number of cargo files in this travel vs the route length and notify
+ * if num of cargo files > route length.
+ * @param travelName - current travel
  */
-void SimulatorObj::compareRoutePortsVsCargoDataPorts(string &travelName){
-    auto vecPorts = this->simShip->getRoute();
-    auto travelCargoDataFiles = this->Travels[travelName];
+void SimulatorObj::compareRoutePortsVsCargoDataPorts(std::unique_ptr<Ship> &ship,std::unique_ptr<Travel> &travel){
+    auto vecPorts = ship->getRoute();
+    int numOfCargoFiles = 0;
+    map<string,vector<fs::path>> travelCargoDataFiles(travel->getMap());
     /*Erase all ports that exist in the travel map as their cargo files are necessary*/
     for(auto &port : vecPorts){
-        if(!travelCargoDataFiles.at(port->get_name()).empty())
+        if(travelCargoDataFiles.find(port->get_name()) != travelCargoDataFiles.end())
             travelCargoDataFiles.erase(port->get_name());
     }
-    travelCargoDataFiles.erase(ROUTE);
-    travelCargoDataFiles.erase(PLAN);
-    for(auto &pair : travelCargoDataFiles){
-        this->addNewErrorToGeneralErrors(ERROR_NOPORTEXISTINTRAVEL(pair.first));
-    }
+    for(auto &pair : travelCargoDataFiles)
+        travel->setNewGeneralError(ERROR_NOPORTEXISTINTRAVEL(pair.first));
+
+    /*Count how many valid cargo files exist in this travel folder*/
+    for(auto &pair : travel->getMap())
+        numOfCargoFiles += (int)pair.second.size();
+
+    if(numOfCargoFiles > (int)ship->getRoute().size())
+        travel->setNewGeneralError(ERROR_TOOMANYCARGOFILES);
+
 
 }
 
 
 void SimulatorObj::initListOfTravels(string &path){
     string msg = " only sub folders allowed in main folder, file won't be included in the program";
-    auto& directories = this->Travels;
     for(const auto &entry : fs::directory_iterator(path)){
         if(!entry.is_directory()){
             ERROR_NOTDIRECTORY(entry,msg);
@@ -45,26 +45,30 @@ void SimulatorObj::initListOfTravels(string &path){
         }
         string travelName = entry.path().filename().string();
         if(!isValidTravelName(travelName)) continue;
-        directories.insert(make_pair(travelName,map<string,vector<fs::path>>()));
+        std::unique_ptr<Travel> currTravel = std::make_unique<Travel>(travelName);
+        map<string,vector<fs::path>> currPorts;
         for(const auto &deep_entry : fs::directory_iterator(entry.path())){
             string fileName = deep_entry.path().filename().string();
             if(isValidPortFileName(fileName)){
                 string portName = extractPortNameFromFile(fileName);
                 int portNum = extractPortNumFromFile(fileName);
-                insertPortFile(directories[travelName],portName,portNum,deep_entry.path());
+                insertPortFile(currTravel,portName,portNum,deep_entry.path());
 
             }
             else if(isValidShipRouteFileName(fileName)){
-                vector<fs::path> vec(1);
-                vec.emplace_back(deep_entry.path());
-                directories[travelName].insert(make_pair(ROUTE,vec));
+                    if(!currTravel->getRoutePath().empty())
+                        currTravel->setNewGeneralError(ERROR_ROUTEMANYFILES(fileName));
+                    else
+                        currTravel->setRoutePath(deep_entry.path());
             }
             else if(isValidShipMapFileName(fileName)){
-                vector<fs::path> vec(1);
-                vec.emplace_back(deep_entry.path());
-                directories[travelName].insert(make_pair(PLAN,vec));
+                if(!currTravel->getPlanPath().empty())
+                    currTravel->setNewGeneralError(ERROR_PLANMANYFILES(fileName));
+                else
+                    currTravel->setPlanPath(deep_entry.path());
             }
         }
+        this->TravelsVec.emplace_back(std::move(currTravel));
 
     }
 }
@@ -77,7 +81,8 @@ void SimulatorObj::initListOfTravels(string &path){
  * @param portNum - the current portName number
  * @param entry - the entry path
  */
-void SimulatorObj::insertPortFile(map<string, vector<fs::path> > &travelMap, string &portName, int portNum, const fs::path &entry) {
+void SimulatorObj::insertPortFile(std::unique_ptr<Travel> &currTravel, string &portName, int portNum, const fs::path &entry) {
+    auto &travelMap = currTravel->getMap();
     if(travelMap.find(portName) != travelMap.end()){
         if((int)travelMap[portName].size() < portNum){
             travelMap[portName].resize(portNum);
@@ -90,36 +95,10 @@ void SimulatorObj::insertPortFile(map<string, vector<fs::path> > &travelMap, str
 
     travelMap[portName].at(portNum-1) = entry;
 }
-void SimulatorObj::addErrorsInfo(string &travelName){
-    this->outputErrorsInfo.insert(make_pair(travelName,currTravelErrors));
-    this->outputErrorsInfo[travelName].insert(make_pair("general",this->currTravelGeneralErrors));
-}
 
-void SimulatorObj::addResultsInfo(string &travelName){
-    this->outputResultsInfo.insert(make_pair(travelName,algInfo));
-}
 
-map<string,map<string,list<string>>>& SimulatorObj::getErrorsInfo(){
-    return this->outputErrorsInfo;
-}
-
-map<string,map<string,pair<int,int>>>& SimulatorObj::getResultsInfo(){
-    return this->outputResultsInfo;
-}
-void SimulatorObj::addOutputInfo(string& travelName){
-    if(!currTravelGeneralErrors.empty()){
-        currTravelErrors.insert(make_pair("general",currTravelGeneralErrors));
-    }
-    if(!currTravelErrors.empty()){
-        this->addErrorsInfo(travelName);
-    }
-    if(!algInfo.empty()){
-        this->addResultsInfo(travelName);
-    }
-}
-
-map<string,map<string,vector<fs::path>>>& SimulatorObj::getTravels(){
-    return this->Travels;
+vector<std::unique_ptr<Travel>>& SimulatorObj::getTravels(){
+    return this->TravelsVec;
 }
 
 std::array<bool,NUM_OF_ERRORS>& SimulatorObj::getCommonErrors(){
@@ -145,32 +124,35 @@ void SimulatorObj::createResultsFile(string path){
     int sumInstructions = 0,sumErrors = 0;
     const char comma = ',';
     list<string> travels;
-    list<string> algNames;
-    auto &output_map = this->outputResultsInfo;
-    if(output_map.empty()){
+    list<string> algorithmNames;
+    map<string,map<string,pair<int,int>>> output_map;
+
+    if(isResultsEmpty()){
         P_NORESULTFILE;
         return;
     }
+    initOutputMap(output_map);
     path.append(PATH_SEPARATOR);
     path.append("simulation.results");
-    inFile.open(path); //Default mode is writing to a file
+    inFile.open(path);
     if(inFile.fail()){
         ERROR_RESULTSFILE;
         exit(EXIT_FAILURE);
     }
-    for(auto &map : output_map)//Get travel Names
-        travels.emplace_back(map.first);
-    for(auto &outterPair : output_map[travels.front()])//Get algNames
-        algNames.emplace_back(outterPair.first);
+    for(auto &travel : this->TravelsVec)//Get travel Names
+        travels.emplace_back(travel->getName());
+    for(auto &algName : this->TravelsVec.front()->getAlgResultsMap())//Get algorithm names
+        algorithmNames.emplace_back(algName.first);
 
-    SimulatorObj::sortAlgorithms(output_map,algNames);
+
+    SimulatorObj::sortAlgorithms(output_map,algorithmNames);
 
     inFile << "RESULTS" << comma;
     for(string &travel_name : travels)
         inFile << travel_name << comma;
     inFile << "Sum" << comma << "Errors" <<  '\n';
 
-    for(auto& algName : algNames){
+    for(auto& algName : algorithmNames){
         inFile << algName << comma;
         for(auto &travelName : travels){
             if(output_map[travelName][algName].second == -1)
@@ -198,8 +180,7 @@ void SimulatorObj::createResultsFile(string path){
 void SimulatorObj::createErrorsFile(string path) {
     const string spaces = "      ";//6spaces
     std::ofstream inFile;
-    auto &simErrors = this->outputErrorsInfo;
-    if(simErrors.empty()){
+    if(isErrorsEmpty()){
         P_NOERRORFILE;
         return;
     }
@@ -211,20 +192,19 @@ void SimulatorObj::createErrorsFile(string path) {
         return;
     }
 
-    for (auto &outterPair : simErrors) {
-        if(errorExists(outterPair.second)) {
-            inFile << outterPair.first << " Errors" << '\n'; //Travel name
-            if (!simErrors[outterPair.first]["general"].empty()) {
+    for(auto &travel : TravelsVec){
+        if(!travel->getGeneralErrors().empty() || !travel->getErrorsMap().empty()){
+            inFile << travel->getName() << " Errors" << '\n'; //Travel name
+            if(!travel->getGeneralErrors().empty()){
                 inFile << spaces << "General:" << '\n';
-                for (string &msg : simErrors[outterPair.first]["general"]) {
+                for(string &msg : travel->getGeneralErrors()){
                     inFile << spaces + spaces << msg << '\n';
                 }
-                simErrors[outterPair.first]["general"].clear();
             }
-            for (auto &innerPair : simErrors[outterPair.first]) {
-                if (!innerPair.second.empty()) {
-                    inFile << spaces << innerPair.first + ":" << '\n'; //algorithm name
-                    for (string &msg : innerPair.second) {
+            for(auto &pair : travel->getErrorsMap()){
+                if(!pair.second.empty()){
+                    inFile << spaces << pair.first + ":" << '\n'; //algorithm name
+                    for(string &msg : pair.second){
                         inFile << spaces + spaces << msg << '\n'; //error msg list for this alg in this travel
                     }
                 }
@@ -234,43 +214,51 @@ void SimulatorObj::createErrorsFile(string path) {
     inFile.close();
 }
 
-/**
- * This function checks if given travelErrors list has any error.
- * @param travelErrors
- * @return
- */
-bool SimulatorObj::errorExists(map<string,list<string>> &travelErrors){
-    for(auto &algList: travelErrors){
-        if(!algList.second.empty())
-            return true;
-    }
-    return false;
 
+void SimulatorObj::initOutputMap(map<string,map<string,pair<int,int>>>& outputMap){
+    for(auto& travel : this->TravelsVec){
+        outputMap.insert(make_pair(travel->getName(),travel->getAlgResultsMap()));
+    }
 }
 
-void SimulatorObj::runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> &alg, string &travelName){
+bool SimulatorObj:: isResultsEmpty() {
+    for(auto& travel : this->TravelsVec)
+        if(!travel->getAlgResultsMap().empty())
+            return false;
+
+    return true;
+}
+
+bool SimulatorObj:: isErrorsEmpty(){
+    for(auto& travel: this->TravelsVec)
+        if(!travel->getGeneralErrors().empty() || !travel->getErrorsMap().empty())
+            return false;
+
+    return true;
+}
+
+
+void SimulatorObj::runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> &alg, std::unique_ptr<Travel> &travel){
     list<string> simCurrAlgErrors;
     map<string,int> visitNumbersByPort;
     int res = 0;
     vector<std::shared_ptr<Port>> route = this->simShip->getRoute();
     res = checkIfFatalErrorOccurred("alg");
     if(res != -1) {
-        string algInstructionsFolder = SimulatorObj::createAlgorithmOutDirectory(alg.first, mainOutputPath, travelName);
+        string algInstructionsFolder = SimulatorObj::createAlgorithmOutDirectory(alg.first, mainOutputPath,travel->getName());
         for (int portNum = 0; portNum < (int) route.size() && res != -1; portNum++) {
             string portName = route[portNum]->get_name();
-
             pPort = this->simShip->getPortByName(portName);
-
             cout << portName << endl;
             int visitNumber = visitNumbersByPort[portName];
-            fs::path portPath = getPathOfCurrentPort(travelName,portName,visitNumber);
+            fs::path portPath = getPathOfCurrentPort(travel,portName,visitNumber);
             res = runCurrentPort(portName, portPath, portNum, alg, simCurrAlgErrors, algInstructionsFolder,
-                                 ++visitNumbersByPort[portName]);
+                                 ++visitNumbersByPort[portName],travel);
             compareIgnoredAlgErrsVsSimErrs(portName, visitNumber, simCurrAlgErrors);
         }
     }
     compareFatalAlgErrsAndSimErrs(simCurrAlgErrors);
-    currTravelErrors.insert(make_pair(alg.first, simCurrAlgErrors));
+    travel->getErrorsMap().insert(make_pair(alg.first,simCurrAlgErrors));
 }
 
 /**
@@ -281,8 +269,8 @@ void SimulatorObj::runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgor
  * @param visitNumber
  * @return the path of port name at visit number in travel name
  */
-fs::path SimulatorObj::getPathOfCurrentPort(string& travelName,string& portName,int visitNumber){
-    auto &vec = this->Travels[travelName][portName];
+fs::path SimulatorObj::getPathOfCurrentPort(std::unique_ptr<Travel> &travel,string& portName,int visitNumber){
+    auto &vec = travel->getMap()[portName];
     fs::path result;
     if(vec.empty()) {
         vec.resize(1);
@@ -338,7 +326,7 @@ void SimulatorObj::compareIgnoredAlgErrsVsSimErrs(string &portName,int visitNumb
  * @param algInfo           - stores the data of instructions count and errors count
  */
 int SimulatorObj::runCurrentPort(string &portName,fs::path &portPath,int portNum,pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,
-                    list<string> &simCurrAlgErrors,string &algOutputFolder,int visitNumber){
+                    list<string> &simCurrAlgErrors,string &algOutputFolder,int visitNumber,std::unique_ptr<Travel> &travel){
 
     string inputPath,outputPath;
     int instructionsCount, errorsCount, algReturnValue;
@@ -366,11 +354,11 @@ int SimulatorObj::runCurrentPort(string &portName,fs::path &portPath,int portNum
     intAndError = result.value();
     instructionsCount = std::get<0>(intAndError);
     errorsCount = std::get<1>(intAndError);
-    if(algInfo.find(alg.first) == algInfo.end()){
-        algInfo.insert(make_pair(alg.first,pair<int,int>()));
+    if(travel->getAlgResultsMap().find(alg.first) == travel->getAlgResultsMap().end()){
+        travel->getAlgResultsMap().insert(make_pair(alg.first,pair<int,int>()));
     }
-    std::get<0>(algInfo[alg.first]) += instructionsCount;
-    std::get<1>(algInfo[alg.first]) += errorsCount;
+    std::get<0>(travel->getAlgResultsMap()[alg.first]) += instructionsCount;
+    std::get<1>(travel->getAlgResultsMap()[alg.first]) += errorsCount;
     return errorsCount;
 }
 
@@ -389,11 +377,6 @@ void SimulatorObj::updateArrayOfCodes(int num, string type){
 }
 
 
-void SimulatorObj::addListOfGeneralErrors(list<string> &generalErrors){
-    for(string &msg : generalErrors){
-        this->currTravelGeneralErrors.emplace_back(msg);
-    }
-}
 
 void SimulatorObj::createErrorsFromArray(){
     auto &arr = simErrorCodes;
@@ -445,9 +428,6 @@ void SimulatorObj::createErrorsFromArray(){
 void SimulatorObj:: prepareForNewTravel() {
     this->algErrorCodes = std::array<bool,NUM_OF_ERRORS>{false};
     this->simErrorCodes = std::array<bool,NUM_OF_ERRORS>{false};
-    this->currTravelGeneralErrors.clear();
-    this->currTravelErrors.clear();
-    this->algInfo.clear();
 }
 
 
@@ -475,13 +455,12 @@ int SimulatorObj::checkContainersDidntHandle(map<string, list<string>> &idAndRaw
  * @param outputInfo
  * @param algorithms
  */
-void SimulatorObj::sortAlgorithms(map<string,map<string,pair<int,int>>> &outputInfo,list<string> &algorithms){
+void SimulatorObj::sortAlgorithms(map<string,map<string,pair<int,int>>>& outputInfo,list<string> &algorithms){
     map<string,pair<int,int>> algAndValues;
     vector<std::tuple<string,int,int>> sortedVec;
     for(auto &alg : algorithms){
         algAndValues.insert(make_pair(alg,pair<int,int>()));
     }
-
     /*Gather the overall score of travel X algorithms*/
     for(auto &algName : algorithms){
         for(auto &travel : outputInfo){

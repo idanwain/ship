@@ -3,6 +3,7 @@
 #define TRAVEL_H
 
 #include <string>
+#include <utility>
 #include <vector>
 #include <list>
 #include <regex>
@@ -22,12 +23,28 @@ namespace fs = std::filesystem;
 class Travel {
 
     string name;
+    fs::path routePath;
+    fs::path planPath;
+    list<string> generalErrors;
     map<string,vector<fs::path>> portPaths;
+    map<string,list<string>> errors;
+    map<string,pair<int,int>> algorithmsResults; /*first int --> instructions count, second int --> errors count*/
+
 public:
-    Travel(string travelName,map<string,vector<fs::path>> paths):name(travelName),portPaths(paths){}
-    string getName();
+    explicit Travel(const string travelName):name(travelName){};
+    void setRoutePath(const fs::path& route);
+    void setPlanPath(const fs::path& plan);
+    void setNewGeneralError(const string& msg);
+    const string& getName();
+    map<string,vector<fs::path>>& getMap();
+    map<string,list<string>>& getErrorsMap();
+    map<string,pair<int,int>>& getAlgResultsMap();
+    list<string>& getGeneralErrors();
+    fs::path& getRoutePath();
+    fs::path& getPlanPath();
+
 
 };
 
 
-#endif //MYSHIP_TRAVEL_H
+#endif

@@ -23,6 +23,18 @@ std::tuple<int, int, int> Ship::getCoordinate(const Container& container) {
 	return std::tuple<int, int, int>();
 }
 
+std::tuple<int,int,int> Ship::getCoordinate(std::string& contName){
+    for(int i = 0; i < this->x; i++){
+        for(int j = 0; j < this->y; j++){
+            for(int k = 0; k < (int)shipMap[i][j].size(); k++){
+                if(shipMap[i][j][k].getId() == contName)
+                    return std::tuple<int,int,int>(i,j,k);
+            }
+        }
+    }
+    return std::tuple<int,int,int>(-1,-1,-1);
+}
+
 std::vector<std::shared_ptr<Port>> Ship::getRoute() {
 	return this->route;
 }

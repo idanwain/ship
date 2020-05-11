@@ -30,6 +30,7 @@ class Common;
 #include <fstream>
 #include "Common.h"
 #include "../interfaces/ErrorsInterface.h"
+#include "../simulator/Travel.h"
 
 using std::cout;
 using std::endl;
@@ -47,9 +48,9 @@ namespace fs = std::filesystem;
 
 
 int extractPortNumFromFile(const string& fileName);
-int extractArgsForBlocks(std::unique_ptr<Ship>& ship, const std::string& file_path,list<string> &generalErrors);
+int extractArgsForBlocks(std::unique_ptr<Ship>& ship, const std::string& file_path,std::unique_ptr<Travel>* travel);
 int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const std::string& filePath);
-std::unique_ptr<Ship> extractArgsForShip(string &travelName,SimulatorObj &simulator);
+std::unique_ptr<Ship> extractArgsForShip(std::unique_ptr<Travel> &travel,SimulatorObj &simulator);
 pair<string,int> setBlocksByLine(std::string &str, std::unique_ptr<Ship> &ship,int lineNumber);
 void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str);
 int portAlreadyExist(std::vector<std::shared_ptr<Port>>& vec,string &str);

@@ -80,6 +80,7 @@ public:
     }
     ~Ship();
     std::tuple<int, int, int> getCoordinate(const Container& container);
+    std::tuple<int,int,int> getCoordinate(std::string& contName);
     std::vector<std::shared_ptr<Port>> getRoute();
     std::vector<std::vector<std::vector<Container>>>* getMap();
     std::shared_ptr<Port> getPortByName(const std::string &name);

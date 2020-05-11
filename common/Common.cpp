@@ -40,7 +40,6 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
     pair<string,string> idAndInstruction;
     map<string,list<string>> linesFromPortFile;
     int errorsCount = 0,instructionsCount = 0;
-//    int kg = 0; ex. 3
 
     cout << "before file opening" << endl;
     parseDataFromPortFile(linesFromPortFile, contAtPortPath);
@@ -57,11 +56,11 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
         /*if the below statement pass test, then we can execute instruction or if it's reject then do nothing as we need to reject*/
         if(validateInstruction(instruction, id, coordinates, simulator, linesFromPortFile, portNumber)){
             if(instruction == "R"){
-                linesFromPortFile[id].clear();
+                linesFromPortFile.erase(id);
                 continue;
             }
             coordinate one = std::tuple<int,int>(coordinates[0],coordinates[1]);
-            std::unique_ptr<Container> cont = std::make_unique<Container>(id);
+            std::unique_ptr<Container> cont = createContainer(simulator,linesFromPortFile,id,instruction,portName);
             if(instruction == "L") {
                 execute(simulator->getShip(), instruction.at(0), cont, one, std::forward_as_tuple(-1, -1), simulator->getPort());
             }
@@ -75,7 +74,7 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
                 cont.reset(nullptr);
             }
             instructionsCount++;
-            linesFromPortFile[id].clear();
+            linesFromPortFile.erase(id);
         }
         else{
             currAlgErrors.emplace_back(ERROR_CONTLINEINSTRUCTION(portName,visitNumber,instruction));
@@ -99,7 +98,6 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
  */
 void extractCraneInstruction(string &toParse, std::pair<string,string> &instruction, vector<int> &coordinates){
     auto parsedInfo = stringSplit(toParse,delim);
-
     for(int i = 0; i < (int)parsedInfo.size(); i++){
         if(i == 0)
             std::get<0>(instruction) = parsedInfo.at(0);
@@ -122,12 +120,8 @@ void extractCraneInstruction(string &toParse, std::pair<string,string> &instruct
  */
 bool validateInstruction(string &instruction,string &id, vector<int> &coordinates,SimulatorObj* sim,std::map<string,list<string>>& portContainers,int portNum){
     bool isValid;
-    /*TODO problem here --> i try to get the kg of the container from the
-     * port containers raw data but if unload operation then container id won;t appear here it will crash.
-     * furthermore, if it's load operation of container that the algorithm just unloaded then it also won't appear here,
-     * and then at the load operation i won't able to know what is the weight*/
-    //auto parsedInfo = stringSplit(portContainers.at(id).front(),delim);
-    int kg = 1;
+    int kg = extractKgToValidate(portContainers,sim,id);
+    std::cout << "id " + id + " inst " + instruction << " kg found " << kg << endl; //TODO DELETE
     if(instruction == "L"){
         isValid =  validateLoadInstruction(coordinates, sim,kg);
     }
@@ -135,7 +129,7 @@ bool validateInstruction(string &instruction,string &id, vector<int> &coordinate
         isValid =  validateUnloadInstruction(coordinates, sim);
     }
     else if(instruction == "R"){
-        isValid = validateRejectInstruction(portContainers, id, sim, portNum);
+        isValid = validateRejectInstruction(portContainers, id, sim, portNum,kg);
     }
     else {
         isValid = validateMoveInstruction(coordinates, sim);
@@ -152,25 +146,39 @@ bool validateInstruction(string &instruction,string &id, vector<int> &coordinate
  * @param portNum - the current port number
  * @return true iff one of the tests failes
  */
-bool validateRejectInstruction(std::map<string,list<string>>& portContainers, string& id,SimulatorObj* sim,int portNum){
-    string line = portContainers[id].front();
-    auto parsedInfo = stringSplit(line,delim);
+bool validateRejectInstruction(map<string,list<string>>& portContainers, string& id,SimulatorObj* sim,int portNum,int kg){
+    string line;
     auto &ship = sim->getShip();
-    string portName = parsedInfo.at(2);
-//    int kg = 0; ex.3
-    VALIDATION reason = VALIDATION::Valid;/*might be used in exercise 2 to be more specific*/
-//    if(isValidInteger(parsedInfo.at(1)))
-//        kg = atoi(parsedInfo.at(1).data());
+    cout << "in reject " << id << endl; //TODO DELETE
+    VALIDATION reason = VALIDATION::Valid;
+    string portName = extractPortNameToValidate(portContainers,sim,id);
+    std::tuple<int,int,int> tup = sim->getShip()->getCoordinate(id);
+    if(portContainers.find(id) != portContainers.end()){
+        line = portContainers[id].front();
+    }
+    /*Case the data is not validate*/
+    if(!line.empty() && !validateContainerData(line,reason,id,ship))
+        return true;
+    /*Case there is a container with same id on the ship already then suppose to reject the container awaiting at port*/
+    if(!line.empty() && std::get<0>(tup) >= 0)
+        return true;
+    /*Case the dest of the container equals is the src*/
+    if(ship->getRoute().at(portNum)->get_name() == portName)
+        return true;
+    /*Case the dest port is not in route*/
+    if(!isPortInRoute(portName,ship->getRoute(),portNum))
+        return true;
+    /*Case there is no free space in the ship map*/
+    if(ship->getFreeSpace() == 0)
+        return true;
+    /*Case there are 2 lines with the same id*/
+    if(portContainers[id].size() > 1)
+        return true;
+    /*Case there is an weight balance problem*/
+    if(checkIfBalanceWeightIssue(sim,kg,tup))
+        return true;
 
-    bool test1 = !validateContainerData(line,reason,id,ship);
-    bool test3 = (ship->getRoute().at(portNum)->get_name() == portName);
-    bool test2 = !isPortInRoute(portName,ship->getRoute(),portNum);
-    bool test4 = ship->getFreeSpace() == 0; /*if != 0 that means this test didn't passed --> reject at this test failed*/
-    bool test5 = portContainers[id].size() > 1; /*case there are 2 lines with same id*/
-    //bool test6 = BalanceStatus ::APPROVED != sim->getCalc().tryOperation('L',kg,-1,-1);
-    //TODO test 6 not good, as it need to be load operation but it doesn't check all options!!!
-    /*if one of the test fails, that means --> that reject at this instruction is necessary*/
-    return (test1 || test2 || test3 || test4 || test5);
+    return false;
 }
 
 /**
@@ -207,7 +215,7 @@ bool validateUnloadInstruction(vector<int> &coordinates,SimulatorObj* sim){
     if((int)(map).at(x).at(y).size() != z+1) return false;
     /*Check if the container at x,y,z is block container*/
     if((map).at(x).at(y).at(z).getId() == "block") return false;
-    /*Check if weight balance is approved*/
+        /*Check if weight balance is approved*/
     else {
         int kg = map.at(x).at(y).at(z).getWeight();
         return sim->getCalc().tryOperation('U', kg, x, y) == APPROVED;
@@ -224,7 +232,6 @@ bool validateUnloadInstruction(vector<int> &coordinates,SimulatorObj* sim){
 bool validateMoveInstruction(vector<int> &coordinates, SimulatorObj* sim){
     int x1 = coordinates[0],y1 = coordinates[1],z1 = coordinates[2];
     int x2 = coordinates[3],y2 = coordinates[4],z2 = coordinates[5];
-    std::tuple<bool,bool> tup(true,true);
     auto &map = *(sim->getShip()->getMap());
     int kg = 0;
     /*Check if the position of z axis is out of bounds*/
@@ -394,7 +401,7 @@ bool isPortInRoute(const std::string& portName, const std::vector<std::shared_pt
  * @param ship
  * @param inFile
  */
-int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,list<string> &generalErrors) {
+int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,std::unique_ptr<Travel>* travel) {
     std::unique_ptr<std::vector<std::shared_ptr<Port>>> vec = std::make_unique<std::vector<std::shared_ptr<Port>>>();
     string line;
     std::ifstream inFile;
@@ -414,7 +421,7 @@ int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,
                     line = line.substr(0, line.length() - 1);
                 }
                 if(vec->size() > 0 && vec->at(vec->size()-1) && vec->at(vec->size()-1)->get_name() == line){
-                    generalErrors.emplace_back(ERROR_PORTTWICE(line));
+                    (*travel)->setNewGeneralError(ERROR_PORTTWICE(line));
                     temporalStatement = Route_PortTwice;
                 }
                 else if (!portAlreadyExist(*vec, line)) {
@@ -442,7 +449,7 @@ int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,
  */
 int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath){
     list<string> tempListForAlg;
-    return extractTravelRoute(ship, filePath, tempListForAlg);
+    return extractTravelRoute(ship, filePath, nullptr);
 }
 
 
@@ -479,9 +486,9 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
     std::string line;
     std::ifstream input;
 
-    if(inputFullPathAndFileName == "") return true;
-    input.open(inputFullPathAndFileName);
+    if(inputFullPathAndFileName.empty()) return true;
 
+    input.open(inputFullPathAndFileName);
     if(input.fail()){
         P_ERROR_READPATH(inputFullPathAndFileName);
         return false;
@@ -618,4 +625,121 @@ void updateErrorNum(int* currError,int newError){
 
 bool isValidInteger(const string str){
     return std::regex_match(str, std::regex("[(-|+)|]*[0-9]+"));
+}
+
+int extractKgToValidate(map<string,list<string>>& rawData,SimulatorObj* sim,string& id){
+    vector<string> parsedInfo;
+    int kg = -1;
+    bool found = false;
+    if(rawData.find(id) != rawData.end()){
+        cout << "in first if " << endl;
+        parsedInfo = stringSplit(rawData[id].front(),delim);
+        if(isValidInteger(parsedInfo.at(1))){
+            kg = atoi(parsedInfo.at(1).data());
+        }
+    } else if(1){
+        for(auto &cont : *(sim->getPort()->getContainerVec(Type::PRIORITY))){
+            if(cont.getId() == id){
+                cout << "in else " << id << endl;
+                kg = cont.getWeight();
+                found = true;
+            }
+        }
+    }
+    if(!found){
+        for(auto &vX : *(sim->getShip()->getMap()))
+            for(auto &vY : vX)
+                for(auto &cont : vY)
+                    if(cont.getId() == id){
+                        kg = cont.getWeight();
+                        cout << "in last if " << id  << "KG " << kg << endl;
+                    }
+    }
+    return kg;
+}
+
+string extractPortNameToValidate(map<string,list<string>>& rawData,SimulatorObj* sim,string& id){
+    vector<string> parsedInfo;
+    string portName;
+    if(rawData.find(id) != rawData.end()){
+        parsedInfo = stringSplit(rawData.find(id)->second.front(),delim);
+        portName = parsedInfo.at(2);
+    } else{
+        for(auto &cont : *(sim->getPort()->getContainerVec(Type::PRIORITY))){
+            if(cont.getId() == id){
+                portName = cont.getDest()->get_name();
+            }
+        }
+    }
+    return portName;
+}
+
+
+/**
+ * This function creates a container based on instruction
+ * @param sim - current simulator
+ * @param rawData - map id --> container at port line
+ * @param id - the container id we wish to create object
+ * @param instruction - Load\Unload --> L\U
+ * @param srcPortName - the source of the container
+ * @return container.
+ */
+std::unique_ptr<Container> createContainer(SimulatorObj* sim,map<string,list<string>> &rawData,string& id, string& instruction,string& srcPortName) {
+    vector<string> parsedInfo;
+    std::unique_ptr<Container> cont;
+    if (instruction == "L") {
+        auto srcPort = (sim->getShip()->getPortByName(srcPortName));
+        /*Case we load container exists in the raw Data*/
+        if (rawData.find(id) != rawData.end()) {
+            parsedInfo = stringSplit(rawData[id].front(), delim);
+            auto dstPort = (sim->getShip()->getPortByName(parsedInfo[2]));
+            int kg = atoi(parsedInfo[1].data());
+            cont = std::make_unique<Container>(id, kg, dstPort, srcPort);
+        }
+            /*Case we load container that unloaded before and now loaded*/
+        else {
+            for (auto &container : *sim->getPort()->getContainerVec(Type::PRIORITY))
+                if (container.getId() == id) {
+                    cont = std::make_unique<Container>(container.getId(), container.getWeight(), container.getDest(),
+                                                       srcPort);
+                }
+
+        }
+    }
+    if(instruction == "U"){
+        std::tuple<int,int,int> tup = sim->getShip()->getCoordinate(id);
+        if(std::get<0>(tup) == -1 || std::get<1>(tup) == -1 || std::get<2>(tup) == -1)
+            return nullptr;
+        auto srcPort = (sim->getShip()->getPortByName(srcPortName));
+        auto &container = (*sim->getShip()->getMap())[std::get<0>(tup)][std::get<1>(tup)][std::get<2>(tup)];
+        cont = std::make_unique<Container>(container.getId(),container.getWeight(),container.getDest(),srcPort);
+    }
+
+    return cont;
+}
+
+/**
+ * This function checks a reject instruction happened because of weight issue
+ * if coordinates(x,y,z) are != -1 then --> container is on ship so we want to unload this
+ * else container is on port and we want to load it
+ * @param sim
+ * @param kg
+ * @param coordinates
+ * @return true iff the simulator varified ship will be imabalanced if we load/unload
+ */
+bool checkIfBalanceWeightIssue(SimulatorObj* sim, int kg,std::tuple<int,int,int> &coordinates){
+    if(std::get<0>(coordinates) >= 0){
+        return sim->getCalc().tryOperation('U',kg,std::get<0>(coordinates),std::get<1>(coordinates)) != BalanceStatus::APPROVED;
+    }
+    else{
+        for(int i = 0; i < sim->getShip()->getAxis("x"); i++){
+            for(int j = 0; j < sim->getShip()->getAxis("y"); j++){
+                if((int)sim->getShip()->getMap()[i][j].size() < sim->getShip()->getAxis("z"))
+                    if(sim->getCalc().tryOperation('L',kg,i,j) == BalanceStatus::APPROVED)
+                        /*Found a position that the container can be loaded at*/
+                        return false;
+            }
+        }
+    }
+    return true;
 }
