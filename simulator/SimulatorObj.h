@@ -3,6 +3,7 @@
 #define SIMULATOROBJ_H
 
 class Common;
+class SimulatorValidation;
 
 #include <string>
 #include <vector>
@@ -16,6 +17,8 @@ class Common;
 #include <algorithm>
 #include "../interfaces/WeightBalanceCalculator.h"
 #include "Travel.h"
+#include "SimulatorValidation.h"
+
 
 
 #if defined(WIN32) || defined(_WIN32)

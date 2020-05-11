@@ -245,7 +245,7 @@ std::unique_ptr<Ship> extractArgsForShip(std::unique_ptr<Travel> &travel,Simulat
  * @param map - the given map to save instruction by port id
  * @param inputPath - the input path of the port file
  */
-void parseDataFromPortFile(std::map<string,list<string>>& map, string& inputPath){
+void extractRawDataFromPortFile(std::map<string,list<string>>& map, string& inputPath){
     std::ifstream inFile;
     string line;
     inFile.open(inputPath);
@@ -281,3 +281,46 @@ void parseDataFromPortFile(std::map<string,list<string>>& map, string& inputPath
     portName->append(filePath.substr(filePath.size() - i+1,j-i));
     return portName;
 }*/
+
+/**
+ * Parses the containers data and connecting it to the "load" list of the port
+ * @param input_full_path_and_file_name
+ */
+bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream &output,
+                     std::unique_ptr<Ship>& ship, std::shared_ptr<Port>& port) {
+    std::string line;
+    std::ifstream input;
+
+    if(inputFullPathAndFileName.empty()) return true;
+
+    input.open(inputFullPathAndFileName);
+    if(input.fail()){
+        P_ERROR_READPATH(inputFullPathAndFileName);
+        return false;
+    }
+
+    while(getline(input,line)){
+        if(isCommentLine(line)) continue; //comment symbol
+        std::string id; int weight;
+        std::shared_ptr<Port> dest;
+        VALIDATION reason = VALIDATION::Valid;
+        if(validateContainerData(line, reason, id, ship)) {
+            extractContainersData(line, id, weight, dest, ship);
+            if(dest != nullptr && !(*dest == *port) && dest->get_name() != "NOT_IN_ROUTE") {
+                std::unique_ptr<Container> con = std::make_unique<Container>(id, weight,port, dest);
+                port->addContainer(*con, Type::LOAD);
+            }
+            else {
+                std::cout << id << ": "<< CONTAINER_NOT_IN_ROUTE << std::endl;
+                writeToOutput(output,AbstractAlgorithm::Action::REJECT, id);
+            }
+        }
+        else {
+            if(reason != VALIDATION::Valid){
+                writeToOutput(output, AbstractAlgorithm::Action::REJECT, id);
+            }
+        }
+    }
+    input.close();
+    return true;
+}
