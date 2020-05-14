@@ -25,6 +25,7 @@ bool Port::operator==(const Port& p){
 Port::~Port(){
     unload.clear();
     load.clear();
+    priority.clear();
     arrived.clear();
 }
 

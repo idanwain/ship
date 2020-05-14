@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(myShip)
+project(ship1)
 
 set(CMAKE_CXX_STANDARD 17)
 set(GCC_COVERAGE_COMPILE_FLAGS "-std=c++2a -Wall -Wextra -pedantic-errors -DNDEBUG -fPIC")
@@ -8,7 +8,7 @@ set(GCC_COVERAGE_LINK_FLAGS    "-lstdc++fs -shared -ldl -export-dynamic")
 add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
 
 add_executable(
-        myShip
+        ship1
         simulator/main.cpp
         common/Container.cpp                    common/Container.h
         common/Port.cpp                         common/Port.h

@@ -100,12 +100,14 @@ void Ship::updateFreeSpace(int num){
 }
 
 Ship::~Ship() {
+
     for(std::vector<std::vector<Container>> &mat : this->shipMap) {
         for (std::vector<Container> &vec : mat) {
             vec.clear();
         }
         mat.clear();
     }
+
     //shared_ptr will delete themselves
 //    for(auto iter = containersByPort.begin(); iter != containersByPort.end(); ++iter) {
 //        Port *port = iter->first;
