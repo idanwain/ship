@@ -48,7 +48,7 @@ class SimulatorObj;
 
 #define NUM_OF_ERRORS 19
 
-/*----------------------common Error Codes-------------------*/
+/*----------------------Common Error Codes-------------------*/
 #define Plan_ZError     (1 << 0) /*Error at ship plan Z axis*/
 #define Plan_XYError    (1 << 1) /*Error at ship plan xy axis*/
 #define Plan_BadLine    (1 << 2) /*Error bad line reading or duplicates*/
@@ -78,7 +78,7 @@ bool isValidShipMapFileName(const string& fileName);
 bool isValidShipRouteFileName(const string& fileName);
 bool isValidTravelName(const string& travelName);
 bool isValidPortName(const string& portName);
-bool isValidInteger(const string str);
+bool isValidInteger(const string& str);
 bool isCommentLine(const string& line);
 bool isValidId(const string& str);
 /*----------------------Extract functions-------------------*/
@@ -87,7 +87,7 @@ int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath)
 void extractContainersData(const std::string& line, std::string &id, int &weight, std::shared_ptr<Port>& dest, std::unique_ptr<Ship>& ship);
 void extractCraneInstruction(string &toParse, std::pair<string,string>& instruction, vector<int> &coordinates);
 /*----------------------Rest of the functions-------------------*/
-void execute(std::unique_ptr<Ship>& ship, char command,std::unique_ptr<Container>& container, coordinate origin, coordinate dest, std::shared_ptr<Port> port);
+void execute(std::unique_ptr<Ship>& ship, char command,std::unique_ptr<Container>& container, coordinate origin, coordinate dest, const std::shared_ptr<Port>& port);
 bool idExistOnShip(const string& id, std::unique_ptr<Ship>& ship);
 bool isPortInRoute(const string& portName, const vector<std::shared_ptr<Port>>& route, int portNum);
 vector<string> stringSplit(string s, const char* delimiter);

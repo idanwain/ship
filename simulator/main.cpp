@@ -87,7 +87,7 @@ void initPaths(int argc,char** argv){
     }
 
     if(mainTravelPath.empty()) {
-        ERROR_NOTRAVELPATH;
+        P_NOTRAVELPATH;
         exit(EXIT_FAILURE);
     }
 }
@@ -162,24 +162,20 @@ int main(int argc, char** argv) {
                 int errCode1 = alg.second->readShipPlan(travel->getPlanPath().string());
                 std::cout << "after readShipPlan" << std::endl;
                 int errCode2 = alg.second->readShipRoute(travel->getRoutePath().string());
+                errCode1 |= algCalc.readShipPlan(travel->getPlanPath().string());
                 std::cout << "after readShipRoute" << std::endl;
-                int errCode3 = algCalc.readShipPlan(travel->getPlanPath().string());
                 std::cout << "after readShipPlan calc" << std::endl;
                 alg.second->setWeightBalanceCalculator(algCalc);
-                simulator.updateArrayOfCodes(errCode1 + errCode2 + errCode3,"alg");
+                simulator.updateArrayOfCodes(errCode1 + errCode2,"alg");
                 simulator.setShipAndCalculator(mainShip, travel->getPlanPath().string());
                 simulator.runCurrentAlgorithm(alg,travel);
                 simulator.getShip().reset(nullptr);
-                std::cout << "in if statement end inner loop" << std::endl;
             }
         }
-        std::cout << "after if statement inner loop" << std::endl;
         simulator.prepareForNewTravel();
         mainShip.reset(nullptr);
         destroyAlgVec(algVec);
-        std::cout << "after if statement end inner loop" << std::endl;
     }
-    std::cerr << "before file creating" << endl;
     simulator.createResultsFile(mainTravelPath);
     simulator.createErrorsFile(mainTravelPath);
     destroySharedObjs(SharedObjs);

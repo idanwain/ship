@@ -17,7 +17,6 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
     map<string,list<string>> linesFromPortFile;
     int errorsCount = 0,instructionsCount = 0;
 
-    cout << "before file opening" << endl;
     extractRawDataFromPortFile(linesFromPortFile, contAtPortPath);
     instructionsFile.open(outputPath);
     if(instructionsFile.fail()) {
@@ -59,10 +58,16 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
         }
     }
     instructionsFile.close();
-    /*Final check, if there are any containers were on containers at port file that the algorithm didnt handle properly*/
-    if(errorsCount != -1 && portNumber != (int)simulator->getShip()->getRoute().size() - 1)
-        errorsCount = SimulatorObj::checkContainersDidntHandle(linesFromPortFile,currAlgErrors,portName,visitNumber);
+    /*Final checks*/
+    if(errorsCount != -1){
+        //simulator->sortContainersByPriority(portNumber);
+        errorsCount += checkIfContainersLeftOnPort(simulator,currAlgErrors);
+        errorsCount += checkForContainersNotUnloaded(simulator, currAlgErrors);
+        /*Final check, if there are any containers were on containers at port file that the algorithm didnt handle properly*/
+        if(portNumber != (int)simulator->getShip()->getRoute().size() - 1)
+            errorsCount += checkContainersDidntHandle(linesFromPortFile,currAlgErrors,portName,visitNumber);
 
+    }
     return {std::pair<int,int>(instructionsCount,errorsCount)};
 }
 
@@ -107,13 +112,12 @@ bool validateInstruction(string &instruction,string &id, vector<int> &coordinate
 bool validateRejectInstruction(map<string,list<string>>& portContainers, string& id,SimulatorObj* sim,int portNum,int kg){
     string line;
     auto &ship = sim->getShip();
-    cout << "in reject " << id << endl; //TODO DELETE
     VALIDATION reason = VALIDATION::Valid;
     string portName = extractPortNameToValidate(portContainers,sim,id);
     std::tuple<int,int,int> tup = sim->getShip()->getCoordinate(id);
-    if(portContainers.find(id) != portContainers.end()){
+
+    if(portContainers.find(id) != portContainers.end())
         line = portContainers[id].front();
-    }
     /*Case the data is not validate*/
     if(!line.empty() && !validateContainerData(line,reason,id,ship))
         return true;
@@ -207,7 +211,7 @@ bool validateMoveInstruction(vector<int> &coordinates, SimulatorObj* sim){
  * @param sim
  * @param kg
  * @param coordinates
- * @return true iff the simulator varified ship will be imabalanced if we load/unload
+ * @return true iff the simulator verified ship will be imbalanced if we load/unload
  */
 bool checkIfBalanceWeightIssue(SimulatorObj* sim, int kg,std::tuple<int,int,int> &coordinates){
     if(std::get<0>(coordinates) >= 0){
@@ -230,28 +234,29 @@ int extractKgToValidate(map<string,list<string>>& rawData,SimulatorObj* sim,stri
     vector<string> parsedInfo;
     int kg = -1;
     bool found = false;
+    /*Check if container id exist in the container at port file*/
     if(rawData.find(id) != rawData.end()){
-        cout << "in first if " << endl;
         parsedInfo = stringSplit(rawData[id].front(),delim);
         if(isValidInteger(parsedInfo.at(1))){
             kg = atoi(parsedInfo.at(1).data());
         }
-    } else if(1){
+    }
+    /*Check is container exist in the priority list --> it was on ship and algorithm unloaded it*/
+    else{
         for(auto &cont : *(sim->getPort()->getContainerVec(Type::PRIORITY))){
             if(cont.getId() == id){
-                cout << "in else " << id << endl;
                 kg = cont.getWeight();
                 found = true;
             }
         }
     }
+    /*Check if container is on ship map --> case we extract kg to unload operation*/
     if(!found){
         for(auto &vX : *(sim->getShip()->getMap()))
             for(auto &vY : vX)
                 for(auto &cont : vY)
                     if(cont.getId() == id){
                         kg = cont.getWeight();
-                        cout << "in last if " << id  << "KG " << kg << endl;
                     }
     }
     return kg;
@@ -272,4 +277,58 @@ string extractPortNameToValidate(map<string,list<string>>& rawData,SimulatorObj*
     }
     return portName;
 }
+
+bool checkContainerPriority(SimulatorObj* sim,std::tuple<int,int,int> &coord,string& id){
+
+}
+
+int checkContainersDidntHandle(map<string, list<string>> &idAndRawLine,list<string> &currAlgErrors,string &portName,int visitNum) {
+    int err = 0;
+    for(auto& idInstruction : idAndRawLine){
+        if(!idInstruction.second.empty()){
+            currAlgErrors.emplace_back(ERROR_IDNOTHANDLE(idInstruction.second.front(),portName,visitNum));
+            err= -1;
+        }
+    }
+    return err;
+}
+
+
+int checkIfContainersLeftOnPort(SimulatorObj* sim , list<string> &currAlgErrors){
+    auto currPort = sim->getPort();
+    string currPortName = currPort->get_name();
+    int err = 0;
+    for(auto &cont : *currPort->getContainerVec(Type::PRIORITY)){
+        err = -1;
+        string id = cont.getId();
+        string dstPortName = cont.getDest()->get_name();
+        currAlgErrors.emplace_back(ERROR_CONTNOTINDEST(id,currPortName,dstPortName));
+    }
+    return err;
+}
+
+/**
+ * This function iterates over the current ship map and checks if
+ * at the end of this port stop we have containers left on ship map such that for container x
+ * that left on ship it's destination is this port stop but it didnt unloaded.
+ * @param sim
+ * @param currAlgErrors
+ * @return -1 iff there exist at least 1 container
+ */
+int checkForContainersNotUnloaded(SimulatorObj* sim, list<string> &currAlgErrors){
+    auto currPort = sim->getPort();
+    auto &shipMap = *sim->getShip()->getMap();
+    int err = 0;
+    for(auto& vX : shipMap)
+        for(auto& vY : vX)
+            for(auto& cont : vY)
+                if(cont.getDest()->get_name() == currPort->get_name()) {
+                    currAlgErrors.emplace_back(ERROR_CONTLEFTONSHIP(cont.getId()));
+                    err = -1;
+                }
+
+    return err;
+}
+
+
 

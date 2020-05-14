@@ -188,7 +188,7 @@ int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship){
         if(dimensions[0] < 0 || dimensions[1] < 0 || dimensions[2] < 0) {
             returnStatement = Plan_Fatal;
         } else {
-            ship = std::make_unique<Ship>(dimensions[1]+1, dimensions[2]+1, dimensions[0]+1);
+            ship = std::make_unique<Ship>(dimensions[1], dimensions[2], dimensions[0]);
         }
     }
 
@@ -272,20 +272,6 @@ void extractRawDataFromPortFile(std::map<string,list<string>>& map, string& inpu
     inFile.close();
 }
 
-//This function saved to usage in exercise 2
-/*string* getPortNameFromFile(string filePath){
-    string* portName = new string();
-    int i = 0,j;
-    for(i = filePath.size()-1; i > 0; i--){
-        if(filePath.at(i) == '_'){
-            j = i;
-        }
-        if(filePath.at(i) == '\\')
-            break;
-    }
-    portName->append(filePath.substr(filePath.size() - i+1,j-i));
-    return portName;
-}*/
 
 /**
  * Parses the containers data and connecting it to the "load" list of the port

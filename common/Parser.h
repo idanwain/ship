@@ -42,10 +42,6 @@ using std::map;
 namespace fs = std::filesystem;
 
 #define CONTAINER_NOT_IN_ROUTE "This container's destination is not in the ship's route"
-#define FAIL_TO_READ_PATH "Failed to read from this file path "
-#define ROUTE "route"
-#define PLAN "plan"
-
 
 int extractPortNumFromFile(const string& fileName);
 int extractArgsForBlocks(std::unique_ptr<Ship>& ship, const std::string& file_path,std::unique_ptr<Travel>* travel);
@@ -59,6 +55,5 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
                      std::unique_ptr<Ship>& ship, std::shared_ptr<Port>& port);
 int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship);
 string extractPortNameFromFile(const string& fileName);
-//string* getPortNameFromFile(string &filePath);
 
 #endif

@@ -27,9 +27,11 @@
 
 /*----------------------PRINT TO CONSOLE-------------------*/
 #define P_ERROR_READPATH(x)     std::cerr << "Failed to read from this file path " << x << std::endl;
-#define P_NORESULTFILE          std::cout << "No results found, simulation.results file won't be created" << std::endl;
+#define P_NORESULTFILE          std::cout << "No results, simulation.results file won't be created" << std::endl;
 #define P_NOERRORFILE           std::cout << "No errors found, simulation.errors file won't be created" << std::endl;
-#define P_ALGNOTREGISTER(x)     std::cerr << "Error: algorithm: " << x << " didn't register, ignoring this algorithm" << std::endl;
+#define P_NOTRAVELPATH          std::cerr <<  "Error: No travel path received, exiting program..." << endl;
+#define P_ERRORSFILE            std::cerr <<  "Error: failed to create errors file" << std::endl;
+#define P_RESULTSFILE           std::cerr <<  "Error: failed to create results file" << std::endl;
 
 
 
@@ -42,11 +44,12 @@
 #define TRAVEL_SINGLEPORT                       "Error: algorithm indicates there's a 0 or 1 ports in route file --> simulator rejects"
 #define NO_CARGO_TOLOAD(x,y)                    "Error: algorithm indicates there's no cargo to load at port " + x + " visit number " + toString(y) + " --> simulator rejects"
 #define ERROR_IDNOTHANDLE(x,y,z)                "Error: algorithm didn't handled this cargo_data line: " + x +" at port " + y + " visit number " + toString(z)
-
-/*----------------------simulator Errors-------------------*/
-#define ERROR_RESULTSFILE       std::cerr << "Error: failed to create results file" << std::endl;
-#define ERROR_ERRORSFILE        std::cerr << "Error: failed to create errors file" << std::endl;
-#define ERROR_NOTDIRECTORY(x,y) std::cerr << "Error: "  << x.path().filename().string()  << y << std::endl;
-#define ERROR_NOTRAVELPATH      std::cerr << "Error: No travel path received, exiting program..." << endl;
+#define ERROR_CONTNOTINDEST(x,y,z)              "Error: container " + x + " left at port " + y + " but it's destination " + z
+#define ERROR_CONTLEFTONSHIP(x)                 "Error: container " + x + " left on ship, after stopping at it's destination port"
+/*----------------------Simulator Errors-------------------*/
+#define ERROR_NOTDIRECTORY(x,y)                 "Error: " + x.path().filename().string() + y
+#define ERROR_TRAVELNAME(x)                     "Error: " + x + " is not a valid travel name,ignoring"
+#define ERROR_INVALIDFILE(x)                    "Error: " + x + " is not a valid route/port/ship plan file, ignoring"
+#define P_ALGNOTREGISTER(x)                     "Error: algorithm: " + x + " didn't register, ignoring this algorithm"
 
 
