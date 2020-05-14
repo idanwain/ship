@@ -130,11 +130,13 @@ void _313263204_a::initContainersDistance(std::vector<Container> &vector) {
 }
 
 int _313263204_a::readShipPlan(const std::string& full_path_and_file_name){
+    std::cout << "readShipPlan" << std::endl;
     return extractShipPlan(full_path_and_file_name, this->pShip) ||
         extractArgsForBlocks(this->pShip, full_path_and_file_name);
 }
 
 int _313263204_a::readShipRoute(const std::string& full_path_and_file_name) {
+    std::cout << "readShipRoute" << std::endl;
     return extractTravelRoute(pShip, full_path_and_file_name);
 }
 

@@ -132,6 +132,7 @@ pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lin
  * @return 0 if succeeded, specified return code otherwise.
  */
 int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const string& filePath, list<string> &generalErrors){
+    std::cout << "extractArgsForBlocks start" << std::endl;
     string line;
     int lineNumber = 2, returnStatement = 0,num;
     std::ifstream inFile;
@@ -157,6 +158,8 @@ int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const string& filePath, lis
         }
     }
     inFile.close();
+    std::cout << "extractArgsForBlocks end" << std::endl;
+
     return returnStatement;
 }
 
@@ -169,6 +172,7 @@ int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const std::string& filePath
 }
 
 int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship){
+    std::cout << "extractShipPlan start" << std::endl;
     std::array<int, 3> dimensions{};
     std::ifstream inFile;
     int returnStatement = 0;
@@ -188,6 +192,7 @@ int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship){
     }
 
     inFile.close();
+    std::cout << "extractShipPlan end" << std::endl;
     return returnStatement;
 }
 

@@ -394,6 +394,8 @@ bool isPortInRoute(const std::string& portName, const std::vector<std::shared_pt
  * @param inFile
  */
 int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,list<string> &generalErrors) {
+    std::cout << "start readShipRoute" << std::endl;
+
     std::unique_ptr<std::vector<std::shared_ptr<Port>>> vec = std::make_unique<std::vector<std::shared_ptr<Port>>>();
     string line;
     std::ifstream inFile;
@@ -433,6 +435,7 @@ int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,
     }
 
     inFile.close();
+    std::cout << "end readShipRoute" << std::endl;
     return returnStatement;
 }
 

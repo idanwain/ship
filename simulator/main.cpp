@@ -140,15 +140,19 @@ int main(int argc, char** argv) {
     initPaths(argc,argv);
     SimulatorObj simulator(mainTravelPath,mainOutputPath);
     getAlgSoFiles(algPaths);
+    std::cout << "before open so" << std::endl;
     dynamicLoadSoFiles(algPaths, SharedObjs, map);
+
 
     /*Cartesian Loop*/
     for (auto &travel_folder : simulator.getTravels()) {
         initAlgorithmList(algVec, map);
         string currTravelName = travel_folder.first;
         std::unique_ptr<Ship> mainShip = extractArgsForShip(currTravelName,simulator);
+        std::cout << "in main loop" << std::endl;
         if(mainShip != nullptr){
             for (auto &alg : algVec) {
+                std::cout << "start inner loop" << std::endl;
                 WeightBalanceCalculator algCalc;
                 int errCode1 = alg.second->readShipPlan(travel_folder.second.at(PLAN).at(1).string());
                 int errCode2 = alg.second->readShipRoute(travel_folder.second.at(ROUTE).at(1).string());
@@ -158,13 +162,17 @@ int main(int argc, char** argv) {
                 simulator.setShipAndCalculator(mainShip,travel_folder.second.at(PLAN).at(1).string());
                 simulator.runCurrentAlgorithm(alg,currTravelName);
                 simulator.getShip().reset(nullptr);
+                std::cout << "in if statement end inner loop" << std::endl;
             }
         }
+        std::cout << "after if statement inner loop" << std::endl;
         simulator.addOutputInfo(currTravelName);
         simulator.prepareForNewTravel();
         mainShip.reset(nullptr);
         destroyAlgVec(algVec);
+        std::cout << "after if statement end inner loop" << std::endl;
     }
+    std::cerr << "before file creating" << endl;
     simulator.createResultsFile(mainTravelPath);
     simulator.createErrorsFile(mainTravelPath);
     destroySharedObjs(SharedObjs);

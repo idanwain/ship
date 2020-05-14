@@ -8,9 +8,9 @@ CPP_LINK_FLAG = -lstdc++fs -shared
 
 all: $(SHARED_OBJS)
 
-_313263204_a.so: _313263204_a.o
+_313263204_a.so: _313263204_a.o $(COMMONDIR)/Ship.o $(COMMONDIR)/Container.o $(COMMONDIR)/Port.o $(COMMONDIR)/Common.o $(COMMONDIR)/Parser.o $(COMMONDIR)/WeightBalanceCalculator.o
 	$(COMP) $(CPP_LINK_FLAG) -o $@ $^
-_313263204_b.so: _313263204_b.o
+_313263204_b.so: _313263204_b.o $(COMMONDIR)/Ship.o $(COMMONDIR)/Container.o $(COMMONDIR)/Port.o $(COMMONDIR)/Common.o $(COMMONDIR)/Parser.o $(COMMONDIR)/WeightBalanceCalculator.o
 	$(COMP) $(CPP_LINK_FLAG) -o $@ $^
 
 _313263204_a.o: _313263204_a.cpp _313263204_a.h
