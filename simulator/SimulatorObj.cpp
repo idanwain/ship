@@ -452,3 +452,24 @@ void SimulatorObj::addGeneralError(const string &msg) {
     generalErrors.emplace_back(msg);
 }
 
+void SimulatorObj::sortContainersByPriority(int portNumber){
+    auto routeVec = this->getShip()->getRoute();
+    auto priorityVec = this->getPort()->getContainerVec(Type::PRIORITY);
+    map<string,int> portNamePriority;
+    for(int i = portNumber+1; i < (int)routeVec.size(); i++){
+        if(portNamePriority.find((*routeVec[i]).get_name()) == portNamePriority.end())
+            portNamePriority.insert({routeVec[i]->get_name(),i});
+    }
+    std::sort(priorityVec->begin(),priorityVec->end(),[&portNamePriority](Container& cont1,Container& cont2) -> bool
+    {
+        string cont1PortDst = cont1.getDest()->get_name();
+        string cont2PortDst = cont2.getDest()->get_name();
+        if(portNamePriority.find(cont1PortDst) == portNamePriority.end())
+            portNamePriority.insert({cont1PortDst,INT_MAX});
+        if(portNamePriority.find(cont2PortDst) == portNamePriority.end())
+            portNamePriority.insert({cont2PortDst,INT_MAX});
+        return portNamePriority[cont1PortDst] < portNamePriority[cont2PortDst];
+
+    });
+
+}

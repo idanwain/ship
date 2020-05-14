@@ -8,7 +8,7 @@
  * @param origin
  * @param dest
  */
-void execute(std::unique_ptr<Ship>& ship, char command, std::unique_ptr<Container>& container, coordinate origin, coordinate dest, std::shared_ptr<Port> port) {
+void execute(std::unique_ptr<Ship>& ship, char command, std::unique_ptr<Container>& container, coordinate origin, coordinate dest, const std::shared_ptr<Port>& port) {
     switch (command) {
         case 'L':
             ship->addContainer(*container, origin);
@@ -155,7 +155,7 @@ bool isValidId(const std::string& str) {
     map<char,int> numericalValues;
     char curr;
     int value = 0,sumDigits = 0, checkDigit = 0;
-    /*Following ISO requierments*/
+    /*Following ISO requirements*/
     if(std::regex_match(str, reg)){
         /*Init map*/
         for(int i = 0,j = 0; i < 27; i++,j++){
@@ -169,8 +169,9 @@ bool isValidId(const std::string& str) {
         for(int i = 0; i < (int)str.length()-1; i++){
             if(i < 4)
                 value = numericalValues[str.at(i)];
-             else
-                 value = str.at(i) - 48;
+             else {
+                value = str.at(i) - 48;
+            }
              sumDigits += (value * (1 << i));
         }
         value = sumDigits / 11;
@@ -383,7 +384,7 @@ bool isValidTravelName(const string& travelName){
  * over the current port and transform this number into bit number, if bit at index i is 1 then there's an error
  * and array at index length() - i will get the value true as there's an error.
  * @param arr - the given array
- * @param num - the number returned from the algortihm run
+ * @param num - the number returned from the algorithm run
  */
 void initArrayOfErrors(std::array<bool,NUM_OF_ERRORS> &arr,int num){
     string binary = std::bitset<NUM_OF_ERRORS>(num).to_string();
@@ -411,7 +412,7 @@ void updateErrorNum(int* currError,int newError){
     }
 }
 
-bool isValidInteger(const std::string str){
+bool isValidInteger(const std::string& str){
     return std::regex_match(str, std::regex("[-|+]*[0-9]+"));
 }
 

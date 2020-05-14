@@ -69,6 +69,7 @@ public:
     void compareFatalAlgErrsAndSimErrs(list<string> &simCurrAlgErrors);
     void compareIgnoredAlgErrsVsSimErrs(string &portName, int visitNumber, list<string> &simCurrAlgErrors);
     void initOutputMap(map<string,map<string,pair<int,int>>>& outputMap);
+    void sortContainersByPriority(int portNumber);
     bool isResultsEmpty();
     bool isErrorsEmpty();
     WeightBalanceCalculator getCalc();

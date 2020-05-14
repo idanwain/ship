@@ -267,20 +267,6 @@ void extractRawDataFromPortFile(std::map<string,list<string>>& map, string& inpu
     inFile.close();
 }
 
-//This function saved to usage in exercise 2
-/*string* getPortNameFromFile(string filePath){
-    string* portName = new string();
-    int i = 0,j;
-    for(i = filePath.size()-1; i > 0; i--){
-        if(filePath.at(i) == '_'){
-            j = i;
-        }
-        if(filePath.at(i) == '\\')
-            break;
-    }
-    portName->append(filePath.substr(filePath.size() - i+1,j-i));
-    return portName;
-}*/
 
 /**
  * Parses the containers data and connecting it to the "load" list of the port

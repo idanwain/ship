@@ -60,6 +60,7 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
     instructionsFile.close();
     /*Final checks*/
     if(errorsCount != -1){
+        //simulator->sortContainersByPriority(portNumber);
         errorsCount += checkIfContainersLeftOnPort(simulator,currAlgErrors);
         errorsCount += checkForContainersNotUnloaded(simulator, currAlgErrors);
         /*Final check, if there are any containers were on containers at port file that the algorithm didnt handle properly*/
@@ -291,6 +292,7 @@ int checkContainersDidntHandle(map<string, list<string>> &idAndRawLine,list<stri
     }
     return err;
 }
+
 
 int checkIfContainersLeftOnPort(SimulatorObj* sim , list<string> &currAlgErrors){
     auto currPort = sim->getPort();
