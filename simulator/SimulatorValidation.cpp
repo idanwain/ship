@@ -84,6 +84,7 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
  */
 bool validateInstruction(string &instruction,string &id, vector<int> &coordinates,SimulatorObj* sim,std::map<string,list<string>>& portContainers,int portNum){
     bool isValid;
+    std::cout << "before extractKgToValidate" << std::endl;
     int kg = extractKgToValidate(portContainers,sim,id);
     std::cout << "id " + id + " inst " + instruction << " kg found " << kg << endl; //TODO DELETE
     if(instruction == "L"){
@@ -159,7 +160,10 @@ bool validateLoadInstruction(vector<int> &coordinates,SimulatorObj* sim,int kg){
     /*Check if the position of z axis is out of bounds*/
     if((int)(*map).at(x).at(y).size() != z) return false;
     /*Check if the weight balance is approved*/
-    return sim->getCalc().tryOperation('L', kg, x, y) == APPROVED;
+    std::cout << "validateLoadInstruction: before tryOperation" << std::endl;
+    WeightBalanceCalculator calc = sim->getCalc();
+    std::cout << "calc address: " << &calc << std::endl;
+    return calc.tryOperation('L', kg, x, y) == APPROVED;
 }
 
 /**
@@ -319,7 +323,7 @@ int checkForContainersNotUnloaded(SimulatorObj* sim, list<string> &currAlgErrors
     for(auto& vX : shipMap)
         for(auto& vY : vX)
             for(auto& cont : vY)
-                if(cont.getDest()->get_name() == currPort->get_name()) {
+                if(cont.getDest() == currPort) {
                     currAlgErrors.emplace_back(ERROR_CONTLEFTONSHIP(cont.getId()));
                     err = -1;
                 }

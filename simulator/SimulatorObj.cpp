@@ -158,7 +158,7 @@ void SimulatorObj::createResultsFile(string path){
             sumInstructions += output_map[travelName][algName].first;
             sumErrors += output_map[travelName][algName].second;
         }
-        inFile << sumInstructions << comma << (sumErrors*-1) << '\n';
+//        inFile << sumInstructions << comma << (sumErrors*-1) << '\n';
         sumInstructions = 0;
         sumErrors = 0;
     }

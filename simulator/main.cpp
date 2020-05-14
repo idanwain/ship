@@ -45,7 +45,9 @@ string mainOutputPath = fs::current_path().string();
  * @param algList
  * @param ship
  */
-void initAlgorithmList(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algList, map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>>& map){
+//void initAlgorithmList(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algList, map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>>& map){
+void initAlgorithmList(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algList){
+
 //    for(auto &entry: map){
 //        algList.emplace_back(make_pair(entry.first,entry.second()));
 //    }
@@ -58,12 +60,13 @@ void initAlgorithmList(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &
  * This function iterate through the vector and delete each algorithm
  * @param algVec
  */
-void destroyAlgVec(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algVec){
-    for(auto& alg : algVec){
-        if(alg.second){
+void destroyAlgVec(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algVec) {
+    for (auto &alg : algVec) {
+        if (alg.second) {
             alg.second.release();
+        }
+        algVec.clear();
     }
-    algVec.clear();
 }
 
 
@@ -142,7 +145,7 @@ int main(int argc, char** argv) {
 
 //    map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>> map;
     vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec;
-    vector<std::unique_ptr<void, DlCloser>> SharedObjs;
+//    vector<std::unique_ptr<void, DlCloser>> SharedObjs;
     vector<fs::path> algPaths;
     initPaths(argc,argv);
     SimulatorObj simulator(mainTravelPath,mainOutputPath);
@@ -154,7 +157,8 @@ int main(int argc, char** argv) {
     /*Cartesian Loop*/
     for (auto &travel : simulator.getTravels()) {
         std::cout << "in main loop" << std::endl;
-        initAlgorithmList(algVec, map);
+        initAlgorithmList(algVec);
+//        initAlgorithmList(algVec, map);
         std::unique_ptr<Ship> mainShip = extractArgsForShip(travel,simulator);
         if(mainShip != nullptr){
             for (auto &alg : algVec) {
@@ -179,7 +183,7 @@ int main(int argc, char** argv) {
     }
     simulator.createResultsFile(mainTravelPath);
     simulator.createErrorsFile(mainTravelPath);
-    destroySharedObjs(SharedObjs);
+//    destroySharedObjs(SharedObjs);
     std::cerr << "IN MAIN LAST ROW" << endl;
     std::cerr << "NOTICE: this core dump happens only at the end of the program" << endl;
     return (EXIT_SUCCESS);
