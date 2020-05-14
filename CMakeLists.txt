@@ -13,7 +13,7 @@ add_executable(
         common/Container.cpp                    common/Container.h
         common/Port.cpp                         common/Port.h
         common/Ship.cpp                         common/Ship.h
-        interfaces/WeightBalanceCalculator.cpp interfaces/WeightBalanceCalculator.h
+        interfaces/WeightBalanceCalculator.cpp  interfaces/WeightBalanceCalculator.h
         common/Parser.cpp                       common/Parser.h
         common/Common.cpp                       common/Common.h
         interfaces/ErrorsInterface.h
@@ -23,5 +23,6 @@ add_executable(
         simulator/SimulatorObj.cpp              simulator/SimulatorObj.h
         simulator/AlgorithmRegistration.cpp     interfaces/AlgorithmRegistration.h
         simulator/AlgorithmFactoryRegistrar.cpp simulator/AlgorithmFactoryRegistrar.h
+        simulator/SimulatorValidation.cpp       simulator/SimulatorValidation.h
         simulator/Travel.cpp                    simulator/Travel.h
-        simulator/SimulatorValidation.cpp       simulator/SimulatorValidation.h)
+)

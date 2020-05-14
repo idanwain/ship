@@ -147,14 +147,18 @@ int _313263204_a::setWeightBalanceCalculator(WeightBalanceCalculator& calculator
 
 int _313263204_a::getInstructionsForCargo(const std::string& input_full_path_and_file_name,
                                           const std::string& output_full_path_and_file_name) {
+    std::cout << "getInstructionsForCargo start" << std::endl;
     if(portNum > static_cast<int>(pShip->getRoute().size())) portNum = 0;
     this->pPort = pShip->getRoute().at(portNum);
+    std::cout << "getInstructionsForCargo: after get route" << std::endl;
     std::ofstream output(output_full_path_and_file_name);
-    if(!parseDataToPort(input_full_path_and_file_name, output, pShip, pPort)){
-        std::cout << "CONTAINER_FILE_ERROR" << std::endl;
-        output.close();
-        return -1;
-    };
+    if(!input_full_path_and_file_name.empty()){
+        if(!parseDataToPort(input_full_path_and_file_name, output, pShip, pPort)){
+            output.close();
+            return -1;
+        };
+    }
+    std::cout << "getInstructionsForCargo: after parseDataToPort" << std::endl;
     unloadContainers(output);
     loadContainers(Type::PRIORITY,output);
     loadContainers(Type::LOAD,output);

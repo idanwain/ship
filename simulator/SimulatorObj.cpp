@@ -254,6 +254,8 @@ void SimulatorObj::runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgor
             cout << portName << endl;
             int visitNumber = visitNumbersByPort[portName];
             fs::path portPath = getPathOfCurrentPort(travel,portName,visitNumber);
+            std::cout << "runCurrentAlgorithm: input path is " << portPath.string() << std::endl;
+
             res = runCurrentPort(portName, portPath, portNum, alg, simCurrAlgErrors, algInstructionsFolder,
                                  ++visitNumbersByPort[portName],travel);
             compareIgnoredAlgErrsVsSimErrs(portName, visitNumber, simCurrAlgErrors);
@@ -275,6 +277,7 @@ fs::path SimulatorObj::getPathOfCurrentPort(std::unique_ptr<Travel> &travel,stri
     auto &vec = travel->getMap()[portName];
     fs::path result;
     if(vec.empty()) {
+        std::cout << "getPathOfCurrentPort: vec is empty" << std::endl;
         vec.resize(1);
         result = fs::path();
     }

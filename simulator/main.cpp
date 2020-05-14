@@ -18,7 +18,9 @@
 #include "../common/Ship.h"
 #include "../common/Parser.h"
 #include "AlgorithmFactoryRegistrar.h"
-#include <dlfcn.h>
+#include "../algorithm/_313263204_a.h"
+#include "../algorithm/_313263204_b.h"
+//#include <dlfcn.h>
 #include <memory>
 
 /*------------------------------Global Variables---------------------------*/
@@ -29,12 +31,12 @@ string mainOutputPath = fs::current_path().string();
 
 /*------------------------------Shared Objects Deleter ---------------------------*/
 
-struct DlCloser {
-    void operator()(void *dlhandle) const noexcept {
-        std::cout << "in deleter" << std::endl;
-        dlclose(dlhandle);
-    }
-};
+//struct DlCloser {
+//    void operator()(void *dlhandle) const noexcept {
+//        std::cout << "in deleter" << std::endl;
+//        dlclose(dlhandle);
+//    }
+//};
 
 /*-----------------------------Utility Functions-------------------------*/
 
@@ -44,9 +46,12 @@ struct DlCloser {
  * @param ship
  */
 void initAlgorithmList(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algList, map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>>& map){
-    for(auto &entry: map){
-        algList.emplace_back(make_pair(entry.first,entry.second()));
-    }
+//    for(auto &entry: map){
+//        algList.emplace_back(make_pair(entry.first,entry.second()));
+//    }
+    algList.emplace_back(make_pair("_313263204_a", std::make_unique<_313263204_a>()));
+    algList.emplace_back(make_pair("_313263204_b", std::make_unique<_313263204_b>()));
+
 }
 
 /**
@@ -57,10 +62,6 @@ void destroyAlgVec(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algV
     for(auto& alg : algVec){
         if(alg.second){
             alg.second.release();
-            std::cout << "alg is alive" << std::endl;
-        } else {
-            std::cout << "alg is dead" << std::endl;
-        }
     }
     algVec.clear();
 }
@@ -108,38 +109,38 @@ void getAlgSoFiles(vector<fs::path> &algPaths){
     }
 }
 
-void dynamicLoadSoFiles(vector<fs::path>& algPaths, vector<std::unique_ptr<void, DlCloser>>& SharedObjs,
-        map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>>& map){
-   for(auto& path : algPaths){
-       std::unique_ptr<void, DlCloser> soAlg(dlopen(path.c_str(), RTLD_LAZY));
-       if(!soAlg){
-           std::cerr << "dlopen failed" << dlerror() << std::endl;
-       } else {
-           string algName = path.stem().string();
-           auto& registrar = AlgorithmFactoryRegistrar::getRegistrar();
-           if(registrar.setName(algName)){
-               SharedObjs.emplace_back(std::move(soAlg));
-               auto& nameVec = registrar.getNameVec();
-               int pos = std::distance(nameVec.begin(), std::find(nameVec.begin(), nameVec.end(), algName));
-               std::function<std::unique_ptr<AbstractAlgorithm>()>& algorithmFactory = registrar.getFuncVec().at(pos);
-               map.insert({algName, algorithmFactory});
-           } else {
-               P_ALGNOTREGISTER(algName);
-           }
-       }
-   }
-}
+//void dynamicLoadSoFiles(vector<fs::path>& algPaths, vector<std::unique_ptr<void, DlCloser>>& SharedObjs,
+//        map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>>& map){
+//   for(auto& path : algPaths){
+//       std::unique_ptr<void, DlCloser> soAlg(dlopen(path.c_str(), RTLD_LAZY));
+//       if(!soAlg){
+//           std::cerr << "dlopen failed" << dlerror() << std::endl;
+//       } else {
+//           string algName = path.stem().string();
+//           auto& registrar = AlgorithmFactoryRegistrar::getRegistrar();
+//           if(registrar.setName(algName)){
+//               SharedObjs.emplace_back(std::move(soAlg));
+//               auto& nameVec = registrar.getNameVec();
+//               int pos = std::distance(nameVec.begin(), std::find(nameVec.begin(), nameVec.end(), algName));
+//               std::function<std::unique_ptr<AbstractAlgorithm>()>& algorithmFactory = registrar.getFuncVec().at(pos);
+//               map.insert({algName, algorithmFactory});
+//           } else {
+//               P_ALGNOTREGISTER(algName);
+//           }
+//       }
+//   }
+//}
 
-void destroySharedObjs(vector<std::unique_ptr<void, DlCloser>>& vector) {
-    for(auto &ptr : vector)
-        ptr.reset(nullptr);
-
-    vector.clear();
-}
+//void destroySharedObjs(vector<std::unique_ptr<void, DlCloser>>& vector) {
+//    for(auto &ptr : vector)
+//        ptr.reset(nullptr);
+//
+//    vector.clear();
+//}
 
 int main(int argc, char** argv) {
 
-    map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>> map;
+//    map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>> map;
     vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec;
     vector<std::unique_ptr<void, DlCloser>> SharedObjs;
     vector<fs::path> algPaths;
@@ -147,7 +148,7 @@ int main(int argc, char** argv) {
     SimulatorObj simulator(mainTravelPath,mainOutputPath);
     getAlgSoFiles(algPaths);
     std::cout << "before open so" << std::endl;
-    dynamicLoadSoFiles(algPaths, SharedObjs, map);
+//    dynamicLoadSoFiles(algPaths, SharedObjs, map);
 
 
     /*Cartesian Loop*/

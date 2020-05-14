@@ -188,7 +188,7 @@ int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship){
         if(dimensions[0] < 0 || dimensions[1] < 0 || dimensions[2] < 0) {
             returnStatement = Plan_Fatal;
         } else {
-            ship = std::make_unique<Ship>(dimensions[1], dimensions[2], dimensions[0]);
+            ship = std::make_unique<Ship>(dimensions[1] +1 , dimensions[2] +1, dimensions[0] +1);
         }
     }
 
@@ -279,9 +279,10 @@ void extractRawDataFromPortFile(std::map<string,list<string>>& map, string& inpu
  */
 bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream &output,
                      std::unique_ptr<Ship>& ship, std::shared_ptr<Port>& port) {
+    std::cout << "parseDataToPort: start" << std::endl;
     std::string line;
     std::ifstream input;
-
+    std::cout << "parseDataToPort: input path is " << inputFullPathAndFileName << std::endl;
     if(inputFullPathAndFileName.empty()) return true;
 
     input.open(inputFullPathAndFileName);
@@ -295,7 +296,9 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
         std::string id; int weight;
         std::shared_ptr<Port> dest;
         VALIDATION reason = VALIDATION::Valid;
+        std::cout << "parseDataToPort: before validateContainerData" << std::endl;
         if(validateContainerData(line, reason, id, ship)) {
+            std::cout << "parseDataToPort: before extractContainersData" << std::endl;
             extractContainersData(line, id, weight, dest, ship);
             if(dest != nullptr && !(*dest == *port) && dest->get_name() != "NOT_IN_ROUTE") {
                 std::unique_ptr<Container> con = std::make_unique<Container>(id, weight,port, dest);

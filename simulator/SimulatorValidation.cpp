@@ -11,6 +11,7 @@
  */
 std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contAtPortPath,
                                                int portNumber, list<string>& currAlgErrors,SimulatorObj* simulator,string& portName,int visitNumber){
+    std::cout << "validateAlgorithm: start" << std::endl;
     std::ifstream instructionsFile;
     string line,id,instruction;
     pair<string,string> idAndInstruction;
@@ -276,10 +277,6 @@ string extractPortNameToValidate(map<string,list<string>>& rawData,SimulatorObj*
         }
     }
     return portName;
-}
-
-bool checkContainerPriority(SimulatorObj* sim,std::tuple<int,int,int> &coord,string& id){
-
 }
 
 int checkContainersDidntHandle(map<string, list<string>> &idAndRawLine,list<string> &currAlgErrors,string &portName,int visitNum) {
