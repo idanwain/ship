@@ -31,8 +31,6 @@ void SimulatorObj::compareRoutePortsVsCargoDataPorts(std::unique_ptr<Ship> &ship
 
     if(numOfCargoFiles > (int)ship->getRoute().size())
         travel->setNewGeneralError(ERROR_TOOMANYCARGOFILES);
-
-
 }
 
 
@@ -40,11 +38,14 @@ void SimulatorObj::initListOfTravels(string &path){
     string msg = " only sub folders allowed in main folder, file won't be included in the program";
     for(const auto &entry : fs::directory_iterator(path)){
         if(!entry.is_directory()){
-            ERROR_NOTDIRECTORY(entry,msg);
+            this->generalErrors.emplace_back(ERROR_NOTDIRECTORY(entry,msg));
             continue;
         }
         string travelName = entry.path().filename().string();
-        if(!isValidTravelName(travelName)) continue;
+        if(!isValidTravelName(travelName)) {
+            this->generalErrors.emplace_back(ERROR_TRAVELNAME(travelName));
+            continue;
+        }
         std::unique_ptr<Travel> currTravel = std::make_unique<Travel>(travelName);
         map<string,vector<fs::path>> currPorts;
         for(const auto &deep_entry : fs::directory_iterator(entry.path())){
@@ -53,7 +54,6 @@ void SimulatorObj::initListOfTravels(string &path){
                 string portName = extractPortNameFromFile(fileName);
                 int portNum = extractPortNumFromFile(fileName);
                 insertPortFile(currTravel,portName,portNum,deep_entry.path());
-
             }
             else if(isValidShipRouteFileName(fileName)){
                     if(!currTravel->getRoutePath().empty())
@@ -66,6 +66,9 @@ void SimulatorObj::initListOfTravels(string &path){
                     currTravel->setNewGeneralError(ERROR_PLANMANYFILES(fileName));
                 else
                     currTravel->setPlanPath(deep_entry.path());
+            }
+            else{
+                currTravel->setNewGeneralError(ERROR_INVALIDFILE(fileName));
             }
         }
         this->TravelsVec.emplace_back(std::move(currTravel));
@@ -101,14 +104,6 @@ vector<std::unique_ptr<Travel>>& SimulatorObj::getTravels(){
     return this->TravelsVec;
 }
 
-std::array<bool,NUM_OF_ERRORS>& SimulatorObj::getCommonErrors(){
-    return this->algErrorCodes;
-}
-
-std::array<bool,NUM_OF_ERRORS>& SimulatorObj:: getSimErrors(){
-    return this->simErrorCodes;
-}
-
 std::unique_ptr<Ship>& SimulatorObj::getShip(){
     return this->simShip;
 }
@@ -136,7 +131,7 @@ void SimulatorObj::createResultsFile(string path){
     path.append("simulation.results");
     inFile.open(path);
     if(inFile.fail()){
-        ERROR_RESULTSFILE;
+        P_RESULTSFILE;
         exit(EXIT_FAILURE);
     }
     for(auto &travel : this->TravelsVec)//Get travel Names
@@ -163,7 +158,7 @@ void SimulatorObj::createResultsFile(string path){
             sumInstructions += output_map[travelName][algName].first;
             sumErrors += output_map[travelName][algName].second;
         }
-        inFile << sumInstructions << comma << sumErrors << '\n';
+        inFile << sumInstructions << comma << (sumErrors*-1) << '\n';
         sumInstructions = 0;
         sumErrors = 0;
     }
@@ -188,10 +183,15 @@ void SimulatorObj::createErrorsFile(string path) {
     path.append("simulation.errors");
     inFile.open(path);
     if (inFile.fail()) {
-        ERROR_ERRORSFILE;
+        P_ERRORSFILE;
         return;
     }
-
+    if(!generalErrors.empty()){
+        inFile << "Simulator General Errors" << '\n';
+        for(auto &msg : generalErrors){
+            inFile << spaces << msg << '\n';
+        }
+    }
     for(auto &travel : TravelsVec){
         if(!travel->getGeneralErrors().empty() || !travel->getErrorsMap().empty()){
             inFile << travel->getName() << " Errors" << '\n'; //Travel name
@@ -233,7 +233,8 @@ bool SimulatorObj:: isErrorsEmpty(){
     for(auto& travel: this->TravelsVec)
         if(!travel->getGeneralErrors().empty() || !travel->getErrorsMap().empty())
             return false;
-
+    if(!generalErrors.empty())
+        return false;
     return true;
 }
 
@@ -373,78 +374,15 @@ void SimulatorObj::updateArrayOfCodes(int num, string type){
     }
 }
 
-
-
-void SimulatorObj::createErrorsFromArray(){
-    auto &arr = simErrorCodes;
-    list<string> errList;
-    if(arr[0])
-        errList.emplace_back("ship plan: a position has an equal number of floors, or more, "
-                             "than the number of floors provided in the first line (ignored)");
-    if(arr[1])
-        errList.emplace_back("ship plan: a given position exceeds the X/Y ship limits (ignored)");
-    if(arr[2])
-        errList.emplace_back("ship plan: bad line format after first line or duplicate x,y appearance with same data (ignored)");
-    if(arr[3])
-        errList.emplace_back("ship plan: travel error - bad first line or file cannot be read altogether (cannot run this travel)");
-    if(arr[4])
-        errList.emplace_back("ship plan: travel error - duplicate x,y appearance with different data (cannot run this travel)");
-    if(arr[5])
-        errList.emplace_back("travel route: a port appears twice or more consecutively (ignored)");
-    if(arr[6])
-        errList.emplace_back("travel route: bad port symbol format (ignored)");
-    if(arr[7])
-        errList.emplace_back("travel route: travel error - empty file or file cannot be read altogether (cannot run this travel)");
-    if(arr[8])
-        errList.emplace_back("travel route: travel error - file with only a single valid port (cannot run this travel)");
-    if(arr[9])
-        /*reserved*/
-        if(arr[10])
-            errList.emplace_back("containers at port: duplicate ID on port (ID rejected)");
-    if(arr[11])
-        errList.emplace_back("containers at port: ID already on ship (ID rejected)");
-    if(arr[12])
-        errList.emplace_back("containers at port: bad line format, missing or bad weight (ID rejected)");
-    if(arr[13])
-        errList.emplace_back("containers at port: bad line format, missing or bad port dest (ID rejected)");
-    if(arr[14])
-        errList.emplace_back("containers at port: bad line format, ID cannot be read (ignored)");
-    if(arr[15])
-        errList.emplace_back("containers at port: illegal ID check ISO 6346 (ID rejected)");
-    if(arr[16])
-        errList.emplace_back("containers at port: file cannot be read altogether (assuming no cargo to be loaded at this port)");
-    if(arr[17])
-        errList.emplace_back("containers at port: last port has waiting containers (ignored)");
-    if(arr[18])
-        errList.emplace_back("containers at port: total containers amount exceeds ship capacity (rejecting far containers)");
-
-    /*TODO need to add the list to general errors or something*/
-
-}
-
 void SimulatorObj:: prepareForNewTravel() {
     this->algErrorCodes = std::array<bool,NUM_OF_ERRORS>{false};
     this->simErrorCodes = std::array<bool,NUM_OF_ERRORS>{false};
 }
 
-
 WeightBalanceCalculator SimulatorObj::getCalc() {
     return simCalc;
 }
 
-int SimulatorObj::checkContainersDidntHandle(map<string, list<string>> &idAndRawLine,list<string> &currAlgErrors,string &portName,int visitNum) {
-    int err = 0;
-    for(auto& idInstruction : idAndRawLine){
-        if(!idInstruction.second.empty()){
-            currAlgErrors.emplace_back(ERROR_IDNOTHANDLE(idInstruction.second.front(),portName,visitNum));
-            err= -1;
-        }
-    }
-    return err;
-}
-
-
-/*--------------------------------------------------NON OBJECT FUNCTIONS------------------------------------------*/
 /**
  * This function sorts the algorithms output info list and assigning the order to the algorithms list
  * such that:
@@ -508,5 +446,9 @@ string SimulatorObj::createAlgorithmOutDirectory(const string &algName,const str
 
 std::shared_ptr<Port> SimulatorObj::getPort() {
     return pPort;
+}
+
+void SimulatorObj::addGeneralError(const string &msg) {
+    generalErrors.emplace_back(msg);
 }
 

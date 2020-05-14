@@ -14,7 +14,10 @@ void execute(std::unique_ptr<Ship>& ship, char command, std::unique_ptr<Containe
             ship->addContainer(*container, origin);
             break;
         case 'U':
-            port->addContainer(*container, Type::PRIORITY);
+            if((container->getDest()->get_name() == port->get_name()))
+                port->addContainer(*container, Type::ARRIVED);
+            else
+                port->addContainer(*container, Type::PRIORITY);
             ship->removeContainer(origin);
             break;
         case 'M':
@@ -149,7 +152,33 @@ std::vector<std::string> stringSplit(std::string s, const char* delimiter) {
  */
 bool isValidId(const std::string& str) {
     std::regex reg("[A-Z]{3}[UJZ][0-9]{7}");
-    return std::regex_match(str, reg);
+    map<char,int> numericalValues;
+    char curr;
+    int value = 0,sumDigits = 0, checkDigit = 0;
+    /*Following ISO requierments*/
+    if(std::regex_match(str, reg)){
+        /*Init map*/
+        for(int i = 0,j = 0; i < 27; i++,j++){
+            curr = 'A' + i;
+            if(11+j % 11 == 0)
+                j++;
+            value = 11+j;
+            numericalValues.insert({curr,value});
+        }
+        checkDigit = str.at(str.length() -1) - 48;
+        for(int i = 0; i < (int)str.length()-1; i++){
+            if(i < 4)
+                value = numericalValues[str.at(i)];
+             else
+                 value = str.at(i) - 48;
+             sumDigits += (value * (1 << i));
+        }
+        value = sumDigits / 11;
+        value = value * 11;
+        if((sumDigits - value) % 10 == checkDigit)
+            return true;
+    }
+    return false;
 }
 
 /**
@@ -327,6 +356,12 @@ bool isValidShipMapFileName(const string& fileName){
     return std::regex_match(fileName,reg);
 }
 
+/**
+ * This function checks if a given string is comment (contains one or more #) or
+ * if it's a white spaces string
+ * @param line
+ * @return
+ */
 bool isCommentLine(const string& line){
     std::regex commentLine("\\s*[#]+.*");
     std::regex whiteSpaces(R"(\s*\t*\r*\n*)");
@@ -424,4 +459,5 @@ std::unique_ptr<Container> createContainer(SimulatorObj* sim,map<string,list<str
 
     return cont;
 }
+
 

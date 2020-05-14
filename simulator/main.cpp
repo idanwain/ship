@@ -80,7 +80,7 @@ void initPaths(int argc,char** argv){
     }
 
     if(mainTravelPath.empty()) {
-        ERROR_NOTRAVELPATH;
+        P_NOTRAVELPATH;
         exit(EXIT_FAILURE);
     }
 }
@@ -112,7 +112,7 @@ void dynamicLoadSoFiles(vector<fs::path>& algPaths, vector<std::unique_ptr<void,
    }
 }
 
-void parseRegisteredAlg(vector<fs::path>& algPaths, map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>>& map) {
+void parseRegisteredAlg(vector<fs::path>& algPaths, map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>>& map,SimulatorObj* sim) {
     auto &vec = AlgorithmFactoryRegistrar::getRegistrar().getVec();
 
     for (auto &algPath : algPaths) {
@@ -128,7 +128,7 @@ void parseRegisteredAlg(vector<fs::path>& algPaths, map<string ,std::function<st
                 break;
             }
         }
-        if (!isRegistered) P_ALGNOTREGISTER(algName);
+        if (!isRegistered) sim->addGeneralError(P_ALGNOTREGISTER(algName));
     }
 }
 
@@ -142,7 +142,7 @@ int main(int argc, char** argv) {
     SimulatorObj simulator(mainTravelPath,mainOutputPath);
     getAlgSoFiles(algPaths);
     dynamicLoadSoFiles(algPaths, SharedObjs);
-    parseRegisteredAlg(algPaths, map);
+    parseRegisteredAlg(algPaths, map,&simulator);
 
     /*Cartesian Loop*/
     for (auto &travel : simulator.getTravels()) {
@@ -153,9 +153,9 @@ int main(int argc, char** argv) {
                 WeightBalanceCalculator algCalc;
                 int errCode1 = alg.second->readShipPlan(travel->getPlanPath().string());
                 int errCode2 = alg.second->readShipRoute(travel->getRoutePath().string());
-                int errCode3 = algCalc.readShipPlan(travel->getPlanPath().string());
+                errCode1 |= algCalc.readShipPlan(travel->getPlanPath().string());
                 alg.second->setWeightBalanceCalculator(algCalc);
-                simulator.updateArrayOfCodes(errCode1 + errCode2 + errCode3,"alg");
+                simulator.updateArrayOfCodes(errCode1 + errCode2,"alg");
                 simulator.setShipAndCalculator(mainShip, travel->getPlanPath().string());
                 simulator.runCurrentAlgorithm(alg,travel);
                 simulator.getShip().reset(nullptr);

@@ -184,7 +184,7 @@ int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship){
         if(dimensions[0] < 0 || dimensions[1] < 0 || dimensions[2] < 0) {
             returnStatement = Plan_Fatal;
         } else {
-            ship = std::make_unique<Ship>(dimensions[1]+1, dimensions[2]+1, dimensions[0]+1);
+            ship = std::make_unique<Ship>(dimensions[1], dimensions[2], dimensions[0]);
         }
     }
 

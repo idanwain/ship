@@ -46,6 +46,7 @@ class SimulatorObj {
     std::array<bool,NUM_OF_ERRORS> simErrorCodes{false};
     std::unique_ptr<Ship> simShip = nullptr;
     std::shared_ptr<Port> pPort; /*holds the current port*/
+    list<string> generalErrors;
     WeightBalanceCalculator simCalc;
     string mainOutputPath;
     string mainTravelPath;
@@ -63,7 +64,7 @@ public:
                                       list<string> &simCurrAlgErrors,string &algOutputFolder,int visitNumber,std::unique_ptr<Travel> &travel);
     void updateArrayOfCodes(int num, string type);
     void prepareForNewTravel();
-    void createErrorsFromArray();
+    void addGeneralError(const string &msg);
     int  checkIfFatalErrorOccurred(string type);
     void compareFatalAlgErrsAndSimErrs(list<string> &simCurrAlgErrors);
     void compareIgnoredAlgErrsVsSimErrs(string &portName, int visitNumber, list<string> &simCurrAlgErrors);
@@ -72,13 +73,10 @@ public:
     bool isErrorsEmpty();
     WeightBalanceCalculator getCalc();
     vector<std::unique_ptr<Travel>>& getTravels();
-    std::array<bool,NUM_OF_ERRORS>& getCommonErrors();
-    std::array<bool,NUM_OF_ERRORS>& getSimErrors();
     std::unique_ptr<Ship>& getShip();
     std::shared_ptr<Port> getPort();
 
 /*----------------------static functions-------------------*/
-    static int checkContainersDidntHandle(map<string, list<string>> &idAndRawLine,list<string> &currAlgErrors,string& portName, int visitNum);
     static void insertPortFile(std::unique_ptr<Travel> &currTravel,string &portName, int portNum, const fs::path &entry);
     static string createAlgorithmOutDirectory(const string &algName,const string &outputDirectory,const string &travelName);
     static fs::path getPathOfCurrentPort(std::unique_ptr<Travel> &travel,string& portName,int visitNumber);
