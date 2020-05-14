@@ -131,7 +131,7 @@ pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lin
  * @param inFile - the file pointer
  * @return 0 if succeeded, specified return code otherwise.
  */
-int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const string& filePath, list<string> &generalErrors){
+int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const string& filePath, std::unique_ptr<Travel>* travel){
     std::cout << "extractArgsForBlocks start" << std::endl;
     string line;
     int lineNumber = 2, returnStatement = 0,num;
@@ -151,7 +151,8 @@ int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const string& filePath, lis
                 num = std::get<1>(pair);
                 if (num != 0) {
                     updateErrorNum(&returnStatement, num);
-                    generalErrors.emplace_back(std::get<0>(pair));
+                    if(travel != nullptr)
+                        (*travel)->setNewGeneralError(std::get<0>(pair));
                 }
             }
             lineNumber++;
@@ -168,7 +169,7 @@ int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const string& filePath, lis
  */
 int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const std::string& filePath) {
     list<string> tempListForAlg;
-    return extractArgsForBlocks(ship, filePath, tempListForAlg);
+    return extractArgsForBlocks(ship, filePath,nullptr);
 }
 
 int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship){
@@ -202,99 +203,54 @@ int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship){
  * @param folder - the folder that contains ship_route, ship_plan files
  * @return the constructed ship iff folder is not empty.
  */
-std::unique_ptr<Ship> extractArgsForShip(string &travelName,SimulatorObj &simulator) {
+std::unique_ptr<Ship> extractArgsForShip(std::unique_ptr<Travel> &travel,SimulatorObj &simulator) {
     string file_path;
     vector<std::shared_ptr<Port>> travelRoute;
     std::unique_ptr<Ship> ship;
-    list<string> generalErrors;
-    auto &travelFolder = simulator.getTravels()[travelName];
 
-    if(travelFolder.find(ROUTE) == travelFolder.end() || travelFolder.find(PLAN) == travelFolder.end()){
-        if(travelFolder.find(ROUTE) == travelFolder.end())
-            simulator.addNewErrorToGeneralErrors(ERROR_LACKROUTE);
+    if(travel->getPlanPath().empty() || travel->getRoutePath().empty()){
+        if(travel->getRoutePath().empty())
+            travel->setNewGeneralError(ERROR_LACKROUTE);
         else
-            simulator.addNewErrorToGeneralErrors(ERROR_LACKPLAN);
+            travel->setNewGeneralError(ERROR_LACKPLAN);
         return nullptr;
     }
     /*Handle ship plan file*/
-    file_path = travelFolder[PLAN].at(1).string();
+    file_path = travel->getPlanPath().string();
     int resultInt = extractShipPlan(file_path,ship);
     if(resultInt == 0){
-        resultInt = extractArgsForBlocks(ship,file_path,generalErrors);
+        resultInt = extractArgsForBlocks(ship,file_path,&travel);
         simulator.updateArrayOfCodes(resultInt,"sim");
-        simulator.addListOfGeneralErrors(generalErrors);
         if(simulator.checkIfFatalErrorOccurred("sim") == -1)
             return nullptr;
     }
     else {
-        simulator.addNewErrorToGeneralErrors(ERROR_FATALPLAN);
+        travel->setNewGeneralError(ERROR_FATALPLAN);
         simulator.updateArrayOfCodes(resultInt, "sim");
         return nullptr;
     }
     /*Handle ship route file*/
-    generalErrors.clear();
-    file_path = travelFolder[ROUTE].at(1).string();
-    resultInt = extractTravelRoute(ship,file_path,generalErrors);
+    file_path = travel->getRoutePath().string();
+    resultInt = extractTravelRoute(ship,file_path,&travel);
     if(resultInt == Route_Fatal || ship->getRoute().size() <= 1){
         if(resultInt == Route_Fatal)
-            simulator.addNewErrorToGeneralErrors(ERROR_FATALROUTE);
+            travel->setNewGeneralError(ERROR_FATALROUTE);
         else
-            simulator.addNewErrorToGeneralErrors(ERROR_NOTENOUGHPORTS);
-        simulator.addListOfGeneralErrors(generalErrors);
+            travel->setNewGeneralError(ERROR_NOTENOUGHPORTS);
         return nullptr;
     }
-
+    SimulatorObj::compareRoutePortsVsCargoDataPorts(ship,travel);
     simulator.updateArrayOfCodes(resultInt, "sim");
     return ship;
 }
 
-//TODO walkthrough todo's and update in above function
-//Ship* extractArgsForShip(map<string,vector<fs::path>> &travelFolder,list<string> &generalErrors){
-//    std::ifstream inFile;
-//    string line, file_path;
-//    std::array<int, 3> dimensions{};
-//    vector<Port *> travelRoute;
-//    Ship* ship = nullptr;
-//    if(travelFolder.find(ROUTE) == travelFolder.end()){
-//        generalErrors.emplace_back("Error: Lack of route file, ignoring this travel folder");
-//        return ship;
-//    }
-//    else if(travelFolder.find(PLAN) == travelFolder.end()){
-//        generalErrors.emplace_back("Error: Lack of plan file, ignoring this travel folder");
-//        return ship;
-//    }
-//    file_path = travelFolder[PLAN].at(0).string();
-//    inFile.open(file_path);
-//    if(inFile.fail()){
-//        generalErrors.emplace_back("Error: opening plan file failed, ignoring this travel folder");
-//        return ship;
-//    }
-//    else{
-//        //TODO handle creating a ship from the plan file.
-//    }
-//    inFile.close();
-//    file_path = travelFolder[ROUTE].at(0).string();
-//    inFile.open(file_path);
-//    if(inFile.fail()){
-//        generalErrors.emplace_back("Error: opening route file failed, ignoring this travel folder");
-//        delete ship;
-//        return nullptr;
-//    }
-//    else{
-//        //TODO handle creating route vector from route file.
-//    }
-//    inFile.close();
-//    ship->initCalc();
-//    return ship;
-//
-//}
 
 /**
  * This function parses the data from a port file, it saves it by container id and the data line of this id in a map
  * @param map - the given map to save instruction by port id
  * @param inputPath - the input path of the port file
  */
-void parseDataFromPortFile(std::map<string,list<string>>& map, string& inputPath){
+void extractRawDataFromPortFile(std::map<string,list<string>>& map, string& inputPath){
     std::ifstream inFile;
     string line;
     inFile.open(inputPath);
@@ -330,3 +286,46 @@ void parseDataFromPortFile(std::map<string,list<string>>& map, string& inputPath
     portName->append(filePath.substr(filePath.size() - i+1,j-i));
     return portName;
 }*/
+
+/**
+ * Parses the containers data and connecting it to the "load" list of the port
+ * @param input_full_path_and_file_name
+ */
+bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream &output,
+                     std::unique_ptr<Ship>& ship, std::shared_ptr<Port>& port) {
+    std::string line;
+    std::ifstream input;
+
+    if(inputFullPathAndFileName.empty()) return true;
+
+    input.open(inputFullPathAndFileName);
+    if(input.fail()){
+        P_ERROR_READPATH(inputFullPathAndFileName);
+        return false;
+    }
+
+    while(getline(input,line)){
+        if(isCommentLine(line)) continue; //comment symbol
+        std::string id; int weight;
+        std::shared_ptr<Port> dest;
+        VALIDATION reason = VALIDATION::Valid;
+        if(validateContainerData(line, reason, id, ship)) {
+            extractContainersData(line, id, weight, dest, ship);
+            if(dest != nullptr && !(*dest == *port) && dest->get_name() != "NOT_IN_ROUTE") {
+                std::unique_ptr<Container> con = std::make_unique<Container>(id, weight,port, dest);
+                port->addContainer(*con, Type::LOAD);
+            }
+            else {
+                std::cout << id << ": "<< CONTAINER_NOT_IN_ROUTE << std::endl;
+                writeToOutput(output,AbstractAlgorithm::Action::REJECT, id);
+            }
+        }
+        else {
+            if(reason != VALIDATION::Valid){
+                writeToOutput(output, AbstractAlgorithm::Action::REJECT, id);
+            }
+        }
+    }
+    input.close();
+    return true;
+}

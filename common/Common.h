@@ -81,16 +81,8 @@ bool isValidPortName(const string& portName);
 bool isValidInteger(const string str);
 bool isCommentLine(const string& line);
 bool isValidId(const string& str);
-bool isNumber(const std::string& s);
-std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contAtPortPath,int portNumber, list<string>& currAlgErrors,SimulatorObj* simulator,string& portName,int visitNumber);
-bool validateInstruction(string &instruction,string &id,vector<int> &coordinates,SimulatorObj* sim,std::map<string,list<string>> &portContainers,int portNum);
-bool validateLoadInstruction(vector<int> &coordinates,SimulatorObj* sim,int kg);
-bool validateUnloadInstruction(vector<int> &coordinates,SimulatorObj* sim);
-bool validateMoveInstruction(vector<int> &coordinates, SimulatorObj* sim);
-bool validateRejectInstruction(std::map<string,list<string>>& portContainers, string& id,SimulatorObj* sim,int portNum);
-bool validateContainerData(const string& line, VALIDATION& reason, string& id, std::unique_ptr<Ship>& ship);
 /*----------------------Extract functions-------------------*/
-int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,list<string> &generalErrors);
+int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,std::unique_ptr<Travel>* travel);
 int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath);//Overload
 void extractContainersData(const std::string& line, std::string &id, int &weight, std::shared_ptr<Port>& dest, std::unique_ptr<Ship>& ship);
 void extractCraneInstruction(string &toParse, std::pair<string,string>& instruction, vector<int> &coordinates);
@@ -98,8 +90,6 @@ void extractCraneInstruction(string &toParse, std::pair<string,string>& instruct
 void execute(std::unique_ptr<Ship>& ship, char command,std::unique_ptr<Container>& container, coordinate origin, coordinate dest, std::shared_ptr<Port> port);
 bool idExistOnShip(const string& id, std::unique_ptr<Ship>& ship);
 bool isPortInRoute(const string& portName, const vector<std::shared_ptr<Port>>& route, int portNum);
-bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream &output,
-                     std::unique_ptr<Ship>& ship, std::shared_ptr<Port>& port);
 vector<string> stringSplit(string s, const char* delimiter);
 void writeToOutput(std::ofstream& output,
                    AbstractAlgorithm::Action command, const std::string& id,
@@ -107,5 +97,6 @@ void writeToOutput(std::ofstream& output,
                    const std::tuple<int,int,int>& movedTo = std::forward_as_tuple(-1,-1,-1));
 void initArrayOfErrors(std::array<bool,NUM_OF_ERRORS> &arr,int num);
 void updateErrorNum(int* currError,int newError);
+std::unique_ptr<Container> createContainer(SimulatorObj* sim,map<string,list<string>> &rawData,string& id, string& instruction,string& srcPortName);
 
 #endif

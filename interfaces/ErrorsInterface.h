@@ -12,13 +12,17 @@
 #define ERROR_SAMEVALUE(x,y,z)  "ship plan: at line number " + toString(x) + " constraint at (" + toString(y) + "," + toString(z) +") already given with same value"
 #define ERROR_LACKPLAN          "ship plan: Lack of plan file, ignoring this travel"
 #define ERROR_FATALPLAN         "ship plan: Fatal error occurred, ignoring this travel"
+#define ERROR_PLANMANYFILES(x)  "ship plan: There is already plan file, ignoring " + x
 
 
 /*----------------------ERRORS IN ROUTE FILE-------------------*/
-#define ERROR_LACKROUTE         "route: Lack of route file, ignoring this travel"
-#define ERROR_FATALROUTE        "route: Fatal error occurred, ignoring this travel"
-#define ERROR_NOTENOUGHPORTS    "route: File contains less then 2 valid ports, ignoring this travel"
-#define ERROR_PORTTWICE(x)      "route: Port " + x + " occurs 2 or more consecutive times"
+#define ERROR_LACKROUTE                 "route: Lack of route file, ignoring this travel"
+#define ERROR_FATALROUTE                "route: Fatal error occurred, ignoring this travel"
+#define ERROR_NOTENOUGHPORTS            "route: File contains less then 2 valid ports, ignoring this travel"
+#define ERROR_PORTTWICE(x)              "route: Port " + x + " occurs 2 or more consecutive times"
+#define ERROR_NOPORTEXISTINTRAVEL(x)    "Error: Port " + x + " has cargo_data file but not in route, ignoring his cargo files"
+#define ERROR_ROUTEMANYFILES(x)         "route: There is already plan file, ignoring " + x
+#define ERROR_TOOMANYCARGOFILES         "route: There are two many cargo files then route number of stops"
 
 
 /*----------------------PRINT TO CONSOLE-------------------*/
@@ -31,7 +35,7 @@
 
 
 /*----------------------Validation Errors-------------------*/
-#define ERROR_CONTLINEINSTRUCTION(x,y,z)        "Error: algorithm instructed not a valid instruction at port "+ x + " visit number " + toString(y) + " instruction: " + z
+#define ERROR_CONTLINEINSTRUCTION(x,y,z)        "Error: algorithm instructed not a valid instruction at port " + x + " visit number " + toString(y) + " instruction: " + z
 #define PLAN_FATAL                              "Error: algorithm indicated there's a fatal error in plan file --> simulator rejects"
 #define DUPLICATE_XY                            "Error: algorithm indicated there's a to (x,y) constraints with different Z value --> simulator rejects"
 #define TRAVEL_FATAL                            "Error: algorithm indicates there's a fatal error in route file --> simulator rejects"

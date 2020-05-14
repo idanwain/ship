@@ -3,6 +3,7 @@
 #define SIMULATOROBJ_H
 
 class Common;
+class SimulatorValidation;
 
 #include <string>
 #include <vector>
@@ -15,6 +16,9 @@ class Common;
 #include "../common/Common.h"
 #include <algorithm>
 #include "../interfaces/WeightBalanceCalculator.h"
+#include "Travel.h"
+#include "SimulatorValidation.h"
+
 
 
 #if defined(WIN32) || defined(_WIN32)
@@ -37,60 +41,51 @@ namespace fs = std::filesystem;
 
 class SimulatorObj {
 
-    map<string,map<string,pair<int,int>>> outputResultsInfo;
-    map<string,map<string,list<string>>> outputErrorsInfo;
-    map<string,map<string,vector<fs::path>>> Travels;
-    map<string,pair<int,int>> algInfo; /*Including algorithm name, pair<instructions count, errors count>*/
-    map<string,std::shared_ptr<Container>> unloadedContainers;
-    map<string,list<string>> currTravelErrors; /*Including algorithm name, list of errors found by simulator*/
-    list<string> currTravelGeneralErrors;/*General errors per certain travel*/
+    vector<std::unique_ptr<Travel>> TravelsVec;
     std::array<bool,NUM_OF_ERRORS> algErrorCodes{false};
     std::array<bool,NUM_OF_ERRORS> simErrorCodes{false};
     std::unique_ptr<Ship> simShip = nullptr;
-    std::shared_ptr<Port> pPort;
+    std::shared_ptr<Port> pPort; /*holds the current port*/
     WeightBalanceCalculator simCalc;
-
     string mainOutputPath;
     string mainTravelPath;
+
 public:
     SimulatorObj(string mainTravelPath, string outputPath): mainOutputPath(outputPath), mainTravelPath(mainTravelPath){
         initListOfTravels(mainTravelPath);
     };
     void initListOfTravels(string &path);
     void setShipAndCalculator(std::unique_ptr<Ship> &getShip,const string& file_path);
-    void addErrorsInfo(string &travelName);
-    void addResultsInfo(string &travelName);
-    void addOutputInfo(string& travelName);
     void createResultsFile(string path);
     void createErrorsFile(string path);
-    void runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> &alg, string &travelName);
+    void runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> &alg, std::unique_ptr<Travel> &travel);
     int  runCurrentPort(string &portName,fs::path &portPath,int portNum,pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,
-                                      list<string> &simCurrAlgErrors,string &algOutputFolder,int visitNumber);
-    void addNewTravelListErrors(list<string> &listErrors,string errListName);
-    void addNewErrorToGeneralErrors(string msg);
-    void addListOfGeneralErrors(list<string> &generalErrors);
+                                      list<string> &simCurrAlgErrors,string &algOutputFolder,int visitNumber,std::unique_ptr<Travel> &travel);
     void updateArrayOfCodes(int num, string type);
     void prepareForNewTravel();
     void createErrorsFromArray();
-    int checkIfFatalErrorOccurred(string type);
+    int  checkIfFatalErrorOccurred(string type);
     void compareFatalAlgErrsAndSimErrs(list<string> &simCurrAlgErrors);
     void compareIgnoredAlgErrsVsSimErrs(string &portName, int visitNumber, list<string> &simCurrAlgErrors);
+    void initOutputMap(map<string,map<string,pair<int,int>>>& outputMap);
+    bool isResultsEmpty();
+    bool isErrorsEmpty();
     WeightBalanceCalculator getCalc();
-    map<string,map<string,list<string>>>& getErrorsInfo();
-    map<string,map<string,pair<int,int>>>& getResultsInfo();
-    map<string,map<string,vector<fs::path>>>& getTravels();
+    vector<std::unique_ptr<Travel>>& getTravels();
     std::array<bool,NUM_OF_ERRORS>& getCommonErrors();
     std::array<bool,NUM_OF_ERRORS>& getSimErrors();
     std::unique_ptr<Ship>& getShip();
-    fs::path getPathOfCurrentPort(string& travelName,string& portName,int visitNumber);
     std::shared_ptr<Port> getPort();
 
 /*----------------------static functions-------------------*/
-    static bool errorExists(map<string,list<string>> &travelErrors);
     static int checkContainersDidntHandle(map<string, list<string>> &idAndRawLine,list<string> &currAlgErrors,string& portName, int visitNum);
-    static void insertPortFile(map<string,vector<fs::path>> &travelMap,string &portName, int portNum, const fs::path &entry);
+    static void insertPortFile(std::unique_ptr<Travel> &currTravel,string &portName, int portNum, const fs::path &entry);
     static string createAlgorithmOutDirectory(const string &algName,const string &outputDirectory,const string &travelName);
-    static void sortAlgorithms(map<string,map<string,pair<int,int>>> &outputInfo,list<string> &algorithm);
+    static fs::path getPathOfCurrentPort(std::unique_ptr<Travel> &travel,string& portName,int visitNumber);
+    static void sortAlgorithms(map<string,map<string,pair<int,int>>>&outputInfo,list<string> &algorithm);
+    static void compareRoutePortsVsCargoDataPorts(std::unique_ptr<Ship>& ship,std::unique_ptr<Travel> &travel);
+
+
 
 };
 
