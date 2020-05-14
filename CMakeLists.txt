@@ -23,4 +23,5 @@ add_executable(
         simulator/SimulatorObj.cpp              simulator/SimulatorObj.h
         simulator/AlgorithmRegistration.cpp     interfaces/AlgorithmRegistration.h
         simulator/AlgorithmFactoryRegistrar.cpp simulator/AlgorithmFactoryRegistrar.h
-        simulator/Travel.cpp                    simulator/Travel.h simulator/SimulatorValidation.cpp simulator/SimulatorValidation.h)
+        simulator/Travel.cpp                    simulator/Travel.h
+        simulator/SimulatorValidation.cpp       simulator/SimulatorValidation.h)

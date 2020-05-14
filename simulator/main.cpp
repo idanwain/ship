@@ -176,13 +176,6 @@ int main(int argc, char** argv) {
         std::cout << "after if statement inner loop" << std::endl;
         simulator.prepareForNewTravel();
         mainShip.reset(nullptr);
-        for(auto& alg : algVec){
-            if(alg.second){
-                std::cout << "alg is null" << std::endl;
-            } else {
-                std::cout << "alg is alive!" << std::endl;
-            }
-        }
         destroyAlgVec(algVec);
         std::cout << "after if statement end inner loop" << std::endl;
     }
