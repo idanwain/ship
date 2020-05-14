@@ -13,7 +13,7 @@ add_executable(
         common/Container.cpp common/Container.h
         common/Port.cpp common/Port.h
         common/Ship.cpp common/Ship.h
-        interfaces/WeightBalanceCalculator.cpp interfaces/WeightBalanceCalculator.h
+        common/WeightBalanceCalculator.cpp interfaces/WeightBalanceCalculator.h
         common/Parser.cpp common/Parser.h
         common/Common.cpp common/Common.h
         interfaces/ErrorsInterface.h

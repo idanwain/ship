@@ -30,7 +30,9 @@ bool Container::operator!=(const Container& c) {
 	return *this == c;
 }
 
-Container::~Container(){}
+Container::~Container(){
+    std::cout << "in con d'tor" << std::endl;
+}
 
 bool Container::operator<(const Container &c) {
     return distanceFromDest < c.distanceFromDest;
