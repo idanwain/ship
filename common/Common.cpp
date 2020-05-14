@@ -439,14 +439,13 @@ std::unique_ptr<Container> createContainer(SimulatorObj* sim,map<string,list<str
             parsedInfo = stringSplit(rawData[id].front(), delim);
             auto dstPort = (sim->getShip()->getPortByName(parsedInfo[2]));
             int kg = atoi(parsedInfo[1].data());
-            cont = std::make_unique<Container>(id, kg, dstPort, srcPort);
+            cont = std::make_unique<Container>(id, kg, srcPort, dstPort);
         }
             /*Case we load container that unloaded before and now loaded*/
         else {
             for (auto &container : *sim->getPort()->getContainerVec(Type::PRIORITY))
                 if (container.getId() == id) {
-                    cont = std::make_unique<Container>(container.getId(), container.getWeight(), container.getDest(),
-                                                       srcPort);
+                    cont = std::make_unique<Container>(container.getId(), container.getWeight(),srcPort , container.getDest());
                 }
 
         }

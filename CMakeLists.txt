@@ -14,6 +14,7 @@ add_executable(
         common/Port.cpp                         common/Port.h
         common/Ship.cpp                         common/Ship.h
         common/WeightBalanceCalculator.cpp interfaces/WeightBalanceCalculator.h
+        common/WeightBalanceCalculator.cpp  interfaces/WeightBalanceCalculator.h
         common/Parser.cpp                       common/Parser.h
         common/Common.cpp                       common/Common.h
         interfaces/ErrorsInterface.h
