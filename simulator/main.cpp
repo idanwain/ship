@@ -54,11 +54,17 @@ void initAlgorithmList(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &
  * @param algVec
  */
 void destroyAlgVec(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algVec){
-    for(auto &alg : algVec)
-        alg.second.reset(nullptr);
-
+    for(auto& alg : algVec){
+        if(alg.second){
+            alg.second.release();
+            std::cout << "alg is alive" << std::endl;
+        } else {
+            std::cout << "alg is dead" << std::endl;
+        }
+    }
     algVec.clear();
 }
+
 
 /**
  * This function gets the paths or sets them to be the current working directory
@@ -154,8 +160,11 @@ int main(int argc, char** argv) {
                 std::cout << "start inner loop" << std::endl;
                 WeightBalanceCalculator algCalc;
                 int errCode1 = alg.second->readShipPlan(travel->getPlanPath().string());
+                std::cout << "after readShipPlan" << std::endl;
                 int errCode2 = alg.second->readShipRoute(travel->getRoutePath().string());
+                std::cout << "after readShipRoute" << std::endl;
                 int errCode3 = algCalc.readShipPlan(travel->getPlanPath().string());
+                std::cout << "after readShipPlan calc" << std::endl;
                 alg.second->setWeightBalanceCalculator(algCalc);
                 simulator.updateArrayOfCodes(errCode1 + errCode2 + errCode3,"alg");
                 simulator.setShipAndCalculator(mainShip, travel->getPlanPath().string());
@@ -167,6 +176,13 @@ int main(int argc, char** argv) {
         std::cout << "after if statement inner loop" << std::endl;
         simulator.prepareForNewTravel();
         mainShip.reset(nullptr);
+        for(auto& alg : algVec){
+            if(alg.second){
+                std::cout << "alg is null" << std::endl;
+            } else {
+                std::cout << "alg is alive!" << std::endl;
+            }
+        }
         destroyAlgVec(algVec);
         std::cout << "after if statement end inner loop" << std::endl;
     }

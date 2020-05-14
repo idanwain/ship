@@ -1,7 +1,7 @@
 #include "Travel.h"
 
 const string& Travel::getName() {
-    this->name;
+    return this->name;
 }
 
 void Travel::setPlanPath(const fs::path& plan) {

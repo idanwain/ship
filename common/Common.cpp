@@ -320,7 +320,7 @@ bool isValidPortFileName(const string& fileName){
 }
 
 bool isValidShipRouteFileName(const string& fileName){
-    std::regex reg(".*\\.ship_route");
+    std::regex reg(".*\\.route");
     return std::regex_match(fileName,reg);
 }
 
