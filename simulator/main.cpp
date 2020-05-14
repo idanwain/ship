@@ -58,13 +58,13 @@ void initAlgorithmList(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &
  * This function iterate through the vector and delete each algorithm
  * @param algVec
  */
-void destroyAlgVec(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algVec){
-    for(auto& alg : algVec){
-        if(alg.second){
+void destroyAlgVec(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algVec) {
+    for (auto &alg : algVec) {
+        if (alg.second) {
             alg.second.release();
+        }
+        algVec.clear();
     }
-    algVec.clear();
-}
 
 
 /**
@@ -72,42 +72,42 @@ void destroyAlgVec(vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> &algV
  * @param argc
  * @param argv
  */
-void initPaths(int argc,char** argv){
-    string basePath = fs::current_path().string();
-    const string travelFlag = "-travel_path";
-    const string outputFlag = "-output_path";
-    const string algorithmFlag = "-algorithm_path";
+    void initPaths(int argc, char **argv) {
+        string basePath = fs::current_path().string();
+        const string travelFlag = "-travel_path";
+        const string outputFlag = "-output_path";
+        const string algorithmFlag = "-algorithm_path";
 
-    for(int i = 1; i+1 < argc; i++){
-        if(argv[i] == travelFlag)
-            mainTravelPath = argv[i+1];
-        else if(argv[i] == outputFlag)
-            mainOutputPath = argv[i+1];
-        else if(argv[i] == algorithmFlag)
-            mainAlgorithmsPath = argv[i+1];
-    }
+        for (int i = 1; i + 1 < argc; i++) {
+            if (argv[i] == travelFlag)
+                mainTravelPath = argv[i + 1];
+            else if (argv[i] == outputFlag)
+                mainOutputPath = argv[i + 1];
+            else if (argv[i] == algorithmFlag)
+                mainAlgorithmsPath = argv[i + 1];
+        }
 
-    if(mainTravelPath.empty()) {
-        P_NOTRAVELPATH;
-        exit(EXIT_FAILURE);
+        if (mainTravelPath.empty()) {
+            P_NOTRAVELPATH;
+            exit(EXIT_FAILURE);
+        }
     }
-}
 
 /**
  * This function gets the algorithms.so files from the mainAlgorithms path (if given or from current path)
  * and saves the paths in the given vector.
  * @param algPaths
  */
-void getAlgSoFiles(vector<fs::path> &algPaths){
-    std::regex reg("_[0-9]+_[a-z]+\\.so");
-    for(const auto &entry : fs::directory_iterator(mainAlgorithmsPath)) {
-        if (!entry.is_directory()) {
-            if (std::regex_match(entry.path().filename().string(), reg)) {
-                algPaths.emplace_back(entry);
+    void getAlgSoFiles(vector<fs::path> &algPaths) {
+        std::regex reg("_[0-9]+_[a-z]+\\.so");
+        for (const auto &entry : fs::directory_iterator(mainAlgorithmsPath)) {
+            if (!entry.is_directory()) {
+                if (std::regex_match(entry.path().filename().string(), reg)) {
+                    algPaths.emplace_back(entry);
+                }
             }
         }
     }
-}
 
 //void dynamicLoadSoFiles(vector<fs::path>& algPaths, vector<std::unique_ptr<void, DlCloser>>& SharedObjs,
 //        map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>>& map){
@@ -138,50 +138,50 @@ void getAlgSoFiles(vector<fs::path> &algPaths){
 //    vector.clear();
 //}
 
-int main(int argc, char** argv) {
+    int main(int argc, char **argv) {
 
 //    map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>> map;
-    vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec;
-    vector<std::unique_ptr<void, DlCloser>> SharedObjs;
-    vector<fs::path> algPaths;
-    initPaths(argc,argv);
-    SimulatorObj simulator(mainTravelPath,mainOutputPath);
-    getAlgSoFiles(algPaths);
-    std::cout << "before open so" << std::endl;
+        vector<pair<string, std::unique_ptr<AbstractAlgorithm>>> algVec;
+        vector<std::unique_ptr<void, DlCloser>> SharedObjs;
+        vector<fs::path> algPaths;
+        initPaths(argc, argv);
+        SimulatorObj simulator(mainTravelPath, mainOutputPath);
+        getAlgSoFiles(algPaths);
+        std::cout << "before open so" << std::endl;
 //    dynamicLoadSoFiles(algPaths, SharedObjs, map);
 
 
-    /*Cartesian Loop*/
-    for (auto &travel : simulator.getTravels()) {
-        std::cout << "in main loop" << std::endl;
-        initAlgorithmList(algVec, map);
-        std::unique_ptr<Ship> mainShip = extractArgsForShip(travel,simulator);
-        if(mainShip != nullptr){
-            for (auto &alg : algVec) {
-                std::cout << "start inner loop" << std::endl;
-                WeightBalanceCalculator algCalc;
-                int errCode1 = alg.second->readShipPlan(travel->getPlanPath().string());
-                std::cout << "after readShipPlan" << std::endl;
-                int errCode2 = alg.second->readShipRoute(travel->getRoutePath().string());
-                errCode1 |= algCalc.readShipPlan(travel->getPlanPath().string());
-                std::cout << "after readShipRoute" << std::endl;
-                std::cout << "after readShipPlan calc" << std::endl;
-                alg.second->setWeightBalanceCalculator(algCalc);
-                simulator.updateArrayOfCodes(errCode1 + errCode2,"alg");
-                simulator.setShipAndCalculator(mainShip, travel->getPlanPath().string());
-                simulator.runCurrentAlgorithm(alg,travel);
-                simulator.getShip().reset(nullptr);
+        /*Cartesian Loop*/
+        for (auto &travel : simulator.getTravels()) {
+            std::cout << "in main loop" << std::endl;
+            initAlgorithmList(algVec, map);
+            std::unique_ptr<Ship> mainShip = extractArgsForShip(travel, simulator);
+            if (mainShip != nullptr) {
+                for (auto &alg : algVec) {
+                    std::cout << "start inner loop" << std::endl;
+                    WeightBalanceCalculator algCalc;
+                    int errCode1 = alg.second->readShipPlan(travel->getPlanPath().string());
+                    std::cout << "after readShipPlan" << std::endl;
+                    int errCode2 = alg.second->readShipRoute(travel->getRoutePath().string());
+                    errCode1 |= algCalc.readShipPlan(travel->getPlanPath().string());
+                    std::cout << "after readShipRoute" << std::endl;
+                    std::cout << "after readShipPlan calc" << std::endl;
+                    alg.second->setWeightBalanceCalculator(algCalc);
+                    simulator.updateArrayOfCodes(errCode1 + errCode2, "alg");
+                    simulator.setShipAndCalculator(mainShip, travel->getPlanPath().string());
+                    simulator.runCurrentAlgorithm(alg, travel);
+                    simulator.getShip().reset(nullptr);
+                }
             }
+            simulator.prepareForNewTravel();
+            mainShip.reset(nullptr);
+            destroyAlgVec(algVec);
         }
-        simulator.prepareForNewTravel();
-        mainShip.reset(nullptr);
-        destroyAlgVec(algVec);
+        simulator.createResultsFile(mainTravelPath);
+        simulator.createErrorsFile(mainTravelPath);
+        destroySharedObjs(SharedObjs);
+        std::cerr << "IN MAIN LAST ROW" << endl;
+        std::cerr << "NOTICE: this core dump happens only at the end of the program" << endl;
+        return (EXIT_SUCCESS);
     }
-    simulator.createResultsFile(mainTravelPath);
-    simulator.createErrorsFile(mainTravelPath);
-    destroySharedObjs(SharedObjs);
-    std::cerr << "IN MAIN LAST ROW" << endl;
-    std::cerr << "NOTICE: this core dump happens only at the end of the program" << endl;
-    return (EXIT_SUCCESS);
- }
-
+}
