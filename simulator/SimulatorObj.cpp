@@ -158,7 +158,7 @@ void SimulatorObj::createResultsFile(string path){
             sumInstructions += output_map[travelName][algName].first;
             sumErrors += output_map[travelName][algName].second;
         }
-//        inFile << sumInstructions << comma << (sumErrors*-1) << '\n';
+        inFile << sumInstructions << comma << (sumErrors*-1) << '\n';
         sumInstructions = 0;
         sumErrors = 0;
     }
@@ -249,7 +249,7 @@ void SimulatorObj::runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgor
         string algInstructionsFolder = SimulatorObj::createAlgorithmOutDirectory(alg.first, mainOutputPath,travel->getName());
         for (int portNum = 0; portNum < (int) route.size() && res != -1; portNum++) {
             string portName = route[portNum]->get_name();
-
+            cout << "==================Current ship free space is --> " << simShip->getFreeSpace() << " ===================" << endl;
             pPort = this->simShip->getPortByName(portName);
             cout << portName << endl;
             int visitNumber = visitNumbersByPort[portName];

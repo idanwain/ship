@@ -6,8 +6,8 @@
 #define CLANG_TIDY              "FOR CLANG TIDY ERRORS, DO NOT RECEIVE THIS VALUE JUST USE AT AS IS"
 
 /*----------------------ERRORS IN PLAN FILE-------------------*/
-#define ERROR_XYZ_DIM(x)        "ship plan: at line number " + toString(x) + " One of the provided ship plan constraints exceeding the dimensions of the ship"
-#define ERROR_BADLINE(x)        "ship plan: at line number " + toString(x) + "bad line format"
+#define ERROR_XYZ_DIM(x)        "ship plan: at line number " + toString(x) + " one of the provided ship plan constraints exceeding the dimensions of the ship"
+#define ERROR_BADLINE(x)        "ship plan: at line number " + toString(x) + " bad line format"
 #define ERROR_DIFFVALUE(x,y,z)  "ship plan: at line number " + toString(x) + " constraint at (" + toString(y) + "," + toString(z) +") already given with diff value,ignoring travel"
 #define ERROR_SAMEVALUE(x,y,z)  "ship plan: at line number " + toString(x) + " constraint at (" + toString(y) + "," + toString(z) +") already given with same value"
 #define ERROR_LACKPLAN          "ship plan: Lack of plan file, ignoring this travel"

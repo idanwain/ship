@@ -62,8 +62,10 @@ void extractCraneInstruction(string &toParse, std::pair<string,string> &instruct
 bool validateContainerData(const std::string& line, VALIDATION& reason, std::string& id, std::unique_ptr<Ship>& ship) {
     int i=-1;
     auto data = stringSplit(line, delim);
-    if(data.size() != 3)
+    if(data.size() != 3){
+        reason = VALIDATION::InvalidNumParameters;
         return false;
+    }
     std::string port_name;
 
     for(const std::string& item : data){
@@ -152,34 +154,36 @@ std::vector<std::string> stringSplit(std::string s, const char* delimiter) {
  */
 bool isValidId(const std::string& str) {
     std::regex reg("[A-Z]{3}[UJZ][0-9]{7}");
-    map<char,int> numericalValues;
-    char curr;
-    int value = 0,sumDigits = 0, checkDigit = 0;
-    /*Following ISO requirements*/
-    if(std::regex_match(str, reg)){
-        /*Init map*/
-        for(int i = 0,j = 0; i < 27; i++,j++){
-            curr = 'A' + i;
-            if(11+j % 11 == 0)
-                j++;
-            value = 11+j;
-            numericalValues.insert({curr,value});
-        }
-        checkDigit = str.at(str.length() -1) - 48;
-        for(int i = 0; i < (int)str.length()-1; i++){
-            if(i < 4)
-                value = numericalValues[str.at(i)];
-             else {
-                value = str.at(i) - 48;
-            }
-             sumDigits += (value * (1 << i));
-        }
-        value = sumDigits / 11;
-        value = value * 11;
-        if((sumDigits - value) % 10 == checkDigit)
-            return true;
-    }
-    return false;
+    return std::regex_match(str,reg);
+//    std::map<char,int> numericalValues;
+//    char curr;
+//    int value = 0,sumDigits = 0, checkDigit = 0;
+//    numericalValues.insert({'A',10});
+//    /*Following ISO requirements*/
+//    if(std::regex_match(str, reg)){
+//        /*Init map*/
+//        for(int i = 0,j = 1; i < 27; i++,j++){
+//            curr = 'B' + i;
+//            if((11+j)% 11 == 0)
+//                j+=1;
+//            value = 11+j;
+//            numericalValues.insert({curr,value});
+//        }
+//        checkDigit = str.at(str.length() -1) - 48;
+//        for(int i = 0; i < (int)str.length()-1; i++){
+//            if(i < 4)
+//                value = numericalValues[str.at(i)];
+//            else
+//                value = str.at(i) - 48;
+//            sumDigits += (value * (1 << i));
+//
+//        }
+//        value = sumDigits / 11;
+//        value = value * 11;
+//        if((sumDigits - value) % 10 == checkDigit)
+//            return true;
+//    }
+//    return false;
 }
 
 /**

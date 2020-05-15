@@ -16,6 +16,7 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
     string line,id,instruction;
     pair<string,string> idAndInstruction;
     map<string,list<string>> linesFromPortFile;
+    map<string,Container> rejectedContainers;
     int errorsCount = 0,instructionsCount = 0;
 
     extractRawDataFromPortFile(linesFromPortFile, contAtPortPath);
@@ -61,7 +62,7 @@ std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contA
     instructionsFile.close();
     /*Final checks*/
     if(errorsCount != -1){
-        //simulator->sortContainersByPriority(portNumber);
+        simulator->sortContainersByPriority(portNumber);
         errorsCount += checkIfContainersLeftOnPort(simulator,currAlgErrors);
         errorsCount += checkForContainersNotUnloaded(simulator, currAlgErrors);
         /*Final check, if there are any containers were on containers at port file that the algorithm didnt handle properly*/
@@ -120,13 +121,10 @@ bool validateRejectInstruction(map<string,list<string>>& portContainers, string&
 
     if(portContainers.find(id) != portContainers.end())
         line = portContainers[id].front();
-    /*Case the data is not validate*/
+    /*Case the data is not validate + if same id exist on ship*/
     if(!line.empty() && !validateContainerData(line,reason,id,ship))
         return true;
-    /*Case there is a container with same id on the ship already then suppose to reject the container awaiting at port*/
-    if(!line.empty() && std::get<0>(tup) >= 0)
-        return true;
-    /*Case the dest of the container equals is the src*/
+    /*Case the dest of the container equals to its src*/
     if(ship->getRoute().at(portNum)->get_name() == portName)
         return true;
     /*Case the dest port is not in route*/
@@ -139,7 +137,7 @@ bool validateRejectInstruction(map<string,list<string>>& portContainers, string&
     if(portContainers[id].size() > 1)
         return true;
     /*Case there is an weight balance problem*/
-    if(checkIfBalanceWeightIssue(sim,kg,tup))
+    if(!checkIfBalanceWeightIssue(sim,kg,tup))
         return true;
 
     return false;

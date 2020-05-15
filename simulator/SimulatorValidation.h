@@ -9,7 +9,6 @@
 enum class VALIDATION;
 #include "SimulatorObj.h"
 
-
 std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contAtPortPath,int portNumber, list<string>& currAlgErrors,SimulatorObj* simulator,string& portName,int visitNumber);
 bool validateInstruction(string &instruction,string &id,vector<int> &coordinates,SimulatorObj* sim,std::map<string,list<string>> &portContainers,int portNum);
 bool validateLoadInstruction(vector<int> &coordinates,SimulatorObj* sim,int kg);

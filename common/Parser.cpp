@@ -91,11 +91,12 @@ pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lin
     pair<string,int> pair;
     getDimensions(dim,inFile,str);
 
-    if(dim[0] > ship->getAxis("x") || dim[1] > ship->getAxis("y") || dim[2] > ship->getAxis("z")){
-        if(dim[0] > ship->getAxis("x") || dim[1] > ship->getAxis("y")){
+    if(dim[0] >= ship->getAxis("x") || dim[1] >= ship->getAxis("y") || dim[2] >= ship->getAxis("z")){
+        if(dim[0] >= ship->getAxis("x") || dim[1] >= ship->getAxis("y")){
+            std::cout << "++++++++++++++++++++++++In error setBlocks by Line+++++++++++++++++++++++ " << std::endl;
             std::get<1>(pair) = Plan_XYError;
         }
-        if(dim[2] > ship->getAxis("z"))
+        if(dim[2] >= ship->getAxis("z"))
             std::get<1>(pair) = Plan_ZError;
 
         std::get<0>(pair) = ERROR_XYZ_DIM(lineNumber);
@@ -188,7 +189,7 @@ int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship){
         if(dimensions[0] < 0 || dimensions[1] < 0 || dimensions[2] < 0) {
             returnStatement = Plan_Fatal;
         } else {
-            ship = std::make_unique<Ship>(dimensions[1] +1 , dimensions[2] +1, dimensions[0] +1);
+            ship = std::make_unique<Ship>(dimensions[1], dimensions[2], dimensions[0]);
         }
     }
 
@@ -261,7 +262,6 @@ void extractRawDataFromPortFile(std::map<string,list<string>>& map, string& inpu
     while(getline(inFile,line)){
         if(isCommentLine(line))continue;
         vector<string> parsedInfo = stringSplit(line,delim);
-        if(parsedInfo.size() != 3)continue; /*case not enough information or too much TODO need to think again if not error*/
         string contID = parsedInfo.at(0);
         if(map.find(contID) == map.end()){
             list<string> ls;
