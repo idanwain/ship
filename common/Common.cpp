@@ -1,35 +1,6 @@
 #include "Common.h"
 
 /**
- * This function executes the command on the simulator ship map if all validation passed
- * @param ship
- * @param command
- * @param container
- * @param origin
- * @param dest
- */
-void execute(std::unique_ptr<Ship>& ship, char command, std::unique_ptr<Container>& container, coordinate origin, coordinate dest, const std::shared_ptr<Port>& port) {
-    switch (command) {
-        case 'L':
-            ship->addContainer(*container, origin);
-            break;
-        case 'U':
-            if((container->getDest()->get_name() == port->get_name()))
-                port->addContainer(*container, Type::ARRIVED);
-            else
-                port->addContainer(*container, Type::PRIORITY);
-            ship->removeContainer(origin);
-            break;
-        case 'M':
-            ship->moveContainer(origin, dest);
-            break;
-        default:
-            cout << CLANG_TIDY << endl;
-    }
-}
-
-
-/**
  * This function gets a string to extract the data from and arrange it.
  * @param toParse - the string to parse from
  * @param instruction
@@ -64,6 +35,7 @@ bool validateContainerData(const std::string& line, VALIDATION& reason, std::str
     auto data = stringSplit(line, delim);
     if(data.size() != 3){
         reason = VALIDATION::InvalidNumParameters;
+        id = data.at(0);
         return false;
     }
     std::string port_name;
@@ -215,6 +187,9 @@ bool idExistOnShip(const std::string& id, std::unique_ptr<Ship>& ship){
  */
 bool isPortInRoute(const std::string& portName, const std::vector<std::shared_ptr<Port>>& route, int portNum) {
     bool found = false;
+    if(route[portNum]->get_name() == portName){
+        return false;
+    }
     for(auto port_it = route.begin() + portNum + 1; port_it != route.end(); ++port_it){
         if(((*port_it)->get_name()) == portName){
             found = true;

@@ -37,15 +37,18 @@
 
 
 /*----------------------Validation Errors-------------------*/
-#define ERROR_CONTLINEINSTRUCTION(x,y,z)        "Error: algorithm instructed not a valid instruction at port " + x + " visit number " + toString(y) + " instruction: " + z
+#define ERROR_CONTLINEINSTRUCTION(x,y,z,w)      "Error: algorithm instructed invalid instruction at port " + x + " visit number " + toString(z) + " instruction: " + w + " container id " + y
 #define PLAN_FATAL                              "Error: algorithm indicated there's a fatal error in plan file --> simulator rejects"
 #define DUPLICATE_XY                            "Error: algorithm indicated there's a to (x,y) constraints with different Z value --> simulator rejects"
 #define TRAVEL_FATAL                            "Error: algorithm indicates there's a fatal error in route file --> simulator rejects"
 #define TRAVEL_SINGLEPORT                       "Error: algorithm indicates there's a 0 or 1 ports in route file --> simulator rejects"
 #define NO_CARGO_TOLOAD(x,y)                    "Error: algorithm indicates there's no cargo to load at port " + x + " visit number " + toString(y) + " --> simulator rejects"
 #define ERROR_IDNOTHANDLE(x,y,z)                "Error: algorithm didn't handled this cargo_data line: " + x +" at port " + y + " visit number " + toString(z)
-#define ERROR_CONTNOTINDEST(x,y,z)              "Error: container " + x + " left at port " + y + " but it's destination " + z
+#define ERROR_CONTNOTINDEST(x,y,z)              "Error: container " + x + " was on ship , but unloaded at port " + y + " while it's destination " + z
 #define ERROR_CONTLEFTONSHIP(x)                 "Error: container " + x + " left on ship, after stopping at it's destination port"
+#define ERROR_CONTLEFTONPORT(x,y,z)             "Error: container " + x + " left at port " + y + " while ship has space "
+#define ERROR_LEFTPRIORITYONPORT                "Error: There is at least 1 prioritized container that left on port but supposed to be loaded"
+
 /*----------------------Simulator Errors-------------------*/
 #define ERROR_NOTDIRECTORY(x,y)                 "Error: " + x.path().filename().string() + y
 #define ERROR_TRAVELNAME(x)                     "Error: " + x + " is not a valid travel name,ignoring"

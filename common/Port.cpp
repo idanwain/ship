@@ -38,3 +38,29 @@ std::vector<Container>* Port::getContainerVec(Type type){
         default: return nullptr;
     }
 }
+
+void Port::removeContainer(std::string &id, Type command) {
+    int i = 0;
+    bool found = false;
+    if(command == Type::LOAD){
+        for(;i < (int)load.size(); i++){
+            if(load[i].getId() == id){
+                found = true;
+                break;
+            }
+        }
+        if(found)
+            load.erase(load.begin()+i);
+    }
+    else if(command == Type::PRIORITY){
+        for(; (int)priority.size(); i++){
+            if(priority[i].getId() == id){
+                found = true;
+                break;
+            }
+        }
+        if(found)
+            priority.erase(priority.begin()+i);
+    }
+
+}

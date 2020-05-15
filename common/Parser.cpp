@@ -296,9 +296,7 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
         std::string id; int weight;
         std::shared_ptr<Port> dest;
         VALIDATION reason = VALIDATION::Valid;
-        std::cout << "parseDataToPort: before validateContainerData" << std::endl;
         if(validateContainerData(line, reason, id, ship)) {
-            std::cout << "parseDataToPort: before extractContainersData" << std::endl;
             extractContainersData(line, id, weight, dest, ship);
             if(dest != nullptr && !(*dest == *port) && dest->get_name() != "NOT_IN_ROUTE") {
                 std::unique_ptr<Container> con = std::make_unique<Container>(id, weight,port, dest);

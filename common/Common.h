@@ -69,7 +69,7 @@ class SimulatorObj;
 #define C_LastPortCont  (1 << 17)/*Last port has awaiting containers*/
 #define C_ExceedsCap    (1 << 18)/*total containers amount exceeds ship cap*/
 
-enum class VALIDATION {InvalidID, InvalidWeight, ExistID, InvalidPort, Valid,InvalidNumParameters};
+enum class VALIDATION {InvalidID, InvalidWeight, ExistID, InvalidPort,Valid,InvalidNumParameters,DuplicatedIdOnPort};
 
 
 /*----------------------Validate functions-------------------*/
@@ -81,13 +81,14 @@ bool isValidPortName(const string& portName);
 bool isValidInteger(const string& str);
 bool isCommentLine(const string& line);
 bool isValidId(const string& str);
+bool validateContainerData(const string& line, VALIDATION& reason, string& id, std::unique_ptr<Ship>& ship);
+
 /*----------------------Extract functions-------------------*/
 int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,std::unique_ptr<Travel>* travel);
 int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath);//Overload
 void extractContainersData(const std::string& line, std::string &id, int &weight, std::shared_ptr<Port>& dest, std::unique_ptr<Ship>& ship);
 void extractCraneInstruction(string &toParse, std::pair<string,string>& instruction, vector<int> &coordinates);
 /*----------------------Rest of the functions-------------------*/
-void execute(std::unique_ptr<Ship>& ship, char command,std::unique_ptr<Container>& container, coordinate origin, coordinate dest, const std::shared_ptr<Port>& port);
 bool idExistOnShip(const string& id, std::unique_ptr<Ship>& ship);
 bool isPortInRoute(const string& portName, const vector<std::shared_ptr<Port>>& route, int portNum);
 vector<string> stringSplit(string s, const char* delimiter);

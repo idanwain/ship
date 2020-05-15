@@ -61,7 +61,7 @@ public:
 	    this->destination = contToCopy->destination;
 	    this->distanceFromDest = contToCopy->distanceFromDest;
 	}
-
+    Container(){};
 	Container(const std::string& id1): id(id1), weight(-1), source(nullptr), destination(nullptr),distanceFromDest(-1){}
     explicit Container(int kg): id("WeightContainer"), weight(kg), source(nullptr), destination(nullptr),distanceFromDest(-1){}
 

@@ -9,20 +9,36 @@
 enum class VALIDATION;
 #include "SimulatorObj.h"
 
-std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contAtPortPath,int portNumber, list<string>& currAlgErrors,SimulatorObj* simulator,string& portName,int visitNumber);
-bool validateInstruction(string &instruction,string &id,vector<int> &coordinates,SimulatorObj* sim,std::map<string,list<string>> &portContainers,int portNum);
-bool validateLoadInstruction(vector<int> &coordinates,SimulatorObj* sim,int kg);
-bool validateUnloadInstruction(vector<int> &coordinates,SimulatorObj* sim);
-bool validateMoveInstruction(vector<int> &coordinates, SimulatorObj* sim);
-bool validateRejectInstruction(std::map<string,list<string>>& portContainers, string& id,SimulatorObj* sim,int portNum,int kg);
-bool validateContainerData(const string& line, VALIDATION& reason, string& id, std::unique_ptr<Ship>& ship);
-bool checkIfBalanceWeightIssue(SimulatorObj* sim, int kg,std::tuple<int,int,int>& coordinates);
-int checkForContainersNotUnloaded(SimulatorObj* sim, list<string> &currAlgErrors);
-int checkContainersDidntHandle(map<string, list<string>> &idAndRawLine,list<string> &currAlgErrors,string& portName, int visitNum);
-int checkIfContainersLeftOnPort(SimulatorObj* sim , list<string> &currAlgErrors);
-int extractKgToValidate(map<string,list<string>>& rawData,SimulatorObj* sim,string& id);
-string extractPortNameToValidate(map<string,list<string>>& rawData,SimulatorObj* sim,string& id);
+class SimulatorValidation{
+    map<string,list<string>> rawDataFromPortFile;
+    map<string,map<string,VALIDATION>> mustRejected;
+    map<string,Container> priorityRejected;
+    map<string,Container> possiblePriorityReject;
+    SimulatorObj* sim = nullptr;
+    int loadCapacity = 0;
+public:
+    explicit SimulatorValidation(SimulatorObj* simToCopy):sim(simToCopy){};
+    std::optional<pair<int,int>> validateAlgorithm(string &outputPath, string &contAtPortPath,list<string>& currAlgErrors,string& portName,int visitNumber);
+    bool validateInstruction(string &instruction,string &id,vector<int> &coordinates);
+    bool validateLoadInstruction(vector<int> &coordinates,int kg,string& id);
+    bool validateUnloadInstruction(vector<int> &coordinates);
+    bool validateMoveInstruction(vector<int> &coordinates);
+    bool validateRejectInstruction(string& id,int kg);
+    void initPriorityRejected();
+    void initLoadedListAndRejected();
+    void eraseFromRawData(string& line,string& id);
+    int finalChecks(list<string> &currAlgErrors,string& portName, int visitNumber);
+    static bool checkIfBalanceWeightIssue(SimulatorObj* sim, int kg,std::tuple<int,int,int>& coordinates);
+    static int checkForContainersNotUnloaded(SimulatorObj* sim, list<string> &currAlgErrors);
+    static int checkContainersDidntHandle(map<string, list<string>> &idAndRawLine,list<string> &currAlgErrors,string& portName, int visitNum);
+    static int checkIfContainersLeftOnPort(SimulatorObj* sim , list<string> &currAlgErrors);
+    int checkPrioritizedHandledProperly(list<string> &currAlgErrors);
+    static int extractKgToValidate(map<string,list<string>>& rawData,SimulatorObj* sim,string& id);
+    static string extractPortNameToValidate(map<string,list<string>>& rawData,SimulatorObj* sim,string& id);
+    static void validateContainerDataForReject(string& line,VALIDATION &reason,SimulatorObj* sim);
+    void execute(std::unique_ptr<Ship>& ship, char command,std::unique_ptr<Container>& container, coordinate origin, coordinate dest, const std::shared_ptr<Port>& port);
 
+};
 
 
 

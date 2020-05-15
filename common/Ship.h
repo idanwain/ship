@@ -18,7 +18,7 @@ class Container; class Port;
 #include "../interfaces/WeightBalanceCalculator.h"
 
 typedef std::tuple<int,int> coordinate;
-const char delim[] = {',','\t','\r',' ', '\n'};
+const char delim[] = {',','\t','\r',' ','\n','\0'};
 
 class Ship {
     std::vector<std::vector<std::vector<Container>>> shipMap;

@@ -139,7 +139,6 @@ void SimulatorObj::createResultsFile(string path){
     for(auto &algName : this->TravelsVec.front()->getAlgResultsMap())//Get algorithm names
         algorithmNames.emplace_back(algName.first);
 
-
     SimulatorObj::sortAlgorithms(output_map,algorithmNames);
 
     inFile << "RESULTS" << comma;
@@ -152,10 +151,10 @@ void SimulatorObj::createResultsFile(string path){
         for(auto &travelName : travels){
             if(output_map[travelName][algName].second == -1)
                 inFile << output_map[travelName][algName].second << comma;
-            else
+            else{
                 inFile << output_map[travelName][algName].first << comma;
-
-            sumInstructions += output_map[travelName][algName].first;
+                sumInstructions += output_map[travelName][algName].first;
+            }
             sumErrors += output_map[travelName][algName].second;
         }
         inFile << sumInstructions << comma << (sumErrors*-1) << '\n';
@@ -187,7 +186,7 @@ void SimulatorObj::createErrorsFile(string path) {
         return;
     }
     if(!generalErrors.empty()){
-        inFile << "Simulator General Errors" << '\n';
+        inFile << "Simulator General Errors:" << '\n';
         for(auto &msg : generalErrors){
             inFile << spaces << msg << '\n';
         }
@@ -252,11 +251,12 @@ void SimulatorObj::runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgor
             cout << "==================Current ship free space is --> " << simShip->getFreeSpace() << " ===================" << endl;
             pPort = this->simShip->getPortByName(portName);
             cout << portName << endl;
+            this->currPortNum = portNum;
             int visitNumber = visitNumbersByPort[portName];
             fs::path portPath = getPathOfCurrentPort(travel,portName,visitNumber);
             std::cout << "runCurrentAlgorithm: input path is " << portPath.string() << std::endl;
 
-            res = runCurrentPort(portName, portPath, portNum, alg, simCurrAlgErrors, algInstructionsFolder,
+            res = runCurrentPort(portName, portPath, alg, simCurrAlgErrors, algInstructionsFolder,
                                  ++visitNumbersByPort[portName],travel);
             compareIgnoredAlgErrsVsSimErrs(portName, visitNumber, simCurrAlgErrors);
         }
@@ -330,13 +330,14 @@ void SimulatorObj::compareIgnoredAlgErrsVsSimErrs(string &portName,int visitNumb
  * @param visitNumber       - current port visit number
  * @param algInfo           - stores the data of instructions count and errors count
  */
-int SimulatorObj::runCurrentPort(string &portName,fs::path &portPath,int portNum,pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,
+int SimulatorObj::runCurrentPort(string &portName,fs::path &portPath,pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,
                     list<string> &simCurrAlgErrors,string &algOutputFolder,int visitNumber,std::unique_ptr<Travel> &travel){
 
     string inputPath,outputPath;
     int instructionsCount, errorsCount, algReturnValue;
     std::optional<pair<int,int>> result;
     pair<int,int> intAndError;
+    SimulatorValidation validator(this);
     if(portPath.empty()){
         inputPath = "";
     }
@@ -348,7 +349,7 @@ int SimulatorObj::runCurrentPort(string &portName,fs::path &portPath,int portNum
     algReturnValue = alg.second->getInstructionsForCargo(inputPath,outputPath);
 
     updateArrayOfCodes(algReturnValue,"alg");
-    result = validateAlgorithm(outputPath,inputPath,portNum,simCurrAlgErrors,this,portName,visitNumber);
+    result = validator.validateAlgorithm(outputPath,inputPath,simCurrAlgErrors,portName,visitNumber);
     if(!result) return -1; //case there was an error in validateAlgorithm
 
     /*Incrementing the instructions count and errors count*/
@@ -421,7 +422,7 @@ void SimulatorObj::sortAlgorithms(map<string,map<string,pair<int,int>>>& outputI
         if(std::get<2>(t1) == std::get<2>(t2)){
             return std::get<1>(t1) < std::get<1>(t2);
         } else
-            return std::get<2>(t1) < std::get<2>(t2);
+            return std::get<2>(t1) > std::get<2>(t2);
     });
     algorithms.clear();
     for(auto& alg : sortedVec){
@@ -455,11 +456,10 @@ void SimulatorObj::addGeneralError(const string &msg) {
     generalErrors.emplace_back(msg);
 }
 
-void SimulatorObj::sortContainersByPriority(int portNumber){
+void SimulatorObj::sortContainersByPriority(vector<Container>* &priorityVec){
     auto routeVec = this->getShip()->getRoute();
-    auto priorityVec = this->getPort()->getContainerVec(Type::PRIORITY);
     map<string,int> portNamePriority;
-    for(int i = portNumber+1; i < (int)routeVec.size(); i++){
+    for(int i = currPortNum+1; i < (int)routeVec.size(); i++){
         if(portNamePriority.find((*routeVec[i]).get_name()) == portNamePriority.end())
             portNamePriority.insert({routeVec[i]->get_name(),i});
     }
@@ -476,3 +476,8 @@ void SimulatorObj::sortContainersByPriority(int portNumber){
     });
 
 }
+
+int SimulatorObj::getPortNum(){
+    return this->currPortNum;
+}
+

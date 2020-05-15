@@ -50,6 +50,7 @@ class SimulatorObj {
     WeightBalanceCalculator simCalc;
     string mainOutputPath;
     string mainTravelPath;
+    int currPortNum = 0;
 
 public:
     SimulatorObj(string mainTravelPath, string outputPath): mainOutputPath(outputPath), mainTravelPath(mainTravelPath){
@@ -60,7 +61,7 @@ public:
     void createResultsFile(string path);
     void createErrorsFile(string path);
     void runCurrentAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> &alg, std::unique_ptr<Travel> &travel);
-    int  runCurrentPort(string &portName,fs::path &portPath,int portNum,pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,
+    int  runCurrentPort(string &portName,fs::path &portPath,pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,
                                       list<string> &simCurrAlgErrors,string &algOutputFolder,int visitNumber,std::unique_ptr<Travel> &travel);
     void updateArrayOfCodes(int num, string type);
     void prepareForNewTravel();
@@ -69,9 +70,10 @@ public:
     void compareFatalAlgErrsAndSimErrs(list<string> &simCurrAlgErrors);
     void compareIgnoredAlgErrsVsSimErrs(string &portName, int visitNumber, list<string> &simCurrAlgErrors);
     void initOutputMap(map<string,map<string,pair<int,int>>>& outputMap);
-    void sortContainersByPriority(int portNumber);
+    void sortContainersByPriority(vector<Container>* &priorityVec);
     bool isResultsEmpty();
     bool isErrorsEmpty();
+    int getPortNum();
     WeightBalanceCalculator getCalc();
     vector<std::unique_ptr<Travel>>& getTravels();
     std::unique_ptr<Ship>& getShip();
