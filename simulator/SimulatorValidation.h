@@ -36,8 +36,10 @@ public:
     static int extractKgToValidate(map<string,list<string>>& rawData,SimulatorObj* sim,string& id);
     static string extractPortNameToValidate(map<string,list<string>>& rawData,SimulatorObj* sim,string& id);
     static void validateContainerDataForReject(string& line,VALIDATION &reason,SimulatorObj* sim);
-    void execute(std::unique_ptr<Ship>& ship, char command,std::unique_ptr<Container>& container, coordinate origin, coordinate dest, const std::shared_ptr<Port>& port);
+    void execute(char command,std::unique_ptr<Container>& container, coordinate origin, coordinate dest);
+    static bool softCheckId(string id);
 
+    bool isIdInPriority(string &id);
 };
 
 

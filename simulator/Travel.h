@@ -29,12 +29,14 @@ class Travel {
     map<string,vector<fs::path>> portPaths;
     map<string,list<string>> errors;
     map<string,pair<int,int>> algorithmsResults; /*first int --> instructions count, second int --> errors count*/
+    bool erroneousTravel = false;
 
 public:
     explicit Travel(const string travelName):name(travelName){};
     void setRoutePath(const fs::path& route);
     void setPlanPath(const fs::path& plan);
     void setNewGeneralError(const string& msg);
+    void setErroneousTravel();
     const string& getName();
     map<string,vector<fs::path>>& getMap();
     map<string,list<string>>& getErrorsMap();
@@ -42,6 +44,8 @@ public:
     list<string>& getGeneralErrors();
     fs::path& getRoutePath();
     fs::path& getPlanPath();
+    bool isErroneous();
+
 
 
 };

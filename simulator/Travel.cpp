@@ -39,3 +39,12 @@ list<string>& Travel::getGeneralErrors(){
 map<string,pair<int,int>>& Travel::getAlgResultsMap(){
     return this->algorithmsResults;
 }
+
+bool Travel::isErroneous() {
+    return this->erroneousTravel;
+}
+
+void Travel::setErroneousTravel() {
+    this->erroneousTravel = true;
+
+}

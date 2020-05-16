@@ -61,6 +61,8 @@ public:
                 //Note that this c'tor only for copying the blocks
                 this->shipMap[i][j] = shipToCopy->shipMap[i][j];
                 this->shipMap[i][j].reserve(z);
+                std::cout << "copy c'tor " << std::endl;
+                std::cout << " at " << i << " " << j << " size " <<  shipMap[i][j].size() << std::endl;
             }
         }
         bool found = false;
@@ -82,7 +84,7 @@ public:
     std::tuple<int, int, int> getCoordinate(const Container& container);
     std::tuple<int,int,int> getCoordinate(std::string& contName);
     std::vector<std::shared_ptr<Port>> getRoute();
-    std::vector<std::vector<std::vector<Container>>>* getMap();
+    std::vector<std::vector<std::vector<Container>>>& getMap();
     std::shared_ptr<Port> getPortByName(const std::string &name);
     std::map<std::shared_ptr<Port>,std::vector<Container>>& getContainersByPort();
     void initContainersByPort(std::vector<std::shared_ptr<Port>>& vector);
@@ -102,8 +104,7 @@ public:
     void updateFreeSpace(int num);
     bool isOnShip(Container &con);
     std::shared_ptr<Port> getPortByNumber(size_t num);
-    /** TEMP! */
-//    void printSizeAndCapacity();
+
 
 
 

@@ -51,8 +51,8 @@ void Ship::addContainer(Container& container, std::tuple<int,int> coordinate) {
     freeSpace--;
 }
 
-std::vector<std::vector<std::vector<Container>>>* Ship::getMap() {
-    return &shipMap;
+std::vector<std::vector<std::vector<Container>>>& Ship::getMap() {
+    return shipMap;
 }
 
 std::shared_ptr<Port> Ship::getPortByName(const std::string &name) {
@@ -100,7 +100,6 @@ void Ship::updateFreeSpace(int num){
 }
 
 Ship::~Ship() {
-
     for(std::vector<std::vector<Container>> &mat : this->shipMap) {
         for (std::vector<Container> &vec : mat) {
             vec.clear();
@@ -108,11 +107,6 @@ Ship::~Ship() {
         mat.clear();
     }
 
-    //shared_ptr will delete themselves
-//    for(auto iter = containersByPort.begin(); iter != containersByPort.end(); ++iter) {
-//        Port *port = iter->first;
-//        delete port;
-//    }
 }
 
 void Ship::getCoordinatesToHandle(std::set<coordinate> &coordinates_to_handle, std::vector<Container>& containers_to_unload) {
@@ -221,37 +215,4 @@ std::shared_ptr<Port> Ship:: getPortByNumber(size_t num){
     }
     return this->route[num];
 }
-/** temp */
-//void Ship::printSizeAndCapacity() {
-//    auto& map = this->shipMap;
-//    int coor_x = 0, coor_y = 0;
-//    for(auto& x : map){
-//        for(auto& y : x){
-//
-//            std::cout << "(" << coor_x << "," << coor_y << "): Size " << map[coor_x][coor_y].size() << " Capacity " << map[coor_x][coor_y].capacity() << std::endl;
-//            ++coor_y;
-//        }
-//        coor_y = 0;
-//        ++coor_x;
-//    }
-//}
 
-/*This function for ex2 purposes*/
-//std::tuple<int,int> Ship::find_min_floor(){
-//    std::tuple<int, int> min_floor_coor;
-//    size_t min = INT_MAX;
-//    int x=-1; int y=-1;
-//    for(auto& it_x : this->shipMap){
-//        ++x;
-//        for(auto& it_y : it_x){
-//            ++y;
-//            if(it_y.empty()){} //UNUSED it_y
-//            if(shipMap[x][y].size() < min){
-//                min = shipMap[x][y].size();
-//                min_floor_coor = std::make_tuple(x,y);
-//            }
-//        }
-//        y = -1;
-//    }
-//    return min_floor_coor;
-//}

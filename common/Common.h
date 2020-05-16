@@ -87,7 +87,7 @@ bool validateContainerData(const string& line, VALIDATION& reason, string& id, s
 int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,std::unique_ptr<Travel>* travel);
 int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath);//Overload
 void extractContainersData(const std::string& line, std::string &id, int &weight, std::shared_ptr<Port>& dest, std::unique_ptr<Ship>& ship);
-void extractCraneInstruction(string &toParse, std::pair<string,string>& instruction, vector<int> &coordinates);
+void extractCraneInstruction(string &toParse, string& instruction, string& id, vector<int> &coordinates);
 /*----------------------Rest of the functions-------------------*/
 bool idExistOnShip(const string& id, std::unique_ptr<Ship>& ship);
 bool isPortInRoute(const string& portName, const vector<std::shared_ptr<Port>>& route, int portNum);

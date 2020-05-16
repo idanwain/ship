@@ -26,8 +26,8 @@
 /*------------------------------Global Variables---------------------------*/
 
 string mainTravelPath;
-string mainAlgorithmsPath = fs::current_path().string();
-string mainOutputPath = fs::current_path().string();
+string mainAlgorithmsPath;
+string mainOutputPath;
 
 /*------------------------------Shared Objects Deleter ---------------------------*/
 
@@ -89,6 +89,10 @@ void initPaths(int argc,char** argv){
         else if(argv[i] == algorithmFlag)
             mainAlgorithmsPath = argv[i+1];
     }
+    if(mainOutputPath.empty() || !fs::exists(mainOutputPath))
+        mainOutputPath = fs::current_path().string();
+    if(!mainAlgorithmsPath.empty() || !fs::exists(mainAlgorithmsPath))
+        mainAlgorithmsPath = fs::current_path().string();
 
     if(mainTravelPath.empty()) {
         P_NOTRAVELPATH;
@@ -150,39 +154,35 @@ int main(int argc, char** argv) {
     initPaths(argc,argv);
     SimulatorObj simulator(mainTravelPath,mainOutputPath);
     getAlgSoFiles(algPaths);
-    std::cout << "before open so" << std::endl;
 //    dynamicLoadSoFiles(algPaths, SharedObjs, map);
 
 
     /*Cartesian Loop*/
     for (auto &travel : simulator.getTravels()) {
-        std::cout << "in main loop" << std::endl;
+        cout << "++++++++++++++++++++++++++++ starts travel - " + travel->getName() + " ++++++++++++++++++++++++++++++" <<endl;
         initAlgorithmList(algVec);
 //        initAlgorithmList(algVec, map);
         std::unique_ptr<Ship> mainShip = extractArgsForShip(travel,simulator);
         if(mainShip != nullptr){
             for (auto &alg : algVec) {
-                std::cout << "start inner loop" << std::endl;
+                cout << "======================== starts algorithm - " + alg.first + " ===============================" << endl;
                 WeightBalanceCalculator algCalc;
                 int errCode1 = alg.second->readShipPlan(travel->getPlanPath().string());
-                std::cout << "after readShipPlan" << std::endl;
                 int errCode2 = alg.second->readShipRoute(travel->getRoutePath().string());
                 errCode1 |= algCalc.readShipPlan(travel->getPlanPath().string());
-                std::cout << "after readShipRoute" << std::endl;
-                std::cout << "after readShipPlan calc" << std::endl;
                 alg.second->setWeightBalanceCalculator(algCalc);
-                simulator.updateArrayOfCodes(errCode1 + errCode2,"alg");
+                simulator.updateErrorCodes(errCode1 + errCode2, "alg");
                 simulator.setShipAndCalculator(mainShip, travel->getPlanPath().string());
-                simulator.runCurrentAlgorithm(alg,travel);
-                simulator.getShip().reset(nullptr);
+                simulator.runAlgorithm(alg, travel);
             }
         }
+        if(mainShip == nullptr)
+            travel->setErroneousTravel();
         simulator.prepareForNewTravel();
-        mainShip.reset(nullptr);
         destroyAlgVec(algVec);
     }
-    simulator.createResultsFile(mainTravelPath);
-    simulator.createErrorsFile(mainTravelPath);
+    simulator.createResultsFile();
+    simulator.createErrorsFile();
 //    destroySharedObjs(SharedObjs);
     std::cerr << "IN MAIN LAST ROW" << endl;
     std::cerr << "NOTICE: this core dump happens only at the end of the program" << endl;

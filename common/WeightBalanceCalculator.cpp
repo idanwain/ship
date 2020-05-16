@@ -2,7 +2,6 @@
 #include "Parser.h"
 
 BalanceStatus WeightBalanceCalculator::tryOperation(char loadUnload, int kg, int X, int Y) {
-    std::cout << "in tryOperation" << std::endl;
     std::tuple<bool, bool> x_y_imbalance;
 //    std::vector<Container>& column = (this->shipMap).at(X).at(Y);
     switch(loadUnload){

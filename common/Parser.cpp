@@ -85,7 +85,7 @@ void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str){
  * @return returns empty string iff no error happened
  */
 pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lineNumber) {
-    auto map = ship->getMap();
+    auto &map = ship->getMap();
     std::ifstream inFile;
     std::array<int,3> dim{};
     pair<string,int> pair;
@@ -93,7 +93,6 @@ pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lin
 
     if(dim[0] >= ship->getAxis("x") || dim[1] >= ship->getAxis("y") || dim[2] >= ship->getAxis("z")){
         if(dim[0] >= ship->getAxis("x") || dim[1] >= ship->getAxis("y")){
-            std::cout << "++++++++++++++++++++++++In error setBlocks by Line+++++++++++++++++++++++ " << std::endl;
             std::get<1>(pair) = Plan_XYError;
         }
         if(dim[2] >= ship->getAxis("z"))
@@ -107,8 +106,8 @@ pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lin
         std::get<0>(pair) = ERROR_BADLINE(lineNumber);
         std::get<1>(pair) = Plan_BadLine;
     }
-    else if(!(*map)[dim[0]][dim[1]].empty()){
-        if(static_cast<int>((*map)[dim[0]][dim[1]].size()) != ship->getAxis("z")-dim[2]) {
+    else if(!(map)[dim[0]][dim[1]].empty()){
+        if(static_cast<int>((map)[dim[0]][dim[1]].size()) != ship->getAxis("z")-dim[2]) {
             std::get<0>(pair) = ERROR_DIFFVALUE(lineNumber, dim[0], dim[1]);
             std::get<1>(pair) = Plan_Con;
         }
@@ -119,7 +118,7 @@ pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lin
     }
     else{
         for(int i = 0; i < ship->getAxis("z")-dim[2]; i++){
-            (*map)[dim[0]][dim[1]].emplace_back(Block());
+            (map)[dim[0]][dim[1]].emplace_back(Block());
             ship->updateFreeSpace(-1);
         }
     }
@@ -133,7 +132,6 @@ pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lin
  * @return 0 if succeeded, specified return code otherwise.
  */
 int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const string& filePath, std::unique_ptr<Travel>* travel){
-    std::cout << "extractArgsForBlocks start" << std::endl;
     string line;
     int lineNumber = 2, returnStatement = 0,num;
     std::ifstream inFile;
@@ -160,8 +158,6 @@ int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const string& filePath, std
         }
     }
     inFile.close();
-    std::cout << "extractArgsForBlocks end" << std::endl;
-
     return returnStatement;
 }
 
@@ -174,7 +170,6 @@ int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const std::string& filePath
 }
 
 int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship){
-    std::cout << "extractShipPlan start" << std::endl;
     std::array<int, 3> dimensions{};
     std::ifstream inFile;
     int returnStatement = 0;
@@ -194,7 +189,6 @@ int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship){
     }
 
     inFile.close();
-    std::cout << "extractShipPlan end" << std::endl;
     return returnStatement;
 }
 
@@ -221,13 +215,13 @@ std::unique_ptr<Ship> extractArgsForShip(std::unique_ptr<Travel> &travel,Simulat
     int resultInt = extractShipPlan(file_path,ship);
     if(resultInt == 0){
         resultInt = extractArgsForBlocks(ship,file_path,&travel);
-        simulator.updateArrayOfCodes(resultInt,"sim");
+        simulator.updateErrorCodes(resultInt, "sim");
         if(simulator.checkIfFatalErrorOccurred("sim") == -1)
             return nullptr;
     }
     else {
         travel->setNewGeneralError(ERROR_FATALPLAN);
-        simulator.updateArrayOfCodes(resultInt, "sim");
+        simulator.updateErrorCodes(resultInt, "sim");
         return nullptr;
     }
     /*Handle ship route file*/
@@ -241,7 +235,7 @@ std::unique_ptr<Ship> extractArgsForShip(std::unique_ptr<Travel> &travel,Simulat
         return nullptr;
     }
     SimulatorObj::compareRoutePortsVsCargoDataPorts(ship,travel);
-    simulator.updateArrayOfCodes(resultInt, "sim");
+    simulator.updateErrorCodes(resultInt, "sim");
     return ship;
 }
 
@@ -254,6 +248,8 @@ std::unique_ptr<Ship> extractArgsForShip(std::unique_ptr<Travel> &travel,Simulat
 void extractRawDataFromPortFile(std::map<string,list<string>>& map, string& inputPath){
     std::ifstream inFile;
     string line;
+    if(inputPath.empty()) return;
+
     inFile.open(inputPath);
     if(inFile.fail()){
         P_ERROR_READPATH(inputPath);
@@ -279,7 +275,6 @@ void extractRawDataFromPortFile(std::map<string,list<string>>& map, string& inpu
  */
 bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream &output,
                      std::unique_ptr<Ship>& ship, std::shared_ptr<Port>& port) {
-    std::cout << "parseDataToPort: start" << std::endl;
     std::string line;
     std::ifstream input;
     std::cout << "parseDataToPort: input path is " << inputFullPathAndFileName << std::endl;
@@ -303,7 +298,6 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
                 port->addContainer(*con, Type::LOAD);
             }
             else {
-                std::cout << id << ": "<< CONTAINER_NOT_IN_ROUTE << std::endl;
                 writeToOutput(output,AbstractAlgorithm::Action::REJECT, id);
             }
         }

@@ -6,13 +6,13 @@
  * @param instruction
  * @param coordinates
  */
-void extractCraneInstruction(string &toParse, std::pair<string,string> &instruction, vector<int> &coordinates){
+void extractCraneInstruction(string &toParse, string& instruction, string& id, vector<int> &coordinates){
     auto parsedInfo = stringSplit(toParse,delim);
     for(int i = 0; i < (int)parsedInfo.size(); i++){
         if(i == 0)
-            std::get<0>(instruction) = parsedInfo.at(0);
+            instruction = parsedInfo.at(0);
         else if(i == 1)
-            std::get<1>(instruction) = parsedInfo.at(1);
+            id = parsedInfo.at(1);
         else
             coordinates.emplace_back(stoi(parsedInfo.at(i)));
     }
@@ -58,7 +58,6 @@ bool validateContainerData(const std::string& line, VALIDATION& reason, std::str
         }
         if(i == 1) {
             if(!isValidInteger(item) || atoi(item.data()) < 0){
-                std::cout << item << std::endl;
                 reason = VALIDATION::InvalidWeight;
                 return false;
             }
@@ -206,7 +205,6 @@ bool isPortInRoute(const std::string& portName, const std::vector<std::shared_pt
  * @param inFile
  */
 int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,std::unique_ptr<Travel>* travel) {
-    std::cout << "start readShipRoute" << std::endl;
     std::unique_ptr<std::vector<std::shared_ptr<Port>>> vec = std::make_unique<std::vector<std::shared_ptr<Port>>>();
     string line;
     std::ifstream inFile;
@@ -246,7 +244,6 @@ int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,
     }
 
     inFile.close();
-    std::cout << "end readShipRoute" << std::endl;
     return returnStatement;
 }
 
@@ -356,7 +353,7 @@ bool isCommentLine(const string& line){
  * @return true iff it's in the right format
  */
 bool isValidTravelName(const string& travelName){
-    std::regex reg("Travel\\s*[1-9a-zA-Z]+");
+    std::regex reg("Travel.*");
     return std::regex_match(travelName, reg);
 }
 
@@ -434,7 +431,7 @@ std::unique_ptr<Container> createContainer(SimulatorObj* sim,map<string,list<str
         if(std::get<0>(tup) == -1 || std::get<1>(tup) == -1 || std::get<2>(tup) == -1)
             return nullptr;
         auto srcPort = (sim->getShip()->getPortByName(srcPortName));
-        auto &container = (*sim->getShip()->getMap())[std::get<0>(tup)][std::get<1>(tup)][std::get<2>(tup)];
+        auto &container = (sim->getShip()->getMap())[std::get<0>(tup)][std::get<1>(tup)][std::get<2>(tup)];
         cont = std::make_unique<Container>(container.getId(),container.getWeight(),container.getDest(),srcPort);
     }
 

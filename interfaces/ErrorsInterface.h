@@ -20,13 +20,13 @@
 #define ERROR_FATALROUTE                "route: Fatal error occurred, ignoring this travel"
 #define ERROR_NOTENOUGHPORTS            "route: File contains less then 2 valid ports, ignoring this travel"
 #define ERROR_PORTTWICE(x)              "route: Port " + x + " occurs 2 or more consecutive times"
-#define ERROR_NOPORTEXISTINTRAVEL(x)    "Error: Port " + x + " has cargo_data file but not in route, ignoring his cargo files"
+#define ERROR_NOPORTEXISTINTRAVEL(x)    "route: Port " + x + " has cargo_data file but not in route, ignoring his cargo files"
 #define ERROR_ROUTEMANYFILES(x)         "route: There is already plan file, ignoring " + x
-#define ERROR_TOOMANYCARGOFILES         "route: There are two many cargo files then route number of stops"
+#define ERROR_TOOMANYCARGOFILES         "route: Number of cargo_data files > route length"
 
 
 /*----------------------PRINT TO CONSOLE-------------------*/
-#define P_ERROR_READPATH(x)     std::cerr << "Failed to read from this file path " << x << std::endl;
+#define P_ERROR_READPATH(x)     std::cout << "Failed to read from this file path " << x << std::endl;
 #define P_NORESULTFILE          std::cout << "No results, simulation.results file won't be created" << std::endl;
 #define P_NOERRORFILE           std::cout << "No errors found, simulation.errors file won't be created" << std::endl;
 #define P_NOTRAVELPATH          std::cerr <<  "Error: No travel path received, exiting program..." << endl;
@@ -43,7 +43,7 @@
 #define TRAVEL_FATAL                            "Error: algorithm indicates there's a fatal error in route file --> simulator rejects"
 #define TRAVEL_SINGLEPORT                       "Error: algorithm indicates there's a 0 or 1 ports in route file --> simulator rejects"
 #define NO_CARGO_TOLOAD(x,y)                    "Error: algorithm indicates there's no cargo to load at port " + x + " visit number " + toString(y) + " --> simulator rejects"
-#define ERROR_IDNOTHANDLE(x,y,z)                "Error: algorithm didn't handled this cargo_data line: " + x +" at port " + y + " visit number " + toString(z)
+#define ERROR_LINENOTHANDLE(x,y,z)              "Error: algorithm didn't handled this cargo_data line: " + x +" at port " + y + " visit number " + toString(z)
 #define ERROR_CONTNOTINDEST(x,y,z)              "Error: container " + x + " was on ship , but unloaded at port " + y + " while it's destination " + z
 #define ERROR_CONTLEFTONSHIP(x)                 "Error: container " + x + " left on ship, after stopping at it's destination port"
 #define ERROR_CONTLEFTONPORT(x,y,z)             "Error: container " + x + " left at port " + y + " while ship has space "
