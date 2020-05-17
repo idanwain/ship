@@ -212,7 +212,7 @@ int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,
 
     inFile.open(filePath);
     if (inFile.fail()) {
-        P_ERROR_READPATH(filePath);
+        ERROR_READ_PATH(filePath);
         returnStatement = Route_Fatal;
     }
     else {
@@ -224,7 +224,7 @@ int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,
                     line = line.substr(0, line.length() - 1);
                 }
                 if(vec->size() > 0 && vec->at(vec->size()-1) && vec->at(vec->size()-1)->get_name() == line){
-                    (*travel)->setNewGeneralError(ERROR_PORTTWICE(line));
+                    (*travel)->setNewGeneralError(ERROR_PORT_TWICE(line));
                     temporalStatement = Route_PortTwice;
                 }
                 else if (!portAlreadyExist(*vec, line)) {

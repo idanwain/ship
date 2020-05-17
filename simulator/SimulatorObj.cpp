@@ -23,14 +23,14 @@ void SimulatorObj::compareRoutePortsVsCargoDataPorts(std::unique_ptr<Ship> &ship
             travelCargoDataFiles.erase(port->get_name());
     }
     for(auto &pair : travelCargoDataFiles)
-        travel->setNewGeneralError(ERROR_NOPORTEXISTINTRAVEL(pair.first));
+        travel->setNewGeneralError(ERROR_NO_PORT_EXIST_IN_TRAVEL(pair.first));
 
     /*Count how many valid cargo files exist in this travel folder*/
     for(auto &pair : travel->getMap())
         numOfCargoFiles += (int)pair.second.size();
 
     if(numOfCargoFiles > (int)ship->getRoute().size())
-        travel->setNewGeneralError(ERROR_TOOMANYCARGOFILES);
+        travel->setNewGeneralError(ERROR_TOO_MANY_CARGO_FILES);
 }
 
 
@@ -38,12 +38,12 @@ void SimulatorObj::initListOfTravels(string &path){
     string msg = " only sub folders allowed in main folder, file won't be included in the program";
     for(const auto &entry : fs::directory_iterator(path)){
         if(!entry.is_directory()){
-            this->generalErrors.emplace_back(ERROR_NOTDIRECTORY(entry,msg));
+            this->generalErrors.emplace_back(ERROR_NOT_DIRECTORY(entry, msg));
             continue;
         }
         string travelName = entry.path().filename().string();
         if(!isValidTravelName(travelName)) {
-            this->generalErrors.emplace_back(ERROR_TRAVELNAME(travelName));
+            this->generalErrors.emplace_back(ERROR_TRAVEL_NAME(travelName));
             continue;
         }
         std::unique_ptr<Travel> currTravel = std::make_unique<Travel>(travelName);
@@ -57,18 +57,18 @@ void SimulatorObj::initListOfTravels(string &path){
             }
             else if(isValidShipRouteFileName(fileName)){
                     if(!currTravel->getRoutePath().empty())
-                        currTravel->setNewGeneralError(ERROR_ROUTEMANYFILES(fileName));
+                        currTravel->setNewGeneralError(ERROR_ROUTE_MANY_FILES(fileName));
                     else
                         currTravel->setRoutePath(deep_entry.path());
             }
             else if(isValidShipMapFileName(fileName)){
                 if(!currTravel->getPlanPath().empty())
-                    currTravel->setNewGeneralError(ERROR_PLANMANYFILES(fileName));
+                    currTravel->setNewGeneralError(ERROR_PLAN_MANY_FILES(fileName));
                 else
                     currTravel->setPlanPath(deep_entry.path());
             }
             else{
-                currTravel->setNewGeneralError(ERROR_INVALIDFILE(fileName));
+                currTravel->setNewGeneralError(ERROR_INVALID_FILE(fileName));
             }
         }
         this->TravelsVec.emplace_back(std::move(currTravel));
@@ -124,7 +124,7 @@ void SimulatorObj::createResultsFile(){
     map<string,map<string,pair<int,int>>> output_map;
 
     if(isResultsEmpty()){
-        P_NORESULTFILE;
+        NO_RESULT_FILE;
         return;
     }
     initOutputMap(output_map);
@@ -132,7 +132,7 @@ void SimulatorObj::createResultsFile(){
     path.append("simulation.results");
     inFile.open(path);
     if(inFile.fail()){
-        P_RESULTSFILE;
+        ERROR_RESULTS_FILE;
         exit(EXIT_FAILURE);
     }
     for(auto &travel : this->TravelsVec) {//Get travel Names
@@ -180,14 +180,14 @@ void SimulatorObj::createErrorsFile() {
     std::ofstream inFile;
     string path = mainOutputPath;
     if(isErrorsEmpty()){
-        P_NOERRORFILE;
+        NO_ERROR_FILE;
         return;
     }
     path.append(PATH_SEPARATOR);
     path.append("simulation.errors");
     inFile.open(path);
     if (inFile.fail()) {
-        P_ERRORSFILE;
+        ERROR_ERRORS_FILE;
         return;
     }
     if(!generalErrors.empty()){
@@ -317,18 +317,18 @@ int SimulatorObj::checkIfFatalErrorOccurred(string type){
 
 void SimulatorObj::compareFatalAlgErrsVsSimErrs(list<string> &simCurrAlgErrors){
     if(algErrorCodes[3] != simErrorCodes[3])
-        simCurrAlgErrors.emplace_back(PLAN_FATAL);
+        simCurrAlgErrors.emplace_back(ERROR_PLAN_FATAL);
     if(algErrorCodes[4] != simErrorCodes[4])
-        simCurrAlgErrors.emplace_back(DUPLICATE_XY);
+        simCurrAlgErrors.emplace_back(ERROR_DUPLICATE_XY);
     if(algErrorCodes[7] != simErrorCodes[7])
-        simCurrAlgErrors.emplace_back(TRAVEL_FATAL);
+        simCurrAlgErrors.emplace_back(ERROR_TRAVEL_FATAL);
     if(algErrorCodes[8] != simErrorCodes[8])
-        simCurrAlgErrors.emplace_back(TRAVEL_SINGLEPORT);
+        simCurrAlgErrors.emplace_back(ERROR_TRAVEL_SINGLEPORT);
 }
 
 void SimulatorObj::compareIgnoredAlgErrsVsSimErrs(string &portName,int visitNumber,list<string> &simCurrAlgErrors){
     if(algErrorCodes[16] != simErrorCodes[16])
-        simCurrAlgErrors.emplace_back(NO_CARGO_TOLOAD(portName,visitNumber));
+        simCurrAlgErrors.emplace_back(ERROR_NO_CARGO_TOLOAD(portName, visitNumber));
 
 }
 

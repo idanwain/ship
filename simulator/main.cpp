@@ -95,7 +95,7 @@ void initPaths(int argc,char** argv){
         mainAlgorithmsPath = fs::current_path().string();
 
     if(mainTravelPath.empty()) {
-        P_NOTRAVELPATH;
+        NO_TRAVEL_PATH;
         exit(EXIT_FAILURE);
     }
 }

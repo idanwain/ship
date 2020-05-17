@@ -21,7 +21,7 @@ std::optional<pair<int,int>> SimulatorValidation::validateAlgorithm(string &outp
 
     instructionsFile.open(outputPath);
     if(instructionsFile.fail()) {
-        P_ERROR_READPATH(outputPath);
+        ERROR_READ_PATH(outputPath);
         return std::nullopt;
     }
     while(getline(instructionsFile, line)){
@@ -49,7 +49,7 @@ std::optional<pair<int,int>> SimulatorValidation::validateAlgorithm(string &outp
             eraseFromRawData(line,id);
         }
         else{
-            currAlgErrors.emplace_back(ERROR_CONTLINEINSTRUCTION(portName,id,visitNumber,instruction));
+            currAlgErrors.emplace_back(ERROR_CONT_LINE_INSTRUCTION(portName, id, visitNumber, instruction));
             errorsCount = -1;
             break;
         }
@@ -287,7 +287,7 @@ int SimulatorValidation::checkContainersDidntHandle(map<string, list<string>> &i
     for(auto& idInstruction : idAndRawLine){
         if(!idInstruction.second.empty() && !softCheckId(idInstruction.first)){
             for(auto &line : idInstruction.second){
-                currAlgErrors.emplace_back(ERROR_LINENOTHANDLE(line, portName, visitNum));
+                currAlgErrors.emplace_back(ERROR_LINE_NOT_HANDLE(line, portName, visitNum));
             }
             err= -1;
         }
@@ -308,7 +308,7 @@ int SimulatorValidation::checkIfContainersLeftOnPort(SimulatorObj* sim , list<st
         err = -1;
         string id = cont.getId();
         string dstPortName = cont.getDest()->get_name();
-        currAlgErrors.emplace_back(ERROR_CONTNOTINDEST(id,currPortName,dstPortName));
+        currAlgErrors.emplace_back(ERROR_CONT_NOT_INDEST(id, currPortName, dstPortName));
     }
     /*Case there is still space on ship*/
     if(sim->getShip()->getFreeSpace() > 0 && err != -1){
@@ -316,7 +316,7 @@ int SimulatorValidation::checkIfContainersLeftOnPort(SimulatorObj* sim , list<st
             err = -1;
             string id = cont.getId();
             string dstPortName = cont.getDest()->get_name();
-            currAlgErrors.emplace_back(ERROR_CONTLEFTONPORT(id,currPortName,dstPortName));
+            currAlgErrors.emplace_back(ERROR_CONT_LEFT_ONPORT(id, currPortName, dstPortName));
         }
     }
     return err;
@@ -331,7 +331,7 @@ int  SimulatorValidation::checkForContainersNotUnloaded(SimulatorObj* sim, list<
     auto currPort = sim->getPort();
     int err = 0;
     for(auto& cont : sim->getShip()->getContainersByPort()[currPort]){
-        currAlgErrors.emplace_back(ERROR_CONTLEFTONSHIP(cont.getId()));
+        currAlgErrors.emplace_back(ERROR_CONT_LEFT_ONSHIP(cont.getId()));
         err = -1;
     }
     return err;
@@ -345,7 +345,7 @@ void SimulatorValidation::initLoadedListAndRejected() {
     auto &shipMap = sim->getShip();
     auto currPort = sim->getPort();
     for (auto &outterPair : rawDataFromPortFile) {
-        bool foundValid = false;
+        bool alreadyFound = false;
         for (auto &info : outterPair.second) {
             VALIDATION reason = VALIDATION::Valid;
             string id;
@@ -358,11 +358,11 @@ void SimulatorValidation::initLoadedListAndRejected() {
                 p.first = info;
                 p.second = reason;
                 mustRejected[parsedInfo[0]].insert({info,reason});
-            } else if(!foundValid) {
+                alreadyFound = true;
+            } else if(!alreadyFound) {
                 extractContainersData(info, id, weight, dest, shipMap);
                 Container con(id, weight, currPort, dest);
                 currPort->addContainer(con, Type::LOAD);
-                foundValid = true;
             }
             else{
                 reason = VALIDATION::DuplicatedIdOnPort;
@@ -528,7 +528,7 @@ int SimulatorValidation::checkPrioritizedHandledProperly(list<string> &currAlgEr
             }
         }
         if(loadCapacity > 0){
-            currAlgErrors.emplace_back(ERROR_LEFTPRIORITYONPORT);
+            currAlgErrors.emplace_back(ERROR_LEFT_PRIORITY_ONPORT);
             err = -1;
         }
     }
