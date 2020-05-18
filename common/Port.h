@@ -46,7 +46,7 @@ public:
 Port(const std::string& name) : name(name){}
 ~Port();
 
-    void addContainer(Container& container,Type command);
+    void addContainer(Container container,Type command);
     void removeContainer(std::string& id,Type command);
     const std::string & get_name();
     bool operator==(const Port& p);

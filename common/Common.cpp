@@ -31,6 +31,7 @@ void extractCraneInstruction(string &toParse, string& instruction, string& id, v
  * @return true iff reason == valid
  */
 bool validateContainerData(const std::string& line, VALIDATION& reason, std::string& id, std::unique_ptr<Ship>& ship) {
+    std::cout << "validateContainerData: start" << line << std::endl;
     int i=-1;
     auto data = stringSplit(line, delim);
     if(data.size() != 3){
@@ -41,23 +42,30 @@ bool validateContainerData(const std::string& line, VALIDATION& reason, std::str
     std::string port_name;
 
     for(const std::string& item : data){
+        std::cout << "validateContainerData: *********** for loop iteration **********" << line << std::endl;
         ++i;
         if (i == 0) {
             id = item;
+            std::cout << "validateContainerData: before isValidId, item =" << item << std::endl;
             bool idBool = isValidId(item);
             if(!idBool){
+                std::cout << "validateContainerData: in !idBool item = " << item << std::endl;
                 reason = VALIDATION::InvalidID;
                 return false;
             }
             else {
+                std::cout << "validateContainerData: before idExistOnShip"<< std::endl;
                 if(idExistOnShip(item, ship)){
+                    std::cout << "validateContainerData: in if (VALIDATION::ExistID), item =" << item << std::endl;
                     reason = VALIDATION::ExistID;
                     return false;
                 }
             }
         }
         if(i == 1) {
+            std::cout << "validateContainerData: before isValidInteger (has atoi), item = " << item << std::endl;
             if(!isValidInteger(item) || atoi(item.data()) < 0){
+                std::cout << "validateContainerData: in if(VALIDATION::InvalidWeight), item = " << item << std::endl;
                 reason = VALIDATION::InvalidWeight;
                 return false;
             }
@@ -66,11 +74,14 @@ bool validateContainerData(const std::string& line, VALIDATION& reason, std::str
             port_name = item;
         }
     }
+    std::cout << "validateContainerData: before isValidPortName" << std::endl;
     bool dest = isValidPortName(port_name);
     if(!dest){
+        std::cout << "validateContainerData: in if (VALIDATION::InvalidPort)" << std::endl;
         reason = VALIDATION::InvalidPort;
         return false;
     }
+    std::cout << "validateContainerData: end" << line << std::endl;
     return true;
 }
 
@@ -290,9 +301,13 @@ void writeToOutput(std::ofstream& output, AbstractAlgorithm::Action command, con
  */
 void extractContainersData(const std::string& line, std::string &id, int &weight, std::shared_ptr<Port>& dest, std::unique_ptr<Ship>& ship) {
     int i=0;
+    std::cout << "extractContainersData: start" << std::endl;
     auto data = stringSplit(line, delim);
+    std::cout << "extractContainersData: after stringSplit" << std::endl;
     std::string port_name;
     for(const std::string& item : data){
+        std::cout << "extractContainersData: ********** for loop iteration *********" << std::endl;
+        std::cout << "extractContainersData: item = " << item << std::endl;
         switch(i){
             case 0:
                 id = item;
@@ -310,10 +325,13 @@ void extractContainersData(const std::string& line, std::string &id, int &weight
 //                port_name += " " + item; //no spaces anymore
         }
     }
+    std::cout << "extractContainersData: before getPortByName (after for loop)" << std::endl;
     auto dest_temp = ship->getPortByName(port_name);
     if(dest_temp){
         dest = dest_temp;
     }
+    std::cout << "extractContainersData: end" << std::endl;
+
 }
 /**
  * This function checks if the port file is valid aka <port_symbol>_<num>.<filetype>
@@ -342,6 +360,7 @@ bool isValidShipMapFileName(const string& fileName){
  * @return
  */
 bool isCommentLine(const string& line){
+    std::cout << "isCommentLine: start" << std::endl;
     std::regex commentLine("\\s*[#]+.*");
     std::regex whiteSpaces(R"(\s*\t*\r*\n*)");
     return (std::regex_match(line,commentLine) || std::regex_match(line,whiteSpaces));
@@ -379,6 +398,7 @@ void initArrayOfErrors(std::array<bool,NUM_OF_ERRORS> &arr,int num){
  * in the curr error number
  */
 void updateErrorNum(int* currError,int newError){
+    std::cout << "updateErrorNum: start" << std::endl;
     std::array<bool,NUM_OF_ERRORS> currErrorArr {false};
     std::array<bool,NUM_OF_ERRORS> newErrorArr  {false};
     initArrayOfErrors(currErrorArr,*currError);
@@ -388,6 +408,7 @@ void updateErrorNum(int* currError,int newError){
             (*currError) += (1 << i);
         }
     }
+    std::cout << "updateErrorNum: end" << std::endl;
 }
 
 bool isValidInteger(const std::string& str){

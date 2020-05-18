@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <fstream>
 
-void Port::addContainer(Container& container, Type command) {
+void Port::addContainer(Container container, Type command) {
     switch(command){
         case Type::LOAD: load.emplace_back(container); break;
         case Type::UNLOAD: unload.emplace_back(container); break;
