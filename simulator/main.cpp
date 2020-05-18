@@ -91,7 +91,7 @@ void initPaths(int argc,char** argv){
     }
     if(mainOutputPath.empty() || !fs::exists(mainOutputPath))
         mainOutputPath = fs::current_path().string();
-    if(!mainAlgorithmsPath.empty() || !fs::exists(mainAlgorithmsPath))
+    if(mainAlgorithmsPath.empty() || !fs::exists(mainAlgorithmsPath))
         mainAlgorithmsPath = fs::current_path().string();
 
     if(mainTravelPath.empty()) {

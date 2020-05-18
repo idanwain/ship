@@ -137,7 +137,7 @@ bool SimulatorValidation::validateRejectInstruction(string& id,int kg){
  * @return true iff all tests were failed
  */
 bool SimulatorValidation::validateLoadInstruction(vector<int> &coordinates,int kg,string& id){
-    int x = coordinates[0],y = coordinates[1], z = coordinates[2];
+    int z = coordinates[0],x = coordinates[1], y = coordinates[2];
     auto &ship = sim->getShip();
     auto &map = ship->getMap();
     /*Check if the position of the x,y axis is out of bounds*/
@@ -163,7 +163,7 @@ bool SimulatorValidation::validateLoadInstruction(vector<int> &coordinates,int k
  * @return true iff all tests were failed
  */
 bool SimulatorValidation::validateUnloadInstruction(vector<int> &coordinates){
-    int x = coordinates[0],y = coordinates[1], z = coordinates[2];
+    int z = coordinates[0],x = coordinates[1], y = coordinates[2];
     auto &ship = sim->getShip();
     auto &map = ship->getMap();
     /*Check if the position of the x,y axis is out of bounds*/
@@ -191,8 +191,8 @@ bool SimulatorValidation::validateUnloadInstruction(vector<int> &coordinates){
  * @return true iff it passed all tests
  */
 bool SimulatorValidation::validateMoveInstruction(vector<int> &coordinates){
-    int x1 = coordinates[0],y1 = coordinates[1],z1 = coordinates[2];
-    int x2 = coordinates[3],y2 = coordinates[4],z2 = coordinates[5];
+    int z1 = coordinates[0],x1 = coordinates[1],y1 = coordinates[2];
+    int z2 = coordinates[3],x2 = coordinates[4],y2 = coordinates[5];
     auto &map = (sim->getShip()->getMap());
     int kg = 0;
     /*Check if the position of z axis is out of bounds*/

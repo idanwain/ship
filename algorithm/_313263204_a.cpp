@@ -77,10 +77,10 @@ void _313263204_a::loadContainers(Type list_category, std::ofstream& output){
     initContainersDistance(*load);
     std::sort(load->begin(), load->end());
     /*for exercise 3*/
-//    while(pShip->getFreeSpace() < (int)load->size()){
-//        writeToOutput(output, "R", load->back().getId());
-//        load->pop_back();
-//    }
+    while(pShip->getFreeSpace() < (int)load->size()){
+        writeToOutput(output, AbstractAlgorithm::Action::REJECT, load->back().getId());
+        load->pop_back();
+    }
     for(auto con = load->end() - 1; !load->empty() && con >= load->begin();--con){
         bool found = false;
         coordinate coor;
