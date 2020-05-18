@@ -5,13 +5,50 @@
 #include <fstream>
 
 void Port::addContainer(Container container, Type command) {
-    switch(command){
-        case Type::LOAD: load.emplace_back(container); break;
-        case Type::UNLOAD: unload.emplace_back(container); break;
-        case Type::ARRIVED: arrived.emplace_back(container); break;
-        case Type::PRIORITY: priority.emplace_back(container); break;
-        default: std::cout << "Invalid command, please enter L/U/A/P." << std::endl;
+    std::cout << "load size is " << load.size() << endl;
+    std::cout << "container is " << container << std::endl;
+    std::cout << "container id is" << container.getId() << " weight is " << container.getWeight() << endl;
+    //Container* con = new Container(container);
+    std::cout << " here " << endl;
+    if(command == Type::LOAD){
+        std::cout << "load " << endl;
+        load.emplace_back(container);
     }
+    if(command == Type::UNLOAD){
+        std::cout << "unload " << endl;
+        unload.emplace_back(container);
+    }
+    if(command == Type::PRIORITY){
+        std::cout << "priority " << endl;
+        priority.emplace_back(container);
+    }
+    if(command == Type::ARRIVED){
+        std::cout << "arrived " << endl;
+        arrived.emplace_back(container);
+
+    }
+}
+
+void Port::addContainer(std::string &id, int weight, std::shared_ptr<Port> &src,std::shared_ptr<Port> &dest, Type command) {
+    std::cout << "load size is " << load.size() << endl;
+    std::cout << " here " << endl;
+    if(command == Type::LOAD){
+        std::cout << "load " << endl;
+        load.emplace_back(Container(id,weight,src,dest));
+    }
+//    if(command == Type::UNLOAD){
+//        std::cout << "unload " << endl;
+//        unload.emplace_back(container);
+//    }
+//    if(command == Type::PRIORITY){
+//        std::cout << "priority " << endl;
+//        priority.emplace_back(container);
+//    }
+//    if(command == Type::ARRIVED){
+//        std::cout << "arrived " << endl;
+//        arrived.emplace_back(container);
+//
+//    }
 }
 
 const std::string&  Port::get_name() {

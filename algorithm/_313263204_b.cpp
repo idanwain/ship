@@ -102,7 +102,8 @@ int _313263204_b::getPortNum() {
 }
 
 void _313263204_b::unloadSingleContainer(std::ofstream &output, Container& con, Type vecType, coordinate coor){
-    pPort->addContainer(con, vecType);
+    string id = con.getId();
+    pPort->addContainer(id,con.getWeight(),con.getSrc(),con.getDest(), vecType);
     writeToOutput(output, Action::UNLOAD, con.getId(), pShip->getCoordinate(con));
     pShip->removeContainer(coor);
 }
@@ -130,10 +131,15 @@ int _313263204_b::getInstructionsForCargo(const std::string& input_full_path_and
         std::cout << "CONTAINER_FILE_ERROR" << std::endl;
         return false;
     };
+    std::cout << "getInstructionsForCargo: after parseDataToPort" << std::endl;
     unloadContainers(output);
+    std::cout << "getInstructionsForCargo: after unload containers" << std::endl;
     loadContainers(Type::PRIORITY,output);
+    std::cout << "getInstructionsForCargo: after load priority containers" << std::endl;
     loadContainers(Type::LOAD,output);
+    std::cout << "getInstructionsForCargo: after load load containers" << std::endl;
     output.close();
+    std::cout << "getInstructionsForCargo: after close" << std::endl;
     ++portNum;
     return 0;
 }

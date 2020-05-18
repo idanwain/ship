@@ -29,6 +29,7 @@
 #include <iterator>
 #include <vector>
 #include <stack>
+#include <memory>
 class Ship; class Container;
 
 /*----------------------Prefix variables-------------------*/
@@ -47,6 +48,7 @@ Port(const std::string& name) : name(name){}
 ~Port();
 
     void addContainer(Container container,Type command);
+    void addContainer(std::string &id, int weight, std::shared_ptr<Port> &src,std::shared_ptr<Port> &dest, Type command);
     void removeContainer(std::string& id,Type command);
     const std::string & get_name();
     bool operator==(const Port& p);

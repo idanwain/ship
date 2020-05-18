@@ -138,7 +138,7 @@ pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lin
             std::cout << "setBlocksByLine: map size = " << map.size() << std::endl;
             std::cout << "setBlocksByLine: map dim[0] size = " << map[dim[0]].size() << std::endl;
             std::cout << "setBlocksByLine: map dim[0][1] size = " << (map)[dim[0]][dim[1]].size() << std::endl;
-            (map)[dim[0]][dim[1]].emplace_back(Container("block"));
+            (map)[dim[0]][dim[1]].push_back(Container("block"));
             ship->updateFreeSpace(-1);
         }
     }
@@ -313,6 +313,8 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
     std::string line;
     std::ifstream input;
     std::cout << "parseDataToPort: input path is " << inputFullPathAndFileName << std::endl;
+    std::shared_ptr<Container> con;
+    std::shared_ptr<Port> dest;
     if(inputFullPathAndFileName.empty()) return true;
 
     input.open(inputFullPathAndFileName);
@@ -326,7 +328,6 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
         std::cout << "parseDataToPort: line =  " << line << std::endl;
         if(isCommentLine(line)) continue; //comment symbol
         std::string id; int weight;
-        std::shared_ptr<Port> dest;
         VALIDATION reason = VALIDATION::Valid;
         std::cout << "parseDataToPort: after VALIDATION ENUM init" << line << std::endl;
         if(validateContainerData(line, reason, id, ship)) {
@@ -335,9 +336,9 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
             std::cout << "parseDataToPort: after extractContainersData" << line << std::endl;
             if(dest != nullptr && !(*dest == *port) && dest->get_name() != "NOT_IN_ROUTE") {
                 std::cout << "parseDataToPort: in if (before addContainer)" << line << std::endl;
-//                std::unique_ptr<Container> con = std::make_unique<Container>(id, weight,port, dest);
-                port->addContainer(Container(id, weight,port, dest), Type::LOAD);
+                port->addContainer(id,weight,port,dest, Type::LOAD);
                 std::cout << "parseDataToPort: in if (after addContainer)" << line << std::endl;
+                std::cout << " load vector size after adding is " << port->getContainerVec(Type::LOAD)->size();
             }
             else {
                 writeToOutput(output,AbstractAlgorithm::Action::REJECT, id);
@@ -352,6 +353,6 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
         }
     }
     input.close();
-    std::cout << "parseDataToPort: end" << line << std::endl;
+    std::cout << "parseDataToPort: end" << std::endl;
     return true;
 }

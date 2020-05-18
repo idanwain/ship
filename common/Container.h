@@ -40,10 +40,10 @@ class Port;
 
 class Container {
     std::string id;
-	int weight;
+	int weight{};
     std::shared_ptr<Port> source;
     std::shared_ptr<Port> destination;
-	int distanceFromDest;
+	int distanceFromDest{};
 
 public:
 	Container(std::string id, int weight, std::shared_ptr<Port>& _source, std::shared_ptr<Port>& _dest) :
@@ -51,23 +51,37 @@ public:
 		weight(weight),
         source(_source),
         destination(_dest),
-        distanceFromDest(INT_MAX){}
-
-    /*Container copy c'tor*/
-    Container(const Container* contToCopy){
-	    this->id = contToCopy->id;
-	    this->weight = contToCopy->weight;
-	    this->source = contToCopy->source;
-	    this->destination = contToCopy->destination;
-	    this->distanceFromDest = contToCopy->distanceFromDest;
+        distanceFromDest(INT_MAX){
+	    std::cout << " in container contstructor" << std::endl;
 	}
-    Container(){};
+
+//	Container(Container &&contToCopy){
+//        std::cout << "in move c'tor of container " << std::endl;
+//        this->id = contToCopy.id;
+//        this->weight = contToCopy.weight;
+//        this->source = contToCopy.source;
+//        this->destination = contToCopy.destination;
+//        this->distanceFromDest = contToCopy.distanceFromDest;
+//        std::cout << "finishing move c'tor of container " << std::endl;
+//	}
+//    /*Container copy c'tor*/
+//    Container(const Container& contToCopy){
+//        std::cout << "in copy c'tor of container " << std::endl;
+//        this->id = contToCopy.id;
+//	    this->weight = contToCopy.weight;
+//        this->source = contToCopy.source;
+//        this->destination = contToCopy.destination;
+//        this->distanceFromDest = contToCopy.distanceFromDest;
+//        std::cout << "finishing copy c'tor of container " << std::endl;
+//    }
+    //Container(){};
 	Container(const std::string& id1): id(id1), weight(-1), source(nullptr), destination(nullptr),distanceFromDest(-1){}
     explicit Container(int kg): id("WeightContainer"), weight(kg), source(nullptr), destination(nullptr),distanceFromDest(-1){}
 
 	int getWeight();
 	std::string getId();
 	std::shared_ptr<Port>& getDest();
+	std::shared_ptr<Port>& getSrc();
     friend std::ostream& operator<<(std::ostream& os, const Container& c);
 	bool operator==(const Container& c);
 	bool operator!=(const Container& c);

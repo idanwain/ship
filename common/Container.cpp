@@ -37,3 +37,7 @@ bool Container::operator<(const Container &c) {
 void Container::setDistance(int distance) {
     distanceFromDest = distance;
 }
+
+std::shared_ptr<Port> &Container::getSrc() {
+    return this->source;
+}
