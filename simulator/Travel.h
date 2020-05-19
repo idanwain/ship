@@ -45,9 +45,7 @@ public:
     fs::path& getRoutePath();
     fs::path& getPlanPath();
     bool isErroneous();
-
-
-
+    bool isErrorsExists();
 };
 
 

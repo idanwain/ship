@@ -32,7 +32,7 @@ std::optional<pair<int,int>> SimulatorValidation::validateAlgorithm(string &outp
                 eraseFromRawData(line,id);
                 continue;
             }
-            coordinate one = std::tuple<int,int>(coordinates[0],coordinates[1]);
+            coordinate one = std::tuple<int,int>(coordinates[1],coordinates[2]);
             std::unique_ptr<Container> cont = createContainer(sim,rawDataFromPortFile,id,instruction,portName);
             if(instruction == "L") {
                 execute(instruction.at(0), cont, one, std::forward_as_tuple(-1, -1));
@@ -41,7 +41,7 @@ std::optional<pair<int,int>> SimulatorValidation::validateAlgorithm(string &outp
                 execute(instruction.at(0), cont, one, std::forward_as_tuple(-1, -1));
             }
             else if(instruction == "M"){
-                coordinate two = std::tuple<int,int>(coordinates[3],coordinates[4]);
+                coordinate two = std::tuple<int,int>(coordinates[4],coordinates[5]);
                 execute(instruction.at(0), cont, one, two);
             }
             instructionsCount++;
@@ -360,8 +360,10 @@ int SimulatorValidation::checkIfContainerLeftOnShipFinalPort(SimulatorObj* sim,l
         for(auto& vX : shipMap)
             for(auto& vY : vX)
                 for(auto& cont : vY) {
-                    currAlgErrors.emplace_back(ERROR_CONT_LEFT_LAST_PORT(cont.getId()));
-                    err = -1;
+                    if(cont.getId() != "block"){
+                        currAlgErrors.emplace_back(ERROR_CONT_LEFT_LAST_PORT(cont.getId()));
+                        err = -1;
+                    }
                 }
     }
     return err;
@@ -487,6 +489,7 @@ void SimulatorValidation::initPriorityRejected(){
  * This function erasing the given id and line from the raw data map
  */
 void SimulatorValidation::eraseFromRawData(string &line, string &id) {
+    if(line.empty()){}
     if(rawDataFromPortFile[id].size() > 1)
         rawDataFromPortFile[id].remove(rawDataFromPortFile[id].back());
     else

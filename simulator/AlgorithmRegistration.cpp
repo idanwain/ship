@@ -1,4 +1,3 @@
-#include <iostream>
 #include "../interfaces/AlgorithmRegistration.h"
 #include "AlgorithmFactoryRegistrar.h"
 

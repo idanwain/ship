@@ -1,3 +1,7 @@
+/**
+ * This class handles the dynamic loading and holding of the .so algorithm files
+ */
+
 #ifndef SHIP1_ALGORITHMFACTORYREGISTRAR_H
 #define SHIP1_ALGORITHMFACTORYREGISTRAR_H
 

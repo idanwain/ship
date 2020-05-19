@@ -39,10 +39,10 @@ vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> initAlgorithmList(map<st
     for(auto &entry: map){
         algList.emplace_back(make_pair(entry.first,entry.second()));
     }
-    std::cout << "initAlgorithmList: alg vec size: " << algList.size() << std::endl;
     return algList;
 
 }
+
 
 /**
  * This function gets the paths or sets them to be the current working directory

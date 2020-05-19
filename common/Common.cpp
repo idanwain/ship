@@ -177,22 +177,30 @@ bool isPortInRoute(const std::string& portName, const std::vector<std::shared_pt
     return found && portName != "NOT_IN_ROUTE";
 }
 
-
+/**
+ * writes instruction for crane:
+ * - REJECT: R, id
+ * - MOVE: M, id, z1, x1, y1, z2, x2, y2
+ * - LOAD / UNLOAD: L/U, id, z1, x1, y1
+ */
 void writeToOutput(std::ofstream& output, AbstractAlgorithm::Action command, const std::string& id, const std::tuple<int,int,int> pos, const std::tuple<int,int,int>& movedTo){
+    int x1 = std::get<0>(pos), y1 = std::get<1>(pos), z1 = std::get<2>(pos);
+    int x2 = std::get<0>(movedTo), y2 = std::get<1>(movedTo), z2 = std::get<2>(movedTo);
+
     switch(command) {
         case AbstractAlgorithm::Action::REJECT:
             output << static_cast<char>(command) << ", " << id << std::endl;
             break;
         case AbstractAlgorithm::Action::MOVE:
-            output << static_cast<char>(command) << ", " << id << ", " << std::get<2>(pos) <<
-                   ", " << std::get<0>(pos) << ", " << std::get<1>(pos) <<
-                   ", " << std::get<2>(movedTo) << ", " << std::get<0>(movedTo) <<
-                   ", " << std::get<1>(movedTo) << std::endl;
+            output << static_cast<char>(command)
+            << ", " << id << ", " <<
+            z1 << ", " << x1 << ", " << y1 << ", " <<
+            z2 << ", " << x2 << ", " << y2 << std::endl;
             break;
         case  AbstractAlgorithm::Action::LOAD:
         case  AbstractAlgorithm::Action::UNLOAD:
-            output << static_cast<char>(command) << ", " << id << ", " << std::get<2>(pos) << ", " << std::get<0>(pos) << ", "
-                   << std::get<1>(pos) << std::endl;
+            output << static_cast<char>(command) << ", " << id << ", " <<
+            z1 << ", " << x1 << ", " << y1 << std::endl;
             break;
     }
 }

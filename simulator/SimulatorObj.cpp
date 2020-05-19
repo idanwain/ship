@@ -198,7 +198,7 @@ void SimulatorObj::createErrorsFile() {
     }
     inFile << lineSep+lineSep << '\n';
     for(auto &travel : TravelsVec){
-        if(!travel->getGeneralErrors().empty() || !travel->getErrorsMap().empty()){
+        if(travel->isErrorsExists()){
             inFile << travel->getName() << " Errors:" << '\n'; //Travel name
             if(!travel->getGeneralErrors().empty()){
                 inFile << spaces << "General:" << '\n';

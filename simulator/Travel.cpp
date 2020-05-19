@@ -46,5 +46,19 @@ bool Travel::isErroneous() {
 
 void Travel::setErroneousTravel() {
     this->erroneousTravel = true;
-
 }
+
+bool Travel::isErrorsExists() {
+    for(auto& msg: this->generalErrors){
+        if(msg.empty()){}
+        return true;
+    }
+    for(auto& pair : this->errors){
+        for(auto& msg : pair.second){
+            if(msg.empty()){}
+            return true;
+        }
+    }
+    return false;
+}
+

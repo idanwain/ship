@@ -4,6 +4,11 @@
 #include <algorithm>
 #include <fstream>
 
+/**
+ * adds container to the specified type
+ * @param container - container to add to port
+ * @param command - (LOAD, UNLOAD, ARRIVED, PRIORITY)
+ */
 void Port::addContainer(Container& container, Type command) {
     switch(command){
         case Type::LOAD: load.emplace_back(container); break;
@@ -18,6 +23,9 @@ const std::string&  Port::get_name() {
     return name;
 }
 
+/**
+ * compares ports by name
+ */
 bool Port::operator==(const Port& p){
     return this->get_name() == p.name;
 }
@@ -29,6 +37,10 @@ Port::~Port(){
     arrived.clear();
 }
 
+/**
+ * gets all containers of the specified type
+ * @param type - (LOAD, UNLOAD, ARRIVED, PRIORITY)
+ */
 std::vector<Container>* Port::getContainerVec(Type type){
     switch(type){
         case Type::LOAD: return &this->load;
@@ -39,6 +51,11 @@ std::vector<Container>* Port::getContainerVec(Type type){
     }
 }
 
+/**
+ * removes container with equal id member
+ * @param id - id of container
+ * @param command - (LOAD, UNLOAD, ARRIVED, PRIORITY)
+ */
 void Port::removeContainer(std::string &id, Type command) {
     int i = 0;
     bool found = false;

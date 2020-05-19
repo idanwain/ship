@@ -11,7 +11,7 @@
 *
 *
 *      *******      Functions      ******
-* addContainer      - adds container to port by the command char.
+* addContainer      - adds container to port by the command type.
 * get_name          - returns the name of the port.
 * operator==        - returns true if this->name == p->name.
 * getContainerVec   - returns pointer to the type vector(load, priority, unload or arrived) of port.

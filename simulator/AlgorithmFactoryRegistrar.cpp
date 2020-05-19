@@ -3,13 +3,18 @@
 
 namespace fs = std::filesystem;
 
+/**
+ * static instance initialization
+ */
 AlgorithmFactoryRegistrar AlgorithmFactoryRegistrar::registrar;
 
 void AlgorithmFactoryRegistrar::registerAlgorithmFactory(std::function<std::unique_ptr<AbstractAlgorithm>()> algorithmFactory) {
     AlgorithmFactoryRegistrar::registrar.funcVec.push_back(algorithmFactory);
 }
 
-
+/**
+ * @return - instance of the static instance of AlgorithmFactoryRegistrar
+ */
 AlgorithmFactoryRegistrar &AlgorithmFactoryRegistrar::getRegistrar() {
     return registrar;
 }
@@ -18,7 +23,11 @@ std::vector<std::function<std::unique_ptr<AbstractAlgorithm>()>> &AlgorithmFacto
     return this->funcVec;
 }
 
-
+/**
+ * push back algName to nameVec iff an algorithm registered
+ * @param algName - name of the algorithm
+ * @return - true if algorithm registered, false otherwise.
+ */
 bool AlgorithmFactoryRegistrar::setName(const std::string &algName) {
     if(funcVec.size() == nameVec.size()) return false;
     nameVec.emplace_back(algName);
@@ -31,6 +40,11 @@ AlgorithmFactoryRegistrar::~AlgorithmFactoryRegistrar() {
     SharedObjs.clear();
 }
 
+/**
+ * loads dynamically the .so files of the algorithms
+ * @param algPaths - path to algorithms directory
+ * @param map - data structures that holds pairs of (name, algorithm functors).
+ */
 void AlgorithmFactoryRegistrar::dynamicLoadSoFiles(vector<fs::path>& algPaths,
                                                    map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>>& map){
     for(auto& path : algPaths){
