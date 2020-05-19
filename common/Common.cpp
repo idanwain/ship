@@ -344,7 +344,7 @@ bool isValidShipMapFileName(const string& fileName){
  */
 bool isCommentLine(const string& line){
     std::regex commentLine("\\s*[#]+.*");
-    std::regex whiteSpaces(R"(\s*\t*\r*\n*)");
+    std::regex whiteSpaces("\\s*\\t*\\r*\\n*");
 return (std::regex_match(line,commentLine) || std::regex_match(line,whiteSpaces));
 }
 
