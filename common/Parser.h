@@ -21,6 +21,9 @@
 
 class Common;
 
+#define NUM_OF_ERRORS 19
+
+
 #include <string>
 #include <vector>
 #include <list>
@@ -56,7 +59,7 @@ void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str);
 int portAlreadyExist(std::vector<std::shared_ptr<Port>>& vec,string &str);
 void extractRawDataFromPortFile(std::map<string,list<string>>& map, string &inputPath,SimulatorObj* sim);
 bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream &output,
-                     std::unique_ptr<Ship>& ship, std::shared_ptr<Port>& port);
+                     std::unique_ptr<Ship>& ship, std::shared_ptr<Port>& port, std::set<std::string>& idSet, std::array<bool,NUM_OF_ERRORS>& errorCodes, bool lastPort);
 int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship);
 string extractPortNameFromFile(const string& fileName);
 

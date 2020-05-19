@@ -274,15 +274,15 @@ void extractRawDataFromPortFile(std::map<string,list<string>>& map, string& inpu
  * @param input_full_path_and_file_name
  */
 bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream &output,
-                     std::unique_ptr<Ship>& ship, std::shared_ptr<Port>& port) {
+        std::unique_ptr<Ship>& ship, std::shared_ptr<Port>& port, std::set<std::string>& idSet, std::array<bool,NUM_OF_ERRORS>& errorCodes, bool lastPort) {
     std::string line;
     std::ifstream input;
     if(inputFullPathAndFileName.empty()) return true;
 
     input.open(inputFullPathAndFileName);
     if(input.fail()){
+        errorCodes.at(fileCantRead) = true;
         ERROR_READ_PATH(inputFullPathAndFileName);
-        return false;
     }
 
     while(getline(input,line)){
@@ -290,8 +290,10 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
         std::string id; int weight;
         std::shared_ptr<Port> dest;
         VALIDATION reason = VALIDATION::Valid;
-        if(validateContainerData(line, reason, id, ship)) {
+        if(validateContainerData(line, reason, id, ship,errorCodes)) {
+            if(lastPort) errorCodes.at(lastPortCont) = true;
             extractContainersData(line, id, weight, dest, ship);
+
             if(dest != nullptr && !(*dest == *port) && dest->get_name() != "NOT_IN_ROUTE") {
                 std::unique_ptr<Container> con = std::make_unique<Container>(id, weight,port, dest);
                 port->addContainer(*con, Type::LOAD);
@@ -301,11 +303,14 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
             }
         }
         else {
-            if(reason != VALIDATION::Valid){
+            if(reason != VALIDATION::Valid && reason != VALIDATION::InvalidNumParameters && !lastPort){
                 writeToOutput(output, AbstractAlgorithm::Action::REJECT, id);
             }
         }
+        if(idSet.find(id) != idSet.end()) errorCodes.at(duplicateId) = true;
+        idSet.insert(id);
     }
+    if(static_cast<int>(idSet.size()) > ship->getFreeSpace()) errorCodes.at(exceedsCap) = true;
     input.close();
     return true;
 }

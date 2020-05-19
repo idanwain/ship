@@ -55,5 +55,8 @@
 #define ERROR_TRAVEL_NAME(x)                    "Error: " + x + " is not a valid travel name,ignoring"
 #define ERROR_INVALID_FILE(x)                   "Error: " + x + " is not a valid route/port/ship plan file, ignoring"
 #define P_ALGNOTREGISTER(x)                     "Error: algorithm: " + x + " didn't register, ignoring this algorithm"
+#define ERROR_ALG_PLAN                          "Error: Algorithm crashed in read plan/route or calculator initialize"
+#define ERROR_ALG_FAILED                        "Error: Algorithm Failed in get instructions for cargo"
+
 
 

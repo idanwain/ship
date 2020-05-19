@@ -69,6 +69,17 @@ class SimulatorObj;
 #define C_LastPortCont  (1 << 17)/*Last port has awaiting containers*/
 #define C_ExceedsCap    (1 << 18)/*total containers amount exceeds ship cap*/
 
+#define reserved2      9
+#define duplicateId   10    /*2 containers with same Id*/
+#define idAlreadyOn   11    /*Id already on ship*/
+#define weightIssue   12    /*Any weight issue, bad weight/missing*/
+#define portIssue     13    /*Missing port,port not in dest*/
+#define idCantRead    14    /*Cant read Id??*/
+#define idIllegal     15    /*Id is not illegal ISO 6346*/
+#define fileCantRead  16    /*Assuming no cargo to load at this port*/
+#define lastPortCont  17    /*Last port has awaiting containers*/
+#define exceedsCap    18    /*total containers amount exceeds ship cap*/
+
 enum class VALIDATION {InvalidID, InvalidWeight, ExistID, InvalidPort,Valid,InvalidNumParameters,DuplicatedIdOnPort};
 
 
@@ -82,7 +93,7 @@ bool isValidPortName(const string& portName);
 bool isValidInteger(const string& str);
 bool isCommentLine(const string& line);
 bool isValidId(const string& str);
-bool validateContainerData(const string& line, VALIDATION& reason, string& id, std::unique_ptr<Ship>& ship);
+bool validateContainerData(const string& line, VALIDATION& reason, string& id, std::unique_ptr<Ship>& ship, std::array<bool,NUM_OF_ERRORS>& errorCodes);
 bool idExistOnShip(const string& id, std::unique_ptr<Ship>& ship);
 bool isPortInRoute(const string& portName, const vector<std::shared_ptr<Port>>& route, int portNum);
 

@@ -354,7 +354,13 @@ int SimulatorObj::runCurrentPort(string &portName,fs::path &portPath,pair<string
     inputPath =  portPath.string();
 
     outputPath = algOutputFolder + PATH_SEPARATOR + portName + "_" + std::to_string(visitNumber) + ".crane_instructions";
-    algReturnValue = alg.second->getInstructionsForCargo(inputPath,outputPath);
+    try {
+        algReturnValue = alg.second->getInstructionsForCargo(inputPath,outputPath);
+    }
+    catch(...){
+        simCurrAlgErrors.emplace_back(ERROR_ALG_FAILED);
+        return -1;
+    }
     updateErrorCodes(algReturnValue, "alg");
     result = validator.validateAlgorithm(outputPath,inputPath,simCurrAlgErrors,portName,visitNumber);
 

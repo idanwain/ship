@@ -25,6 +25,8 @@ class _313263204_a: public AbstractAlgorithm {
     std::unique_ptr<Ship> pShip;
     std::shared_ptr<Port> pPort;
     WeightBalanceCalculator calc;
+    std::array<bool,NUM_OF_ERRORS> errorCodes{false};
+    std::set<std::string> idSet;
 public:
     explicit _313263204_a(): AbstractAlgorithm(){}
     ~_313263204_a() override= default;
@@ -43,6 +45,7 @@ public:
     void handleColumn(coordinate coor, vector<Container> *column,
             int lowest_floor, vector<Container> *containersToUnload, std::ofstream &output);
     int getPortNum();
+    int resetAndReturn();
 };
 
 #endif //SHIP1_LIFO_ALGORITHM_H

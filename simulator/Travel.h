@@ -10,6 +10,7 @@
 #include <filesystem>
 #include <iostream>
 #include <fstream>
+#include "../interfaces/ErrorsInterface.h"
 
 using std::cout;
 using std::endl;
@@ -46,6 +47,7 @@ public:
     fs::path& getPlanPath();
     bool isErroneous();
     bool isErrorsExists();
+    void setAlgCrashError(string &algName);
 };
 
 

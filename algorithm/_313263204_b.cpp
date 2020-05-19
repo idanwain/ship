@@ -121,21 +121,30 @@ int _313263204_b::setWeightBalanceCalculator(WeightBalanceCalculator& calculator
     return 0;
 }
 
-int _313263204_b::getInstructionsForCargo(const std::string& input_full_path_and_file_name,
-                                          const std::string& output_full_path_and_file_name) {
+
+int _313263204_b::getInstructionsForCargo(const std::string& input_full_path_and_file_name, const std::string& output_full_path_and_file_name) {
     if(portNum > static_cast<int>(pShip->getRoute().size())) portNum = 0;
     this->pPort = pShip->getRoute().at(portNum);
     std::ofstream output(output_full_path_and_file_name);
-    if(!input_full_path_and_file_name.empty()){
-        if(!parseDataToPort(input_full_path_and_file_name, output, pShip, pPort)){
-            output.close();
-            return -1;
-        };
-    }
+    bool lastPort = portNum == static_cast<int>(pShip->getRoute().size());
+
+    parseDataToPort(input_full_path_and_file_name, output, pShip, pPort, idSet, errorCodes, lastPort);
+
     unloadContainers(output);
     loadContainers(Type::PRIORITY,output);
     loadContainers(Type::LOAD,output);
+
     output.close();
+    return resetAndReturn();
+}
+
+int _313263204_b::resetAndReturn() {
+    int code = 0;
+    for(int i = 0; i < NUM_OF_ERRORS; ++i){
+        if(errorCodes.at(i)) code += 1 << i;
+    }
+    this->errorCodes = std::array<bool,NUM_OF_ERRORS>{false};
+    idSet.clear();
     ++portNum;
-    return 0;
+    return code;
 }

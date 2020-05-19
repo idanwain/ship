@@ -40,9 +40,14 @@ vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> initAlgorithmList(map<st
         algList.emplace_back(make_pair(entry.first,entry.second()));
     }
     return algList;
-
 }
 
+//vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> initAlgorithmList(){
+//    vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algList;
+//    algList.emplace_back(make_pair("_313263204_a",std::make_unique<_313263204_a>()));
+//    algList.emplace_back(make_pair("_313263204_b",std::make_unique<_313263204_b>()));
+//    return algList;
+//}
 
 /**
  * This function gets the paths or sets them to be the current working directory
@@ -103,14 +108,22 @@ int main(int argc, char** argv) {
     for (auto &travel : simulator.getTravels()) {
         cout << "++++++++++++++++++++++++++++ starts travel - " + travel->getName() + " ++++++++++++++++++++++++++++++" <<endl;
         vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec = initAlgorithmList(map);
+//        vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec = initAlgorithmList();
         std::unique_ptr<Ship> mainShip = extractArgsForShip(travel, simulator);
         if(mainShip != nullptr){
             for (auto &alg : algVec) {
+                int errCode1 = 0, errCode2 = 0;
                 cout << "======================== starts algorithm - " + alg.first + " ===============================" << endl;
                 WeightBalanceCalculator algCalc;
-                int errCode1 = alg.second->readShipPlan(travel->getPlanPath().string());
-                int errCode2 = alg.second->readShipRoute(travel->getRoutePath().string());
-                errCode1 |= algCalc.readShipPlan(travel->getPlanPath().string());
+                try {
+                    errCode1 = alg.second->readShipPlan(travel->getPlanPath().string());
+                    errCode2 = alg.second->readShipRoute(travel->getRoutePath().string());
+                    errCode1 |= algCalc.readShipPlan(travel->getPlanPath().string());
+                }
+                catch(...) {
+                    travel->setAlgCrashError(alg.first);
+                    continue;
+                }
                 alg.second->setWeightBalanceCalculator(algCalc);
                 simulator.updateErrorCodes(errCode1 + errCode2, "alg");
                 simulator.setShipAndCalculator(mainShip, travel->getPlanPath().string());

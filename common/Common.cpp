@@ -9,11 +9,13 @@
  * @param ship - current ship
  * @return true iff reason == valid
  */
-bool validateContainerData(const std::string& line, VALIDATION& reason, std::string& id, std::unique_ptr<Ship>& ship) {
+bool validateContainerData(const std::string& line, VALIDATION& reason, std::string& id, std::unique_ptr<Ship>& ship, std::array<bool,NUM_OF_ERRORS>& errorCodes) {
+    bool isValid = true;
     int i=-1;
     auto data = stringSplit(line, delim);
     if(data.size() != 3){
         reason = VALIDATION::InvalidNumParameters;
+        errorCodes.at(idCantRead) = true;
         id = data.at(0);
         return false;
     }
@@ -26,19 +28,22 @@ bool validateContainerData(const std::string& line, VALIDATION& reason, std::str
             bool idBool = isValidId(item);
             if(!idBool){
                 reason = VALIDATION::InvalidID;
-                return false;
+                errorCodes.at(idIllegal) = true;
+                isValid = false;
             }
             else {
                 if(idExistOnShip(item, ship)){
                     reason = VALIDATION::ExistID;
-                    return false;
+                    errorCodes.at(idAlreadyOn) = true;
+                    isValid = false;
                 }
             }
         }
         if(i == 1) {
             if(!isValidInteger(item) || atoi(item.data()) < 0){
                 reason = VALIDATION::InvalidWeight;
-                return false;
+                errorCodes.at(weightIssue) = true;
+                isValid = false;
             }
         }
         else if (i == 2) {
@@ -48,9 +53,10 @@ bool validateContainerData(const std::string& line, VALIDATION& reason, std::str
     bool dest = isValidPortName(port_name);
     if(!dest){
         reason = VALIDATION::InvalidPort;
-        return false;
+        errorCodes.at(portIssue) = true;
+        isValid = false;
     }
-    return true;
+    return isValid;
 }
 
 /**
