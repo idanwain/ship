@@ -128,7 +128,7 @@ int main(int argc, char** argv) {
                 simulator.updateErrorCodes(errCode1 + errCode2, "alg");
                 simulator.setShipAndCalculator(mainShip, travel->getPlanPath().string());
                 simulator.runAlgorithm(alg, travel);
-                    simulator.prepareForNewTravel();
+                simulator.prepareForNewTravel();
             }
         }
         if(mainShip == nullptr)

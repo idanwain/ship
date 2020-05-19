@@ -66,6 +66,7 @@ void Travel::setAlgCrashError(string &algName){
     list<string> lst;
     lst.emplace_back(ERROR_ALG_PLAN);
     this->errors.insert({algName,lst});
+    this->algorithmsResults.insert({algName, {0, -1}});
 }
 
 
