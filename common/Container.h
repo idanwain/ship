@@ -53,7 +53,6 @@ public:
         destination(_dest),
         distanceFromDest(INT_MAX){}
 
-    /*Container copy c'tor*/
     Container(const Container* contToCopy){
 	    this->id = contToCopy->id;
 	    this->weight = contToCopy->weight;
@@ -61,11 +60,10 @@ public:
 	    this->destination = contToCopy->destination;
 	    this->distanceFromDest = contToCopy->distanceFromDest;
 	}
-    Container(){};
+
 	Container(const std::string& id1): id(id1), weight(-1), source(nullptr), destination(nullptr),distanceFromDest(-1){}
     explicit Container(int kg): id("WeightContainer"), weight(kg), source(nullptr), destination(nullptr),distanceFromDest(-1){}
 
-    virtual ~Container();
 	int getWeight();
 	std::string getId();
 	std::shared_ptr<Port>& getDest();

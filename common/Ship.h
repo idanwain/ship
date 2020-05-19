@@ -101,10 +101,6 @@ public:
     void moveContainer(coordinate origin, coordinate dest);
     void updateFreeSpace(int num);
     bool isOnShip(Container &con);
-    std::shared_ptr<Port> getPortByNumber(size_t num);
-
-
-
 
 };
 

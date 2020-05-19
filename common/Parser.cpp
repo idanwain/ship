@@ -75,7 +75,6 @@ void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str){
         }
 }
 
-
 /**
  * This function gets a string(a line from the file) parse the line to get 3 ints (x,y,z) such ship.getMap()[x][y][z]
  * will be initialized to be block container.
@@ -309,4 +308,112 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
     }
     input.close();
     return true;
+}
+
+/**
+ * This function gets a string to extract the data from and arrange it.
+ * @param toParse - the string to parse from
+ * @param instruction
+ * @param coordinates
+ */
+void extractCraneInstruction(string &toParse, string& instruction, string& id, vector<int> &coordinates){
+    auto parsedInfo = stringSplit(toParse,delim);
+    for(int i = 0; i < (int)parsedInfo.size(); i++){
+        if(i == 0)
+            instruction = parsedInfo.at(0);
+        else if(i == 1)
+            id = parsedInfo.at(1);
+        else
+            coordinates.emplace_back(stoi(parsedInfo.at(i)));
+    }
+}
+
+/**
+ * parses the data from a given line
+ * @param line - data line of container
+ * @param id - container's ID
+ * @param weight - container's weight
+ * @param dest - container's destination
+ */
+void extractContainersData(const std::string& line, std::string &id, int &weight, std::shared_ptr<Port>& dest, std::unique_ptr<Ship>& ship) {
+    int i=0;
+    auto data = stringSplit(line, delim);
+    std::string port_name;
+    for(const std::string& item : data){
+        switch(i){
+            case 0:
+                id = item;
+                ++i;
+                break;
+            case 1:
+                weight = stoi(item);
+                ++i;
+                break;
+            case 2:
+                port_name = item;
+                ++i;
+                break;
+        }
+    }
+    auto dest_temp = ship->getPortByName(port_name);
+    if(dest_temp){
+        dest = dest_temp;
+    }
+}
+
+/**
+ * overloaded function without error log for algorithm usage
+ */
+int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath){
+    list<string> tempListForAlg;
+    return extractTravelRoute(ship, filePath, nullptr);
+}
+
+/**
+ * This function extracting the travel route from a file and sets it to be the given ship travel's route
+ * @param ship
+ * @param inFile
+ */
+int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,std::unique_ptr<Travel>* travel) {
+    std::unique_ptr<std::vector<std::shared_ptr<Port>>> vec = std::make_unique<std::vector<std::shared_ptr<Port>>>();
+    string line;
+    std::ifstream inFile;
+    int returnStatement = 0,temporalStatement = 0;
+
+    inFile.open(filePath);
+    if (inFile.fail()) {
+        ERROR_READ_PATH(filePath);
+        returnStatement = Route_Fatal;
+    }
+    else {
+        while (getline(inFile, line)) {
+            temporalStatement = 0;
+            if (isCommentLine(line)) continue;
+            else if (isValidPortName(line)) {
+                trimSpaces(line);
+                if(iscntrl(line[line.length() - 1])){
+                    line = line.substr(0, line.length() - 1);
+                }
+                if(vec->size() > 0 && vec->at(vec->size()-1) && vec->at(vec->size()-1)->get_name() == line){
+                    (*travel)->setNewGeneralError(ERROR_PORT_TWICE(line));
+                    temporalStatement = Route_PortTwice;
+                }
+                else if (!portAlreadyExist(*vec, line)) {
+                    std::shared_ptr<Port> p1 = std::make_shared<Port>(line);
+                    vec->emplace_back(p1);
+                }
+            }
+            else{
+                temporalStatement = Route_badPortS;
+            }
+            updateErrorNum(&returnStatement,temporalStatement);
+        }
+        if((int)vec->size() <= 1){
+            returnStatement += Route_SingleP;
+        }
+        ship->setRoute(*vec);
+    }
+
+    inFile.close();
+    return returnStatement;
 }

@@ -73,6 +73,7 @@ enum class VALIDATION {InvalidID, InvalidWeight, ExistID, InvalidPort,Valid,Inva
 
 
 /*----------------------Validate functions-------------------*/
+
 bool isValidPortFileName(const string& fileName);
 bool isValidShipMapFileName(const string& fileName);
 bool isValidShipRouteFileName(const string& fileName);
@@ -82,15 +83,11 @@ bool isValidInteger(const string& str);
 bool isCommentLine(const string& line);
 bool isValidId(const string& str);
 bool validateContainerData(const string& line, VALIDATION& reason, string& id, std::unique_ptr<Ship>& ship);
-
-/*----------------------Extract functions-------------------*/
-int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,std::unique_ptr<Travel>* travel);
-int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath);//Overload
-void extractContainersData(const std::string& line, std::string &id, int &weight, std::shared_ptr<Port>& dest, std::unique_ptr<Ship>& ship);
-void extractCraneInstruction(string &toParse, string& instruction, string& id, vector<int> &coordinates);
-/*----------------------Rest of the functions-------------------*/
 bool idExistOnShip(const string& id, std::unique_ptr<Ship>& ship);
 bool isPortInRoute(const string& portName, const vector<std::shared_ptr<Port>>& route, int portNum);
+
+/*----------------------Rest of the functions-------------------*/
+
 vector<string> stringSplit(string s, const char* delimiter);
 void writeToOutput(std::ofstream& output,
                    AbstractAlgorithm::Action command, const std::string& id,

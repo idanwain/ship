@@ -1,6 +1,5 @@
 #include "SimulatorValidation.h"
 
-
 /**
  * This function manages to validate the whole algorithm cranse instruction at given port
  * @param outputPath - the path of the crane instructions file
