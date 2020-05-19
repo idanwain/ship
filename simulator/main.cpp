@@ -57,7 +57,7 @@ vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> initAlgorithmList(map<st
 void initPaths(int argc,char** argv){
     string basePath = fs::current_path().string();
     const string travelFlag = "-travel_path";
-    const string outputFlag = "-output_path";
+    const string outputFlag = "-output";
     const string algorithmFlag = "-algorithm_path";
 
     for(int i = 1; i+1 < argc; i++){

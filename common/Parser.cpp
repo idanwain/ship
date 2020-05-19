@@ -282,7 +282,7 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
     input.open(inputFullPathAndFileName);
     if(input.fail()){
         errorCodes.at(fileCantRead) = true;
-        ERROR_READ_PATH(inputFullPathAndFileName);
+        return true;
     }
 
     while(getline(input,line)){
@@ -310,7 +310,7 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
         if(idSet.find(id) != idSet.end()) errorCodes.at(duplicateId) = true;
         idSet.insert(id);
     }
-    if(static_cast<int>(idSet.size()) > ship->getFreeSpace()) errorCodes.at(exceedsCap) = true;
+    if(static_cast<int>(port->getContainerVec(Type::LOAD)->size()) > ship->getFreeSpace()) errorCodes.at(exceedsCap) = true;
     input.close();
     return true;
 }
