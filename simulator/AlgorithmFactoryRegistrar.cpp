@@ -18,9 +18,6 @@ std::vector<std::function<std::unique_ptr<AbstractAlgorithm>()>> &AlgorithmFacto
     return this->funcVec;
 }
 
-std::vector<std::string> &AlgorithmFactoryRegistrar::getNameVec() {
-    return this->nameVec;
-}
 
 bool AlgorithmFactoryRegistrar::setName(const std::string &algName) {
     if(funcVec.size() == nameVec.size()) return false;

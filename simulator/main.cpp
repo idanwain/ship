@@ -18,8 +18,6 @@
 #include "../common/Ship.h"
 #include "../common/Parser.h"
 #include "AlgorithmFactoryRegistrar.h"
-//#include "../algorithm/_313263204_a.h"
-//#include "../algorithm/_313263204_b.h"
 #include <dlfcn.h>
 #include <memory>
 
@@ -36,18 +34,13 @@ string mainOutputPath;
  * @param algList
  * @param ship
  */
-//vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> initAlgorithmList(){
 vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> initAlgorithmList(map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>>& map){
     vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algList;
-
     for(auto &entry: map){
         algList.emplace_back(make_pair(entry.first,entry.second()));
     }
     std::cout << "initAlgorithmList: alg vec size: " << algList.size() << std::endl;
     return algList;
-//    algList.emplace_back(make_pair("_313263204_a", std::make_unique<_313263204_a>()));
-//    algList.emplace_back(make_pair("_313263204_b", std::make_unique<_313263204_b>()));
-//    return algList;
 
 }
 
@@ -87,7 +80,7 @@ void initPaths(int argc,char** argv){
  * @param algPaths
  */
 void getAlgSoFiles(vector<fs::path> &algPaths){
-    std::regex reg("_[0-9]+_[a-z]+\\.so");
+    std::regex reg(".*\\.so");
     for(const auto &entry : fs::directory_iterator(mainAlgorithmsPath)) {
         if (!entry.is_directory()) {
             if (std::regex_match(entry.path().filename().string(), reg)) {
@@ -109,9 +102,7 @@ int main(int argc, char** argv) {
     /*Cartesian Loop*/
     for (auto &travel : simulator.getTravels()) {
         cout << "++++++++++++++++++++++++++++ starts travel - " + travel->getName() + " ++++++++++++++++++++++++++++++" <<endl;
-//        vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec = initAlgorithmList();
         vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec = initAlgorithmList(map);
-        std::cout << "alg vec size: " << algVec.size() << std::endl;
         std::unique_ptr<Ship> mainShip = extractArgsForShip(travel, simulator);
         if(mainShip != nullptr){
             for (auto &alg : algVec) {

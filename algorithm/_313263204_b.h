@@ -45,4 +45,4 @@ public:
                       std::ofstream &output);
 };
 
-#endif //SHIP1_UNSORTED_LIFO_ALGORITHM_H
+#endif

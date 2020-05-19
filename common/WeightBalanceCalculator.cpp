@@ -28,6 +28,7 @@ BalanceStatus WeightBalanceCalculator::tryOperation(char loadUnload, int kg, int
     } else if(!std::get<0>(x_y_imbalance) && std::get<1>(x_y_imbalance)){
         return Y_IMBALANCED;
     } else {
+        //ex3
 //        switch(loadUnload){
 //            case 'L': {
 //                std::unique_ptr<Container> con = std::make_unique<Container>(kg);

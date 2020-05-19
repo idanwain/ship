@@ -126,10 +126,12 @@ int _313263204_b::getInstructionsForCargo(const std::string& input_full_path_and
     if(portNum > static_cast<int>(pShip->getRoute().size())) portNum = 0;
     this->pPort = pShip->getRoute().at(portNum);
     std::ofstream output(output_full_path_and_file_name);
-    if(!parseDataToPort(input_full_path_and_file_name, output, pShip, pPort)){
-        std::cout << "CONTAINER_FILE_ERROR" << std::endl;
-        return false;
-    };
+    if(!input_full_path_and_file_name.empty()){
+        if(!parseDataToPort(input_full_path_and_file_name, output, pShip, pPort)){
+            output.close();
+            return -1;
+        };
+    }
     unloadContainers(output);
     loadContainers(Type::PRIORITY,output);
     loadContainers(Type::LOAD,output);

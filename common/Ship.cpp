@@ -209,10 +209,3 @@ bool Ship::isOnShip(Container &con) {
     }
 }
 
-std::shared_ptr<Port> Ship:: getPortByNumber(size_t num){
-    if(num > this->route.size()){
-        return nullptr;
-    }
-    return this->route[num];
-}
-
