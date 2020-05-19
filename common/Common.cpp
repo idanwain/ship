@@ -76,6 +76,7 @@ bool isValidPortName(const std::string& portName){
  * @return vector of words in s
  */
 std::vector<std::string> stringSplit(std::string s, const char* delimiter) {
+    trimSpaces(s);
     if(iscntrl(s[s.length() - 1])){
         s = s.substr(0, s.length() - 1);
     }
