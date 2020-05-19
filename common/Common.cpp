@@ -125,36 +125,36 @@ std::vector<std::string> stringSplit(std::string s, const char* delimiter) {
  */
 bool isValidId(const std::string& str) {
     std::regex reg("[A-Z]{3}[UJZ][0-9]{7}");
-    return std::regex_match(str,reg);
-//    std::map<char,int> numericalValues;
-//    char curr;
-//    int value = 0,sumDigits = 0, checkDigit = 0;
-//    numericalValues.insert({'A',10});
-//    /*Following ISO requirements*/
-//    if(std::regex_match(str, reg)){
-//        /*Init map*/
-//        for(int i = 0,j = 1; i < 27; i++,j++){
-//            curr = 'B' + i;
-//            if((11+j)% 11 == 0)
-//                j+=1;
-//            value = 11+j;
-//            numericalValues.insert({curr,value});
-//        }
-//        checkDigit = str.at(str.length() -1) - 48;
-//        for(int i = 0; i < (int)str.length()-1; i++){
-//            if(i < 4)
-//                value = numericalValues[str.at(i)];
-//            else
-//                value = str.at(i) - 48;
-//            sumDigits += (value * (1 << i));
-//
-//        }
-//        value = sumDigits / 11;
-//        value = value * 11;
-//        if((sumDigits - value) % 10 == checkDigit)
-//            return true;
-//    }
-//    return false;
+    //return std::regex_match(str,reg);
+    std::map<char,int> numericalValues;
+    char curr;
+    int value = 0,sumDigits = 0, checkDigit = 0;
+    numericalValues.insert({'A',10});
+    /*Following ISO requirements*/
+    if(std::regex_match(str, reg)){
+        /*Init map*/
+        for(int i = 0,j = 1; i < 27; i++,j++){
+            curr = 'B' + i;
+            if((11+j)% 11 == 0)
+                j+=1;
+            value = 11+j;
+            numericalValues.insert({curr,value});
+        }
+        checkDigit = str.at(str.length() -1) - 48;
+        for(int i = 0; i < (int)str.length()-1; i++){
+            if(i < 4)
+                value = numericalValues[str.at(i)];
+            else
+                value = str.at(i) - 48;
+            sumDigits += (value * (1 << i));
+
+        }
+        value = sumDigits / 11;
+        value = value * 11;
+        if((sumDigits - value) % 10 == checkDigit)
+            return true;
+    }
+    return false;
 }
 
 /**
@@ -220,6 +220,7 @@ int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,
             temporalStatement = 0;
             if (isCommentLine(line)) continue;
             else if (isValidPortName(line)) {
+                trimSpaces(line);
                 if(iscntrl(line[line.length() - 1])){
                     line = line.substr(0, line.length() - 1);
                 }
@@ -267,15 +268,15 @@ void writeToOutput(std::ofstream& output, AbstractAlgorithm::Action command, con
             output << static_cast<char>(command) << ", " << id << std::endl;
             break;
         case AbstractAlgorithm::Action::MOVE:
-            output << static_cast<char>(command) << ", " << id << ", " << std::get<0>(pos) <<
-                   ", " << std::get<1>(pos) << ", " << std::get<2>(pos) <<
-                   ", " << std::get<0>(movedTo) << ", " << std::get<1>(movedTo) <<
-                   ", " << std::get<2>(movedTo) << std::endl;
+            output << static_cast<char>(command) << ", " << id << ", " << std::get<2>(pos) <<
+                   ", " << std::get<0>(pos) << ", " << std::get<1>(pos) <<
+                   ", " << std::get<2>(movedTo) << ", " << std::get<0>(movedTo) <<
+                   ", " << std::get<1>(movedTo) << std::endl;
             break;
         case  AbstractAlgorithm::Action::LOAD:
         case  AbstractAlgorithm::Action::UNLOAD:
-            output << static_cast<char>(command) << ", " << id << ", " << std::get<0>(pos) << ", " << std::get<1>(pos) << ", "
-                   << std::get<2>(pos) << std::endl;
+            output << static_cast<char>(command) << ", " << id << ", " << std::get<2>(pos) << ", " << std::get<0>(pos) << ", "
+                   << std::get<1>(pos) << std::endl;
             break;
     }
 }
@@ -436,6 +437,18 @@ std::unique_ptr<Container> createContainer(SimulatorObj* sim,map<string,list<str
     }
 
     return cont;
+}
+
+void trimSpaces(string& str){
+    //right trim
+    str.erase(std::find_if(str.rbegin(), str.rend(), [](int ch) {
+        return !std::isspace(ch);
+    }).base(), str.end());
+
+    //left trim
+    str.erase(str.begin(), std::find_if(str.begin(), str.end(), [](int ch) {
+        return !std::isspace(ch);
+    }));
 }
 
 

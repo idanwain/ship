@@ -99,5 +99,7 @@ void writeToOutput(std::ofstream& output,
 void initArrayOfErrors(std::array<bool,NUM_OF_ERRORS> &arr,int num);
 void updateErrorNum(int* currError,int newError);
 std::unique_ptr<Container> createContainer(SimulatorObj* sim,map<string,list<string>> &rawData,string& id, string& instruction,string& srcPortName);
+void trimSpaces(string& toTrim);
 
 #endif
+

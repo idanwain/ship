@@ -1,4 +1,4 @@
-COMP = g++-8.3.0
+COMP = g++-9.3.0
 INTERFACEDIR = ../interfaces
 COMMONDIR = ../common
 OBJS = main.o $(COMMONDIR)/Ship.o $(COMMONDIR)/Container.o $(COMMONDIR)/Port.o $(COMMONDIR)/Common.o $(COMMONDIR)/Parser.o $(COMMONDIR)/WeightBalanceCalculator.o SimulatorObj.o AlgorithmFactoryRegistrar.o AlgorithmRegistration.o  Travel.o SimulatorValidation.o

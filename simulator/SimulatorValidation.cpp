@@ -15,7 +15,7 @@ std::optional<pair<int,int>> SimulatorValidation::validateAlgorithm(string &outp
     string line,id,instruction;
     int errorsCount = 0,instructionsCount = 0;
 
-    extractRawDataFromPortFile(rawDataFromPortFile, contAtPortPath);
+    extractRawDataFromPortFile(rawDataFromPortFile, contAtPortPath,sim);
     initLoadedListAndRejected();
     initPriorityRejected();
 
@@ -141,16 +141,16 @@ bool SimulatorValidation::validateLoadInstruction(vector<int> &coordinates,int k
     auto &ship = sim->getShip();
     auto &map = ship->getMap();
     /*Check if the position of the x,y axis is out of bounds*/
-    if((x < 0 || x > ship->getAxis("x")) && (y < 0 || y > ship->getAxis("y")))
+    if((x < 0 || x >= ship->getAxis("x")) || (y < 0 || y >= ship->getAxis("y")))
         return false;
-    /*Check if the position of z axis is out of bounds*/
+    /*Check if the position of z axis is out of bounds or loading on the air*/
     if((int)(map).at(x).at(y).size() != z)
         return false;
     /*Check if algorithm loaded un prioritized container*/
     if(priorityRejected.find(id) != priorityRejected.end())
         return false;
     /*Check if an error found while parsing the id*/
-    if(mustRejected.find(id) != mustRejected.end() && !isIdInPriority(id))
+    if(mustRejected.find(id) != mustRejected.end() && !isIdAwaitAtPort(id))
         return false;
     /*Check if the weight balance is approved*/
     return sim->getCalc().tryOperation('L', kg, x, y) == APPROVED;
@@ -167,7 +167,7 @@ bool SimulatorValidation::validateUnloadInstruction(vector<int> &coordinates){
     auto &ship = sim->getShip();
     auto &map = ship->getMap();
     /*Check if the position of the x,y axis is out of bounds*/
-    if((x < 0 || x > ship->getAxis("x")) && (y < 0 || y > ship->getAxis("y")))
+    if((x < 0 || x >= ship->getAxis("x")) || (y < 0 || y >= ship->getAxis("y")))
         return false;
     /*Check if the position of z axis is out of bounds*/
     if((int)(map).at(x).at(y).size() != z+1)
@@ -193,8 +193,14 @@ bool SimulatorValidation::validateUnloadInstruction(vector<int> &coordinates){
 bool SimulatorValidation::validateMoveInstruction(vector<int> &coordinates){
     int z1 = coordinates[0],x1 = coordinates[1],y1 = coordinates[2];
     int z2 = coordinates[3],x2 = coordinates[4],y2 = coordinates[5];
+    int realX = sim->getShip()->getAxis("x"), realY = sim->getShip()->getAxis("y");
     auto &map = (sim->getShip()->getMap());
     int kg = 0;
+    /*Case one of the (x,y,z) dimensions exceeding the dimensions of the ship*/
+    if((x1 < 0 || x1 >= realX) || (y1 < 0 || y1 >= realY))
+        return false;
+    if((x2 < 0 || x2 >= realX) || (y2 < 0 || y2 >= realY))
+        return false;
     /*Check if the position of z axis is out of bounds*/
     if((int)(map.at(x1).at(y1).size()) != z1 + 1 || (int)(map.at(x2).at(y2).size()) != z2)
         return false;
@@ -232,20 +238,29 @@ int SimulatorValidation::extractKgToValidate(map<string,list<string>>& rawData,S
     vector<string> parsedInfo;
     int kg = -1;
     bool found = false;
-    /*Check if container id exist in the container at port file*/
-    if(rawData.find(id) != rawData.end()){
-        parsedInfo = stringSplit(rawData[id].front(),delim);
-        if(isValidInteger(parsedInfo.at(1))){
-            kg = atoi(parsedInfo.at(1).data());
+
+    /*First check if container exist in priority list*/
+    for(auto &cont : *(sim->getPort()->getContainerVec(Type::PRIORITY))){
+        if(cont.getId() == id){
+            kg = cont.getWeight();
+            found = true;
         }
     }
-    /*Check is container exist in the priority list --> it was on ship and algorithm unloaded it*/
-    else{
-        for(auto &cont : *(sim->getPort()->getContainerVec(Type::PRIORITY))){
+    /*If not in priority list check in load list*/
+    if(!found){
+        for(auto &cont : *(sim->getPort()->getContainerVec(Type::LOAD))){
             if(cont.getId() == id){
                 kg = cont.getWeight();
                 found = true;
             }
+        }
+    }
+    /*Check if container id exist in the container at port file*/
+    if(!found && rawData.find(id) != rawData.end()){
+        parsedInfo = stringSplit(rawData[id].front(),delim);
+        if(isValidInteger(parsedInfo.at(1))){
+            kg = atoi(parsedInfo.at(1).data());
+            found = true;
         }
     }
     /*Check if container is on ship map --> case we extract kg to unload operation*/
@@ -333,6 +348,22 @@ int  SimulatorValidation::checkForContainersNotUnloaded(SimulatorObj* sim, list<
     for(auto& cont : sim->getShip()->getContainersByPort()[currPort]){
         currAlgErrors.emplace_back(ERROR_CONT_LEFT_ONSHIP(cont.getId()));
         err = -1;
+    }
+    return err;
+}
+
+int SimulatorValidation::checkIfContainerLeftOnShipFinalPort(SimulatorObj* sim,list<string> &currAlgErrors){
+    int err = 0;
+    auto& shipMap = sim->getShip()->getMap();
+    if(sim->getPortNum() != (int)sim->getShip()->getRoute().size() - 1)
+        return 0;
+    else{
+        for(auto& vX : shipMap)
+            for(auto& vY : vX)
+                for(auto& cont : vY) {
+                    currAlgErrors.emplace_back(ERROR_CONT_LEFT_LAST_PORT(cont.getId()));
+                    err = -1;
+                }
     }
     return err;
 }
@@ -429,6 +460,9 @@ void SimulatorValidation::initPriorityRejected(){
             string id = currPortLoadVec->at(i).getId();
             priorityRejected.insert({id, currPortLoadVec->at(i)});
         }
+        /*This block handles the case that we have k containers that part of them were assigned rejected
+         * and part of them were assigned as not rejected --> algorithm have the ability to choose randomly
+         * which to load and which to decline*/
         if (loadCapacity > 0) {
             string suffixPort = (*currPortLoadVec->at(loadCapacity).getDest()).get_name();
             string prevPort = (*currPortLoadVec->at(loadCapacity - 1).getDest()).get_name();
@@ -455,7 +489,7 @@ void SimulatorValidation::initPriorityRejected(){
  */
 void SimulatorValidation::eraseFromRawData(string &line, string &id) {
     if(rawDataFromPortFile[id].size() > 1)
-        rawDataFromPortFile[id].remove(rawDataFromPortFile[id].front());
+        rawDataFromPortFile[id].remove(rawDataFromPortFile[id].back());
     else
         rawDataFromPortFile.erase(id);
 }
@@ -476,6 +510,8 @@ int SimulatorValidation::finalChecks(list<string> &currAlgErrors, string &portNa
     else if(checkIfContainersLeftOnPort(sim,currAlgErrors) == -1)
         return -1;
     else if(checkForContainersNotUnloaded(sim, currAlgErrors) == -1)
+        return -1;
+    else if(checkIfContainerLeftOnShipFinalPort(sim,currAlgErrors) == -1)
         return -1;
     /*Final check, if there are any containers were on containers at port file that the algorithm didnt handle properly*/
     else if(sim->getPortNum() != (int)sim->getShip()->getRoute().size() - 1)
@@ -541,11 +577,13 @@ bool SimulatorValidation::softCheckId(string id){
     return false;
 }
 
-bool SimulatorValidation::isIdInPriority(string& id){
+bool SimulatorValidation::isIdAwaitAtPort(string& id){
     for(auto& cont : *sim->getPort()->getContainerVec(Type::PRIORITY))
         if(id == cont.getId())
             return true;
-
+    for(auto& cont : *sim->getPort()->getContainerVec(Type::LOAD))
+        if(id == cont.getId())
+            return true;
     return false;
 }
 

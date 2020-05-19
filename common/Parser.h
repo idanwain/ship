@@ -50,7 +50,7 @@ std::unique_ptr<Ship> extractArgsForShip(std::unique_ptr<Travel> &travel,Simulat
 pair<string,int> setBlocksByLine(std::string &str, std::unique_ptr<Ship> &ship,int lineNumber);
 void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str);
 int portAlreadyExist(std::vector<std::shared_ptr<Port>>& vec,string &str);
-void extractRawDataFromPortFile(std::map<string,list<string>>& map, string &inputPath);
+void extractRawDataFromPortFile(std::map<string,list<string>>& map, string &inputPath,SimulatorObj* sim);
 bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream &output,
                      std::unique_ptr<Ship>& ship, std::shared_ptr<Port>& port);
 int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship);

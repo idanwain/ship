@@ -74,15 +74,7 @@ public:
 	bool operator!=(const Container& c);
     bool operator <(const Container& c);
     void setDistance(int distance);
-
 };
 
-/*Block is a sub class of Container class, this should be used only for setting the ship
- * map at the initialization*/
-class Block : public Container{
-public:
-    explicit Block(const std::string &id1 = "block") : Container(id1){}
-    ~Block() override= default;
-};
 
 #endif

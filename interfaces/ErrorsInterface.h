@@ -46,8 +46,9 @@
 #define ERROR_LINE_NOT_HANDLE(x,y,z)            "Error: algorithm didn't handled this cargo_data line: " + x +" at port " + y + " visit number " + toString(z)
 #define ERROR_CONT_NOT_INDEST(x,y,z)            "Error: container " + x + " was on ship , but unloaded at port " + y + " while it's destination " + z
 #define ERROR_CONT_LEFT_ONSHIP(x)               "Error: container " + x + " left on ship, after stopping at it's destination port"
-#define ERROR_CONT_LEFT_ONPORT(x,y,z)           "Error: container " + x + " left at port " + y + " while ship has space "
+#define ERROR_CONT_LEFT_ONPORT(x,y,z)           "Error: container " + x + " left at port " + y + " while ship has space"
 #define ERROR_LEFT_PRIORITY_ONPORT              "Error: There is at least 1 prioritized container that left on port but supposed to be loaded"
+#define ERROR_CONT_LEFT_LAST_PORT(x)            "Error: container " + x + " left on ship at the end of the travel"
 
 /*----------------------Simulator Errors-------------------*/
 #define ERROR_NOT_DIRECTORY(x,y)                "Error: " + x.path().filename().string() + y

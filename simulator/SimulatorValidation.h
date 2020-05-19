@@ -32,6 +32,7 @@ public:
     static int checkForContainersNotUnloaded(SimulatorObj* sim, list<string> &currAlgErrors);
     static int checkContainersDidntHandle(map<string, list<string>> &idAndRawLine,list<string> &currAlgErrors,string& portName, int visitNum);
     static int checkIfContainersLeftOnPort(SimulatorObj* sim , list<string> &currAlgErrors);
+    static int checkIfContainerLeftOnShipFinalPort(SimulatorObj* sim,list<string> &currAlgErrors);
     int checkPrioritizedHandledProperly(list<string> &currAlgErrors);
     static int extractKgToValidate(map<string,list<string>>& rawData,SimulatorObj* sim,string& id);
     static string extractPortNameToValidate(map<string,list<string>>& rawData,SimulatorObj* sim,string& id);
@@ -39,7 +40,7 @@ public:
     void execute(char command,std::unique_ptr<Container>& container, coordinate origin, coordinate dest);
     static bool softCheckId(string id);
 
-    bool isIdInPriority(string &id);
+    bool isIdAwaitAtPort(string &id);
 };
 
 

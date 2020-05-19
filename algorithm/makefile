@@ -1,9 +1,9 @@
-COMP = g++-8.3.0
+COMP = g++-9.3.0
 INTERFACEDIR = ../interfaces
 COMMONDIR = ../common
 SHARED_OBJS = _313263204_a.so _313263204_b.so
 OBJS = _313263204_a.o _313263204_b.o $(COMMONDIR)/Ship.o $(COMMONDIR)/Container.o $(COMMONDIR)/Port.o $(COMMONDIR)/Common.o $(COMMONDIR)/Parser.o $(COMMONDIR)/WeightBalanceCalculator.o
-CPP_COMP_FLAG = -std=c++2a -Wall -Wextra -Werror -pedantic-errors -DNDEBUG -fPIC
+CPP_COMP_FLAG = -std=c++2a -Wall -Wextra -Werror -pedantic-errors -DNDEBUG -fPIC -fvisibility=hidden
 CPP_LINK_FLAG = -lstdc++fs -shared
 
 all: $(SHARED_OBJS)

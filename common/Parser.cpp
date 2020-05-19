@@ -118,7 +118,7 @@ pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lin
     }
     else{
         for(int i = 0; i < ship->getAxis("z")-dim[2]; i++){
-            (map)[dim[0]][dim[1]].emplace_back(Block());
+            (map)[dim[0]][dim[1]].emplace_back(Container("block"));
             ship->updateFreeSpace(-1);
         }
     }
@@ -245,11 +245,12 @@ std::unique_ptr<Ship> extractArgsForShip(std::unique_ptr<Travel> &travel,Simulat
  * @param map - the given map to save instruction by port id
  * @param inputPath - the input path of the port file
  */
-void extractRawDataFromPortFile(std::map<string,list<string>>& map, string& inputPath){
+void extractRawDataFromPortFile(std::map<string,list<string>>& map, string& inputPath,SimulatorObj* sim){
     std::ifstream inFile;
     string line;
-    if(inputPath.empty()) return;
-
+    /*Case we are in the last stop, dont read anything*/
+    if(sim->getPortNum() == (int)sim->getShip()->getRoute().size()-1)
+        return;
     inFile.open(inputPath);
     if(inFile.fail()){
         ERROR_READ_PATH(inputPath);
