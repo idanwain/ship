@@ -108,14 +108,11 @@ int main(int argc, char** argv) {
 
     /*Cartesian Loop*/
     for (auto &travel : simulator.getTravels()) {
-        cout << "++++++++++++++++++++++++++++ starts travel - " + travel->getName() + " ++++++++++++++++++++++++++++++" <<endl;
 //        vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec = initAlgorithmList();
         vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec = initAlgorithmList(map);
-        std::cout << "alg vec size: " << algVec.size() << std::endl;
         std::unique_ptr<Ship> mainShip = extractArgsForShip(travel, simulator);
         if(mainShip != nullptr){
             for (auto &alg : algVec) {
-                cout << "======================== starts algorithm - " + alg.first + " ===============================" << endl;
                 WeightBalanceCalculator algCalc;
                 int errCode1 = alg.second->readShipPlan(travel->getPlanPath().string());
                 int errCode2 = alg.second->readShipRoute(travel->getRoutePath().string());

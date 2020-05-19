@@ -307,8 +307,6 @@ void extractContainersData(const std::string& line, std::string &id, int &weight
                 port_name = item;
                 ++i;
                 break;
-//            case 3:
-//                port_name += " " + item; //no spaces anymore
         }
     }
     auto dest_temp = ship->getPortByName(port_name);

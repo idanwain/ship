@@ -61,8 +61,6 @@ public:
                 //Note that this c'tor only for copying the blocks
                 this->shipMap[i][j] = shipToCopy->shipMap[i][j];
                 this->shipMap[i][j].reserve(z);
-                std::cout << "copy c'tor " << std::endl;
-                std::cout << " at " << i << " " << j << " size " <<  shipMap[i][j].size() << std::endl;
             }
         }
         bool found = false;

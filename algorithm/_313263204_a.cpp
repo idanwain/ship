@@ -130,13 +130,11 @@ void _313263204_a::initContainersDistance(std::vector<Container> &vector) {
 }
 
 int _313263204_a::readShipPlan(const std::string& full_path_and_file_name){
-    std::cout << "readShipPlan" << std::endl;
     return extractShipPlan(full_path_and_file_name, this->pShip) ||
         extractArgsForBlocks(this->pShip, full_path_and_file_name);
 }
 
 int _313263204_a::readShipRoute(const std::string& full_path_and_file_name) {
-    std::cout << "readShipRoute" << std::endl;
     return extractTravelRoute(pShip, full_path_and_file_name);
 }
 
@@ -147,10 +145,8 @@ int _313263204_a::setWeightBalanceCalculator(WeightBalanceCalculator& calculator
 
 int _313263204_a::getInstructionsForCargo(const std::string& input_full_path_and_file_name,
                                           const std::string& output_full_path_and_file_name) {
-    std::cout << "getInstructionsForCargo start" << std::endl;
     if(portNum > static_cast<int>(pShip->getRoute().size())) portNum = 0;
     this->pPort = pShip->getRoute().at(portNum);
-    std::cout << "getInstructionsForCargo: after get route" << std::endl;
     std::ofstream output(output_full_path_and_file_name);
     if(!input_full_path_and_file_name.empty()){
         if(!parseDataToPort(input_full_path_and_file_name, output, pShip, pPort)){
@@ -158,7 +154,6 @@ int _313263204_a::getInstructionsForCargo(const std::string& input_full_path_and
             return -1;
         };
     }
-    std::cout << "getInstructionsForCargo: after parseDataToPort" << std::endl;
     unloadContainers(output);
     loadContainers(Type::PRIORITY,output);
     loadContainers(Type::LOAD,output);

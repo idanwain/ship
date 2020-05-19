@@ -267,7 +267,6 @@ void SimulatorObj::runAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> 
             int visitNumber = visitNumbersByPort[portName];
             fs::path portPath = getPathOfCurrentPort(travel,portName,visitNumber);
             cout << "======================== iterates over this port + " << portName << " at visit number " + std::to_string(visitNumber+1) +" ============================" << endl;
-            std::cout << "runAlgorithm: input path is " << portPath.string() << std::endl;
             res = runCurrentPort(portName, portPath, alg, simCurrAlgErrors, algInstructionsFolder,
                                  ++visitNumbersByPort[portName],travel);
             compareIgnoredAlgErrsVsSimErrs(portName, visitNumber, simCurrAlgErrors);

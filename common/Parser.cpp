@@ -278,7 +278,6 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
                      std::unique_ptr<Ship>& ship, std::shared_ptr<Port>& port) {
     std::string line;
     std::ifstream input;
-    std::cout << "parseDataToPort: input path is " << inputFullPathAndFileName << std::endl;
     if(inputFullPathAndFileName.empty()) return true;
 
     input.open(inputFullPathAndFileName);
