@@ -1,5 +1,8 @@
 #include "SimulatorObj.h"
 
+/**
+ * This function sets the ship map of the simulator and the calculator ship map
+ */
 void SimulatorObj::setShipAndCalculator(std::unique_ptr<Ship> &getShip,const string& file_path){
     this->simShip = std::make_unique<Ship>(*getShip);
     simCalc.readShipPlan(file_path);
@@ -11,7 +14,6 @@ void SimulatorObj::setShipAndCalculator(std::unique_ptr<Ship> &getShip,const str
  * with cargo_data files that doesn't exist in the route.
  * also it compares the number of cargo files in this travel vs the route length and notify
  * if num of cargo files > route length.
- * @param travelName - current travel
  */
 void SimulatorObj::compareRoutePortsVsCargoDataPorts(std::unique_ptr<Ship> &ship,std::unique_ptr<Travel> &travel){
     auto vecPorts = ship->getRoute();
@@ -34,6 +36,9 @@ void SimulatorObj::compareRoutePortsVsCargoDataPorts(std::unique_ptr<Ship> &ship
 }
 
 
+/**
+ * This function initialize the list of travels from given -travel_path path
+ */
 void SimulatorObj::initListOfTravels(string &path){
     string msg = " only sub folders allowed in main folder, file won't be included in the program";
     for(const auto &entry : fs::directory_iterator(path)){
@@ -79,10 +84,6 @@ void SimulatorObj::initListOfTravels(string &path){
 /**
  * This function get a travel folder map:= <portName,list of files with same portName>
  * and assigns at list[portNum] the given entry which corresponds to map[portName][portNum-1] --> portName_portNum.cargo_data
- * @param travelMap - the travel_name map
- * @param portName - the current portName file
- * @param portNum - the current portName number
- * @param entry - the entry path
  */
 void SimulatorObj::insertPortFile(std::unique_ptr<Travel> &currTravel, string &portName, int portNum, const fs::path &entry) {
     auto &travelMap = currTravel->getMap();
@@ -110,9 +111,6 @@ std::unique_ptr<Ship>& SimulatorObj::getShip(){
 
 /**
  * This function creates a file that shows the result of the cartesian multiplication of the simulator
- * @param output_map - stores results information
- * @param travels - list of travel names
- * @param path - the file path to create the file in
  */
 void SimulatorObj::createResultsFile(){
     std::ofstream inFile;
@@ -171,8 +169,6 @@ void SimulatorObj::createResultsFile(){
  * This function creates a file that shows all the errors existed in the simulator run,
  * errors list - container didn't arrived to it's destination, container didn't picked up as the destination of
  * it isn't doesn't exist in any following ports
- * @param errors_vec - stores errors information
- * @param path - the file path to create the file in
  */
 void SimulatorObj::createErrorsFile() {
     const string spaces = "      ";//6spaces
@@ -220,7 +216,9 @@ void SimulatorObj::createErrorsFile() {
     inFile.close();
 }
 
-
+/**
+ * This function initialize the output result map
+ */
 void SimulatorObj::initOutputMap(map<string,map<string,pair<int,int>>>& outputMap){
     for(auto& travel : this->TravelsVec){
         if(!travel->isErroneous())
@@ -251,22 +249,23 @@ bool SimulatorObj:: isErrorsEmpty(){
     return true;
 }
 
-
+/**
+ * This function runs the current algorithm on the current travel
+ */
 void SimulatorObj::runAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> &alg, std::unique_ptr<Travel> &travel){
     list<string> simCurrAlgErrors;
     map<string,int> visitNumbersByPort;
     int res = 0;
-    vector<std::shared_ptr<Port>> route = this->simShip->getRoute();
+    vector<std::shared_ptr<Port>> route = simShip->getRoute();
     res = checkIfFatalErrorOccurred("alg");
     if(res != -1) {
         string algInstructionsFolder = SimulatorObj::createAlgorithmOutDirectory(alg.first, mainOutputPath,travel->getName());
         for (int portNum = 0; portNum < (int) route.size() && res != -1; portNum++) {
             string portName = route[portNum]->get_name();
-            pPort = this->simShip->getPortByName(portName);
-            this->currPortNum = portNum;
+            pPort = simShip->getPortByName(portName);
+            currPortNum = portNum;
             int visitNumber = visitNumbersByPort[portName];
             fs::path portPath = getPathOfCurrentPort(travel,portName,visitNumber);
-            cout << "======================== iterates over this port + " << portName << " at visit number " + std::to_string(visitNumber+1) +" ============================" << endl;
             res = runCurrentPort(portName, portPath, alg, simCurrAlgErrors, algInstructionsFolder,
                                  ++visitNumbersByPort[portName],travel);
             compareIgnoredAlgErrsVsSimErrs(portName, visitNumber, simCurrAlgErrors);
@@ -274,6 +273,7 @@ void SimulatorObj::runAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> 
     }
     compareFatalAlgErrsVsSimErrs(simCurrAlgErrors);
     travel->getErrorsMap().insert(make_pair(alg.first,simCurrAlgErrors));
+    prepareNextIteration();
 }
 
 /**
@@ -295,6 +295,7 @@ fs::path SimulatorObj::getPathOfCurrentPort(std::unique_ptr<Travel> &travel,stri
             result = fs::path();
         }
     }
+    /*Case there is no file --> create empty file for algorithm*/
     if(result.empty()){
         string newPath = travel->getPlanPath().parent_path().string() + PATH_SEPARATOR + portName + "_" + std::to_string(visitNumber+1) + ".cargo_data";
         result = fs::path(newPath);
@@ -314,6 +315,9 @@ int SimulatorObj::checkIfFatalErrorOccurred(string type){
         return 0;
 }
 
+/**
+ *  This function compares the fatal errors between algorithm and simulator
+ */
 void SimulatorObj::compareFatalAlgErrsVsSimErrs(list<string> &simCurrAlgErrors){
     if(algErrorCodes[3] != simErrorCodes[3])
         simCurrAlgErrors.emplace_back(ERROR_PLAN_FATAL);
@@ -325,6 +329,9 @@ void SimulatorObj::compareFatalAlgErrsVsSimErrs(list<string> &simCurrAlgErrors){
         simCurrAlgErrors.emplace_back(ERROR_TRAVEL_SINGLEPORT);
 }
 
+/**
+ * This function compares ignored errors between algorithm and simulator
+ */
 void SimulatorObj::compareIgnoredAlgErrsVsSimErrs(string &portName,int visitNumber,list<string> &simCurrAlgErrors){
     if(algErrorCodes[16] != simErrorCodes[16])
         simCurrAlgErrors.emplace_back(ERROR_NO_CARGO_TOLOAD(portName, visitNumber));
@@ -332,16 +339,7 @@ void SimulatorObj::compareIgnoredAlgErrsVsSimErrs(string &portName,int visitNumb
 }
 
 /**
- * This function handles current port and algorithm interaction
- * @param portName          - the current port name
- * @param portPath          - the full <port name>_<number>.cargo_data path
- * @param portNum           - tracking the current port in the route list
- * @param alg               - current alg
- * @param simShip           - the current simulator ship
- * @param simCurrAlgErrors  - the list of current algorithm errros
- * @param algOutputFolder   - the alg output folder to write the output file to
- * @param visitNumber       - current port visit number
- * @param algInfo           - stores the data of instructions count and errors count
+ * This function runs the current algorithm over the current port at the travel route
  */
 int SimulatorObj::runCurrentPort(string &portName,fs::path &portPath,pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,
                     list<string> &simCurrAlgErrors,string &algOutputFolder,int visitNumber,std::unique_ptr<Travel> &travel){
@@ -352,8 +350,8 @@ int SimulatorObj::runCurrentPort(string &portName,fs::path &portPath,pair<string
     pair<int,int> intAndError;
     SimulatorValidation validator(this);
     inputPath =  portPath.string();
-
     outputPath = algOutputFolder + PATH_SEPARATOR + portName + "_" + std::to_string(visitNumber) + ".crane_instructions";
+
     try {
         algReturnValue = alg.second->getInstructionsForCargo(inputPath,outputPath);
     }
@@ -363,22 +361,24 @@ int SimulatorObj::runCurrentPort(string &portName,fs::path &portPath,pair<string
     }
     updateErrorCodes(algReturnValue, "alg");
     result = validator.validateAlgorithm(outputPath,inputPath,simCurrAlgErrors,portName,visitNumber);
-
     if(!result) return -1; //case there was an error in validateAlgorithm
+
     /*Incrementing the instructions count and errors count*/
     intAndError = result.value();
     instructionsCount = std::get<0>(intAndError);
     errorsCount = std::get<1>(intAndError);
-    if(travel->getAlgResultsMap().find(alg.first) == travel->getAlgResultsMap().end()){
+    if(travel->getAlgResultsMap().find(alg.first) == travel->getAlgResultsMap().end())
         travel->getAlgResultsMap().insert(make_pair(alg.first,pair<int,int>()));
-    }
     std::get<0>(travel->getAlgResultsMap()[alg.first]) += instructionsCount;
     std::get<1>(travel->getAlgResultsMap()[alg.first]) += errorsCount;
+
     return errorsCount;
 }
 
 
-
+/**
+ * This function updates the error codes
+ */
 void SimulatorObj::updateErrorCodes(int num, string type){
     std::array<bool,NUM_OF_ERRORS> numArr{false};
     initArrayOfErrors(numArr,num);
@@ -391,7 +391,10 @@ void SimulatorObj::updateErrorCodes(int num, string type){
     }
 }
 
-void SimulatorObj:: prepareForNewTravel() {
+/**
+ * This function reset simulator parameters to next travel
+ */
+void SimulatorObj:: prepareNextIteration() {
     this->algErrorCodes = std::array<bool,NUM_OF_ERRORS>{false};
     this->simErrorCodes = std::array<bool,NUM_OF_ERRORS>{false};
     this->currPortNum = 0;
@@ -428,7 +431,7 @@ void SimulatorObj::sortAlgorithmsForResults(map<string,map<string,pair<int,int>>
         std::get<2>(tup) = alg.second.second;
         sortedVec.emplace_back(tup);
     }
-    /*sort by certain first will occur algorithms with 0 errors and lowest instructions*/
+    /*first will occur algorithms with 0 errors and lowest instructions*/
     std::sort(sortedVec.begin(),sortedVec.end(),[](const std::tuple<string,int,int> &t1,const std::tuple<string,int,int> &t2)
             ->bool {
         if(std::get<2>(t1) == std::get<2>(t2)){

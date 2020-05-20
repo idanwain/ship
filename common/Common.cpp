@@ -270,29 +270,9 @@ void initArrayOfErrors(std::array<bool,NUM_OF_ERRORS> &arr,int num){
     }
 }
 
-/**
- * This function gets a curr error number which is a sum of 2^i distinct values only
- * @param currError - the current error number which we want to update
- * @param newError - the new error number which we want to compare to, and assign only values which not exist
- * in the curr error number
- */
-void updateErrorNum(int* currError,int newError){
-    std::array<bool,NUM_OF_ERRORS> currErrorArr {false};
-    std::array<bool,NUM_OF_ERRORS> newErrorArr  {false};
-    initArrayOfErrors(currErrorArr,*currError);
-    initArrayOfErrors(newErrorArr,newError);
-    for(int i = 0; i < NUM_OF_ERRORS; i++){
-        if(!currErrorArr[i] && newErrorArr[i]){ /*if currError is false then no error yet found, and the other is true then found*/
-            (*currError) += (1 << i);
-        }
-    }
-}
-
 bool isValidInteger(const std::string& str){
     return std::regex_match(str, std::regex("[-|+]*[0-9]+"));
 }
-
-
 
 /**
  * This function creates a container based on instruction

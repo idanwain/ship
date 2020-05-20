@@ -1,6 +1,11 @@
 #ifndef SHIP_HEADER
 #define SHIP_HEADER
 
+/**
+* This header is a container of a ship that holds 3D vector of containers
+* and the route of the current ship
+*
+*/
 class Container; class Port;
 
 #include <iostream>
@@ -48,7 +53,6 @@ public:
         this->z = z;
         freeSpace = x*y*z;
     }
-    /*Copy c'tor*/
     Ship(const Ship* shipToCopy){
         x = shipToCopy->getAxis("x");
         y = shipToCopy->getAxis("y");

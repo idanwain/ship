@@ -69,9 +69,9 @@ void initPaths(int argc,char** argv){
             mainAlgorithmsPath = argv[i+1];
     }
     if(mainOutputPath.empty() || !fs::exists(mainOutputPath))
-        mainOutputPath = fs::current_path().string();
+        mainOutputPath = basePath;
     if(mainAlgorithmsPath.empty() || !fs::exists(mainAlgorithmsPath))
-        mainAlgorithmsPath = fs::current_path().string();
+        mainAlgorithmsPath = basePath;
 
     if(mainTravelPath.empty()) {
         NO_TRAVEL_PATH;
@@ -82,7 +82,6 @@ void initPaths(int argc,char** argv){
 /**
  * This function gets the algorithms.so files from the mainAlgorithms path (if given or from current path)
  * and saves the paths in the given vector.
- * @param algPaths
  */
 void getAlgSoFiles(vector<fs::path> &algPaths){
     std::regex reg(".*\\.so");
@@ -106,14 +105,11 @@ int main(int argc, char** argv) {
 
     /*Cartesian Loop*/
     for (auto &travel : simulator.getTravels()) {
-        cout << "++++++++++++++++++++++++++++ starts travel - " + travel->getName() + " ++++++++++++++++++++++++++++++" <<endl;
         vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec = initAlgorithmList(map);
-//        vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec = initAlgorithmList();
         std::unique_ptr<Ship> mainShip = extractArgsForShip(travel, simulator);
         if(mainShip != nullptr){
             for (auto &alg : algVec) {
                 int errCode1 = 0, errCode2 = 0;
-                cout << "======================== starts algorithm - " + alg.first + " ===============================" << endl;
                 WeightBalanceCalculator algCalc;
                 try {
                     errCode1 = alg.second->readShipPlan(travel->getPlanPath().string());
@@ -128,12 +124,11 @@ int main(int argc, char** argv) {
                 simulator.updateErrorCodes(errCode1 + errCode2, "alg");
                 simulator.setShipAndCalculator(mainShip, travel->getPlanPath().string());
                 simulator.runAlgorithm(alg, travel);
-                simulator.prepareForNewTravel();
             }
         }
-        if(mainShip == nullptr)
+        else
             travel->setErroneousTravel();
-        simulator.prepareForNewTravel();
+        simulator.prepareNextIteration();
     }
     simulator.createResultsFile();
     simulator.createErrorsFile();

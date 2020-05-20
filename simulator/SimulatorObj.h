@@ -2,6 +2,28 @@
 #ifndef SIMULATOROBJ_H
 #define SIMULATOROBJ_H
 
+/**
+* This header is a module of the functions used by the simulator to validate the algortihms instructions
+*
+*      *******      Functions      *******
+* setShipAndCalculator          - sets the ship of the simulator and the calculator
+* createResultsFile             - creates the results file simulation.results
+* createErrorsFile              - creates the errors file simulation.errors
+* runAlgorithm                  - run the current algorithm on current travel
+* runCurrentPort                - run the current algorithm in the current travel on the current port
+* updateErrorCodes              - updates sim array of codes or alg array of codes
+* prepareNextIteration          - reset the relevant data members to next iteration
+* checkIfFatalErrorOccurred     - checks if fatal error occures in simulator
+* compareFatalAlgErrsVsSimErrs  - comparing alg array and sim array
+* compareIgnoredAlgErrsVsSimErrs    - comparing alg array and sim array
+* sortContainersByPriority          - sort the loaded list containers by priority of destination distance
+* insertPortFile                    - inserts the port file to travel
+* createAlgorithmOutDirectory       - creates the algorithm output directory
+* getPathOfCurrentPort              - getting the path of the current port cargo_data file
+* sortAlgorithmsForResults          - sorts the algorithm results list
+* compareRoutePortsVsCargoDataPorts - comparing amount of route ports vs amount of cargo_data files
+ */
+
 class Common;
 class SimulatorValidation;
 
@@ -63,7 +85,7 @@ public:
     int  runCurrentPort(string &portName,fs::path &portPath,pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,
                                       list<string> &simCurrAlgErrors,string &algOutputFolder,int visitNumber,std::unique_ptr<Travel> &travel);
     void updateErrorCodes(int num, string type);
-    void prepareForNewTravel();
+    void prepareNextIteration();
     int  checkIfFatalErrorOccurred(string type);
     void compareFatalAlgErrsVsSimErrs(list<string> &simCurrAlgErrors);
     void compareIgnoredAlgErrsVsSimErrs(string &portName, int visitNumber, list<string> &simCurrAlgErrors);
@@ -88,7 +110,6 @@ private:
 
 };
 
-void printShipSizes(std::unique_ptr<Ship>& ship);
 
 
 #endif

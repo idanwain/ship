@@ -1,12 +1,7 @@
 #include "SimulatorValidation.h"
 
 /**
- * This function manages to validate the whole algorithm cranse instruction at given port
- * @param outputPath - the path of the crane instructions file
- * @param contAtPortPath - the input path of the port data of containers to be tested
- * @param simShip - the simulator ship
- * @param portNumber - the current port number(to get reference were we are at the route)
- * @param currAlgErrors - the algorithm errors list to update
+ * This function manages to validate the whole algorithm crane instruction at given port
  */
 std::optional<pair<int,int>> SimulatorValidation::validateAlgorithm(string &outputPath, string &contAtPortPath,
                                                list<string>& currAlgErrors,string& portName,int visitNumber){
@@ -63,13 +58,6 @@ std::optional<pair<int,int>> SimulatorValidation::validateAlgorithm(string &outp
 
 /**
  * This function manages to valid all types of instructions given by algorithm to port crane
- * @param instruction - current instruction
- * @param id
- * @param coordinates
- * @param ship
- * @param portContainers
- * @param portNum
- * @return true iff the validation of instruction went successfully
  */
 bool SimulatorValidation::validateInstruction(string &instruction,string &id, vector<int> &coordinates){
     bool isValid;
@@ -94,12 +82,6 @@ bool SimulatorValidation::validateInstruction(string &instruction,string &id, ve
 
 /**
  * This function validates reject crane instruction given by the algorithm
- * @pre assuming this function can't be reached if it's the last port in the route validation
- * @param portContainers - this list contains the current port file data(raw data)
- * @param id - the container id we want to check why rejected
- * @param ship - to get the ship map
- * @param portNum - the current port number
- * @return true iff one of the tests fails
  */
 bool SimulatorValidation::validateRejectInstruction(string& id,int kg){
     string line;
@@ -131,9 +113,6 @@ bool SimulatorValidation::validateRejectInstruction(string& id,int kg){
 
 /**
  * This function validates load crane instruction given by the algorithm
- * @param coordinates - given coordinates that algorithm did load to
- * @param ship - to get ship map
- * @return true iff all tests were failed
  */
 bool SimulatorValidation::validateLoadInstruction(vector<int> &coordinates,int kg,string& id){
     int z = coordinates[0],x = coordinates[1], y = coordinates[2];
@@ -157,9 +136,6 @@ bool SimulatorValidation::validateLoadInstruction(vector<int> &coordinates,int k
 
 /**
  * This function validate's unload crane instruction. given by the algorithm
- * @param coordinates - given coordinates that algorithm did unload to
- * @param ship - to get ship map
- * @return true iff all tests were failed
  */
 bool SimulatorValidation::validateUnloadInstruction(vector<int> &coordinates){
     int z = coordinates[0],x = coordinates[1], y = coordinates[2];
@@ -185,9 +161,6 @@ bool SimulatorValidation::validateUnloadInstruction(vector<int> &coordinates){
 /**
  * This function checks if algorithm move crane instruction is valid, logically it checks if the unload operation
  * and the load operation of the move are legal
- * @param coordinates - the vector of coordinates to unload and load , x1-z1 are unload coordinates.
- * @param map - ship's map
- * @return true iff it passed all tests
  */
 bool SimulatorValidation::validateMoveInstruction(vector<int> &coordinates){
     int z1 = coordinates[0],x1 = coordinates[1],y1 = coordinates[2];
@@ -573,12 +546,19 @@ int SimulatorValidation::checkPrioritizedHandledProperly(list<string> &currAlgEr
     return err;
 }
 
+/**
+ * This function checks if the length of the id is not 11 --> then algorithm able to ignore it
+ * error is not neccessary
+ */
 bool SimulatorValidation::softCheckId(string id){
     if(id.length() != 11)
         return true;
     return false;
 }
 
+/**
+ * This function checks if a given id await at port priorirty vector or load vector
+ */
 bool SimulatorValidation::isIdAwaitAtPort(string& id){
     for(auto& cont : *sim->getPort()->getContainerVec(Type::PRIORITY))
         if(id == cont.getId())

@@ -2,8 +2,6 @@
 
 /**
  * This function gets the number from the <port_symbol>_<num>.<filetype> deceleration
- * @param fileName
- * @return the number
  */
 int extractPortNumFromFile(const string& fileName){
     if(fileName.size() < 5) return 0;
@@ -11,16 +9,11 @@ int extractPortNumFromFile(const string& fileName){
     int dash = (int)fileName.find("_") + 1;
     string numPort = fileName.substr(dash, dot - dash);
     return atoi(numPort.data());
-
 }
 
 /**
  * This function get a travel folder map:= <portName,list of files with same portName>
  * and assigns at list[portNum] the given entry which corresponds to map[portName][portNum-1] --> portName_portNum.cargo_data
- * @param travelMap - the travel_name map
- * @param portName - the current portName file
- * @param portNum - the current portName number
- * @param entry - the entry path
  */
 string extractPortNameFromFile(const string& fileName){
     int index = fileName.find_first_of("_");
@@ -31,9 +24,6 @@ string extractPortNameFromFile(const string& fileName){
 /**
  * This function checks if port already exist in the vector list, if exists it return 0 but
  * sets a pointer to the same port at the the end of the vector.
- * @param vec - the vector of ports
- * @param str - the string of the port to be check
- * @return 0 iff exist already port with same name
  */
 int portAlreadyExist(std::vector<std::shared_ptr<Port>>& vec,string &str){
     for(const auto &element : vec ){
@@ -47,9 +37,6 @@ int portAlreadyExist(std::vector<std::shared_ptr<Port>>& vec,string &str){
 
 /**
  * This function parsing the dimensions of a ship/container location from file/string
- * @param arr - the array to store the dimensions in
- * @param inFile - the file we are working on to parse the data from
- * @param str - byFile means we parse from file, otherwise parse from the str itself
  */
 void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str){
     vector<string> vec;
@@ -61,7 +48,6 @@ void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str){
             if(!isCommentLine(str)) break; //comment symbol
         }
     }
-
     vec = stringSplit(str,delim);
     if((int)vec.size() != 3) {
         arr[0] = -1; /*indicates caller function that bad line format*/
@@ -78,10 +64,6 @@ void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str){
 /**
  * This function gets a string(a line from the file) parse the line to get 3 ints (x,y,z) such ship.getMap()[x][y][z]
  * will be initialized to be block container.
- * @param str - the string to parse
- * @param ship - the ship to get it's map from.
- * @param lineNumber - current line number reading from file optional --> algorithm might
- * @return returns empty string iff no error happened
  */
 pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lineNumber) {
     auto &map = ship->getMap();
@@ -90,6 +72,7 @@ pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lin
     pair<string,int> pair;
     getDimensions(dim,inFile,str);
 
+    /*Case exceeding dimensions of (x,y) of ship map*/
     if(dim[0] >= ship->getAxis("x") || dim[1] >= ship->getAxis("y") || dim[2] >= ship->getAxis("z")){
         if(dim[0] >= ship->getAxis("x") || dim[1] >= ship->getAxis("y")){
             std::get<1>(pair) = Plan_XYError;
@@ -100,11 +83,12 @@ pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lin
         std::get<0>(pair) = ERROR_XYZ_DIM(lineNumber);
         return pair;
     }
-
+    /*Case one of the (x,y,z) dimensions were not >= 0*/
     else if(dim[0] < 0 || dim[1] < 0 || dim[2] < 0){
         std::get<0>(pair) = ERROR_BAD_LINE(lineNumber);
         std::get<1>(pair) = Plan_BadLine;
     }
+    /*Case at position (x,y) already given z value*/
     else if(!(map)[dim[0]][dim[1]].empty()){
         if(static_cast<int>((map)[dim[0]][dim[1]].size()) != ship->getAxis("z")-dim[2]) {
             std::get<0>(pair) = ERROR_DIFF_VALUE(lineNumber, dim[0], dim[1]);
@@ -115,6 +99,7 @@ pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lin
             std::get<1>(pair) = Plan_BadLine;
         }
     }
+    /*Otherwise assign constraints to the given (x,y) that will set the actual floors to be z*/
     else{
         for(int i = 0; i < ship->getAxis("z")-dim[2]; i++){
             (map)[dim[0]][dim[1]].emplace_back(Container("block"));
@@ -126,9 +111,6 @@ pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lin
 
 /**
  * This function parse line by line from the file, and initialized the block containers in the shipmap
- * @param ship - the ship object to get it's shipMap and update it
- * @param inFile - the file pointer
- * @return 0 if succeeded, specified return code otherwise.
  */
 int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const string& filePath, std::unique_ptr<Travel>* travel){
     string line;
@@ -148,7 +130,7 @@ int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const string& filePath, std
                 pair = setBlocksByLine(line, ship, lineNumber);
                 num = std::get<1>(pair);
                 if (num != 0) {
-                    updateErrorNum(&returnStatement, num);
+                    returnStatement |= num;
                     if(travel != nullptr)
                         (*travel)->setNewGeneralError(std::get<0>(pair));
                 }
@@ -161,7 +143,7 @@ int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const string& filePath, std
 }
 
 /**
- * overloaded function without the errors for the algorithm
+ * overloaded function without the errors for algorithm usage
  */
 int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const std::string& filePath) {
     list<string> tempListForAlg;
@@ -194,8 +176,6 @@ int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship){
 /**
  * This function parse the ship map and the ship route files and init a new ship object with
  * the information it parsed.
- * @param folder - the folder that contains ship_route, ship_plan files
- * @return the constructed ship iff folder is not empty.
  */
 std::unique_ptr<Ship> extractArgsForShip(std::unique_ptr<Travel> &travel,SimulatorObj &simulator) {
     string file_path;
@@ -241,8 +221,6 @@ std::unique_ptr<Ship> extractArgsForShip(std::unique_ptr<Travel> &travel,Simulat
 
 /**
  * This function parses the data from a port file, it saves it by container id and the data line of this id in a map
- * @param map - the given map to save instruction by port id
- * @param inputPath - the input path of the port file
  */
 void extractRawDataFromPortFile(std::map<string,list<string>>& map, string& inputPath,SimulatorObj* sim){
     std::ifstream inFile;
@@ -271,7 +249,6 @@ void extractRawDataFromPortFile(std::map<string,list<string>>& map, string& inpu
 
 /**
  * Parses the containers data and connecting it to the "load" list of the port
- * @param input_full_path_and_file_name
  */
 bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream &output,
         std::unique_ptr<Ship>& ship, std::shared_ptr<Port>& port, std::set<std::string>& idSet, std::array<bool,NUM_OF_ERRORS>& errorCodes, bool lastPort) {
@@ -317,9 +294,6 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
 
 /**
  * This function gets a string to extract the data from and arrange it.
- * @param toParse - the string to parse from
- * @param instruction
- * @param coordinates
  */
 void extractCraneInstruction(string &toParse, string& instruction, string& id, vector<int> &coordinates){
     auto parsedInfo = stringSplit(toParse,delim);
@@ -334,11 +308,7 @@ void extractCraneInstruction(string &toParse, string& instruction, string& id, v
 }
 
 /**
- * parses the data from a given line
- * @param line - data line of container
- * @param id - container's ID
- * @param weight - container's weight
- * @param dest - container's destination
+ * This function parses the data from a given line
  */
 void extractContainersData(const std::string& line, std::string &id, int &weight, std::shared_ptr<Port>& dest, std::unique_ptr<Ship>& ship) {
     int i=0;
@@ -376,8 +346,6 @@ int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath)
 
 /**
  * This function extracting the travel route from a file and sets it to be the given ship travel's route
- * @param ship
- * @param inFile
  */
 int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,std::unique_ptr<Travel>* travel) {
     std::unique_ptr<std::vector<std::shared_ptr<Port>>> vec = std::make_unique<std::vector<std::shared_ptr<Port>>>();
@@ -411,7 +379,7 @@ int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,
             else{
                 temporalStatement = Route_badPortS;
             }
-            updateErrorNum(&returnStatement,temporalStatement);
+            returnStatement |= temporalStatement;
         }
         if((int)vec->size() <= 1){
             returnStatement += Route_SingleP;

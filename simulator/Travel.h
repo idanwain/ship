@@ -1,6 +1,12 @@
 
 #ifndef TRAVEL_H
 #define TRAVEL_H
+/**
+* This header is a container of a Travel folder that holds the list of port paths , route path
+* plan path, errors found in this travel by simulator
+* and the algorithm results
+*
+*/
 
 #include <string>
 #include <utility>
