@@ -40,7 +40,6 @@ int portAlreadyExist(std::vector<std::shared_ptr<Port>>& vec,string &str){
  */
 void getDimensions(std::array<int,3> &arr, std::istream &inFile,string str){
     vector<string> vec;
-
     /*if we read from file then we want to get first line which is not comment*/
     if(str == "byFile"){
         str = "";
@@ -126,7 +125,8 @@ int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const string& filePath, std
     else {
         getline(inFile,line); /*first line is ship dimensions we already got them*/
         while (getline(inFile, line)){
-            if(!isCommentLine(line)) {/*if not commented line*/
+            trimSpaces(line);
+            if(!line.empty() && line.at(0) != '#') {/*if not commented line*/
                 pair = setBlocksByLine(line, ship, lineNumber);
                 num = std::get<1>(pair);
                 if (num != 0) {

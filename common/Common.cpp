@@ -240,9 +240,16 @@ bool isValidShipMapFileName(const string& fileName){
  * @return
  */
 bool isCommentLine(const string& line){
-    std::regex commentLine("\\s*[#]+.*");
-    std::regex whiteSpaces("\\s*\\t*\\r*\\n*");
-return (std::regex_match(line,commentLine) || std::regex_match(line,whiteSpaces));
+    string copy = line;
+    for (int i = 0; i < (int)copy.size(); i++)
+    {
+        if (iscntrl(copy.at(i))) {
+            copy.erase(i);
+            break;
+        }
+    }
+    trimSpaces(copy);
+    return copy.empty() || copy.at(0) == '#';
 }
 
 /**
