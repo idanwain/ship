@@ -3,7 +3,7 @@ INTERFACEDIR = ../interfaces
 COMMONDIR = ../common
 OBJS = main.o $(COMMONDIR)/Ship.o $(COMMONDIR)/Container.o $(COMMONDIR)/Port.o $(COMMONDIR)/Common.o $(COMMONDIR)/Parser.o $(COMMONDIR)/WeightBalanceCalculator.o SimulatorObj.o AlgorithmFactoryRegistrar.o AlgorithmRegistration.o  Travel.o SimulatorValidation.o
 EXEC = simulator
-CPP_COMP_FLAG = -std=c++2a -Wall -Wextra -Werror -pedantic-errors -DNDEBUG
+CPP_COMP_FLAG = -std=c++2a -Wall -Wextra -Werror -pedantic-errors -fPIC -DNDEBUG
 CPP_LINK_FLAG = -lstdc++fs -ldl -export-dynamic
 
 $(EXEC): $(OBJS)

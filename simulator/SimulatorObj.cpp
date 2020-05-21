@@ -191,8 +191,8 @@ void SimulatorObj::createErrorsFile() {
         for(auto &msg : generalErrors){
             inFile << spaces << msg << '\n';
         }
+        inFile << lineSep+lineSep << '\n';
     }
-    inFile << lineSep+lineSep << '\n';
     for(auto &travel : TravelsVec){
         if(travel->isErrorsExists()){
             inFile << travel->getName() << " Errors:" << '\n'; //Travel name
@@ -335,7 +335,6 @@ void SimulatorObj::compareFatalAlgErrsVsSimErrs(list<string> &simCurrAlgErrors){
 void SimulatorObj::compareIgnoredAlgErrsVsSimErrs(string &portName,int visitNumber,list<string> &simCurrAlgErrors){
     if(algErrorCodes[16] != simErrorCodes[16])
         simCurrAlgErrors.emplace_back(ERROR_NO_CARGO_TOLOAD(portName, visitNumber));
-
 }
 
 /**
@@ -372,6 +371,8 @@ int SimulatorObj::runCurrentPort(string &portName,fs::path &portPath,pair<string
     std::get<0>(travel->getAlgResultsMap()[alg.first]) += instructionsCount;
     std::get<1>(travel->getAlgResultsMap()[alg.first]) += errorsCount;
 
+    this->pPort->getContainerVec(Type::PRIORITY)->clear();
+    this->pPort->getContainerVec(Type::LOAD)->clear();
     return errorsCount;
 }
 

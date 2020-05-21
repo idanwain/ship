@@ -54,7 +54,7 @@
 #define ERROR_NOT_DIRECTORY(x,y)                "Error: " + x.path().filename().string() + y
 #define ERROR_TRAVEL_NAME(x)                    "Error: " + x + " is not a valid travel name,ignoring"
 #define ERROR_INVALID_FILE(x)                   "Error: " + x + " is not a valid route/port/ship plan file, ignoring"
-#define P_ALGNOTREGISTER(x)                     "Error: algorithm: " + x + " didn't register, ignoring this algorithm"
+#define P_ALGNOTREGISTER(x)                     std::cerr << "Error: algorithm: " + x + " didn't register, ignoring this algorithm" << std::endl;
 #define ERROR_ALG_PLAN                          "Error: Algorithm crashed in read plan/route or calculator initialize"
 #define ERROR_ALG_FAILED                        "Error: Algorithm Failed in get instructions for cargo"
 
