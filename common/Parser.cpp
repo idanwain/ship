@@ -248,7 +248,8 @@ void extractRawDataFromPortFile(std::map<string,list<string>>& map, string& inpu
 
 
 /**
- * Parses the containers data and connecting it to the "load" list of the port
+ * Parses the containers data and connecting it to the "load" list of the port.
+ * Updates errors code.
  */
 bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream &output,
         std::unique_ptr<Ship>& ship, std::shared_ptr<Port>& port, std::set<std::string>& idSet, std::array<bool,NUM_OF_ERRORS>& errorCodes, bool lastPort) {

@@ -24,6 +24,13 @@ void _313263204_b::unloadContainers(std::ofstream& output){
     }
 }
 
+/**
+ * gets a coordinate in ship's map and unloads the containers in that column.
+ * the unloading happens only untill the lowest_floor index which represents the lowest index of a container
+ * related to current port.
+ * related containers to current port arrived to their destination and wont be loaded back to ship
+ * unrelated containers to current port asured to be loaded back to ship.
+ */
 void _313263204_b::handleColumn(coordinate coor, std::vector<Container>* column, int lowest_floor,
                                 std::vector<Container>* containersToUnload, std::ofstream& output){
     int X = std::get<0>(coor); int Y =  std::get<1>(coor);
@@ -66,8 +73,6 @@ void _313263204_b::handleColumn(coordinate coor, std::vector<Container>* column,
 
 /**
  * This function loads port's containers to ship by this scheme:
- *      -sort containers by distance from destination.
- *      -cut containers from load list according to free space in ship.
  *      -load containers in reverse order: far destination == lower spot on ship.
  * @param output - output file to write instructions for crane
  */
@@ -97,14 +102,18 @@ void _313263204_b::loadContainers(Type list_category, std::ofstream& output){
     }
 }
 
-int _313263204_b::getPortNum() {
-    return portNum;
-}
-
+/**
+ * executes 'unload' action by removing con from ship
+ * and adding it tp port.
+ */
 void _313263204_b::unloadSingleContainer(std::ofstream &output, Container& con, Type vecType, coordinate coor){
     pPort->addContainer(con, vecType);
     writeToOutput(output, Action::UNLOAD, con.getId(), pShip->getCoordinate(con));
     pShip->removeContainer(coor);
+}
+
+int _313263204_b::getPortNum() {
+    return portNum;
 }
 
 int _313263204_b::readShipPlan(const std::string& full_path_and_file_name){
@@ -138,6 +147,10 @@ int _313263204_b::getInstructionsForCargo(const std::string& input_full_path_and
     return resetAndReturn();
 }
 
+/**
+ * resets errors code supporting members and prepares algorithm for next port
+ * @return errors code
+ */
 int _313263204_b::resetAndReturn() {
     int code = 0;
     for(int i = 0; i < NUM_OF_ERRORS; ++i){

@@ -64,14 +64,17 @@ public:
 	Container(const std::string& id1): id(id1), weight(-1), source(nullptr), destination(nullptr),distanceFromDest(-1){}
     explicit Container(int kg): id("WeightContainer"), weight(kg), source(nullptr), destination(nullptr),distanceFromDest(-1){}
 
-	int getWeight();
+    /*-------------- Getters & Setters Methods --------------*/
+    int getWeight();
 	std::string getId();
 	std::shared_ptr<Port>& getDest();
-    friend std::ostream& operator<<(std::ostream& os, const Container& c);
-	bool operator==(const Container& c);
-	bool operator!=(const Container& c);
-    bool operator <(const Container& c);
     void setDistance(int distance);
+
+    /*-------------- Operators --------------*/
+    friend std::ostream& operator<<(std::ostream& os, const Container& c);
+    bool operator==(const Container& c);
+    bool operator!=(const Container& c);
+    bool operator <(const Container& c);
 };
 
 

@@ -24,6 +24,13 @@ void _313263204_a::unloadContainers(std::ofstream& output){
     }
 }
 
+/**
+ * gets a coordinate in ship's map and unloads the containers in that column.
+ * the unloading happens only untill the lowest_floor index which represents the lowest index of a container
+ * related to current port.
+ * related containers to current port arrived to their destination and wont be loaded back to ship
+ * unrelated containers to current port asured to be loaded back to ship.
+ */
 void _313263204_a::handleColumn(coordinate coor, std::vector<Container>* column, int lowest_floor,
                                 std::vector<Container>* containersToUnload, std::ofstream& output){
     int X = std::get<0>(coor); int Y =  std::get<1>(coor);
@@ -65,7 +72,7 @@ void _313263204_a::handleColumn(coordinate coor, std::vector<Container>* column,
 }
 
 /**
- * This function loads port's containers to ship by this scheme:
+ * loads port's containers to ship by this scheme:
  *      -sort containers by distance from destination.
  *      -cut containers from load list according to free space in ship.
  *      -load containers in reverse order: far destination == lower spot on ship.
@@ -104,16 +111,25 @@ void _313263204_a::loadContainers(Type list_category, std::ofstream& output){
     }
 }
 
-int _313263204_a::getPortNum() {
-    return portNum;
-}
-
+/**
+ * executes 'unload' action by removing con from ship
+ * and adding it tp port.
+ */
 void _313263204_a::unloadSingleContainer(std::ofstream &output, Container& con, Type vecType, coordinate coor){
     pPort->addContainer(con, vecType);
     writeToOutput(output, Action::UNLOAD, con.getId(), pShip->getCoordinate(con));
     pShip->removeContainer(coor);
 }
 
+int _313263204_a::getPortNum() {
+    return portNum;
+}
+
+
+/**
+ * initialize for each container, which needs to be loaded to ship,
+ * their distance from their destination.
+ */
 void _313263204_a::initContainersDistance(std::vector<Container> &vector) {
     auto route = this->pShip->getRoute();
     for(auto port = route.rbegin(); port != route.rend(); ++port){
@@ -159,6 +175,10 @@ int _313263204_a::getInstructionsForCargo(const std::string& input_full_path_and
     return resetAndReturn();
 }
 
+/**
+ * resets errors code supporting members and prepares algorithm for next port
+ * @return errors code
+ */
 int _313263204_a::resetAndReturn() {
     int code = 0;
     for(int i = 0; i < NUM_OF_ERRORS; ++i){

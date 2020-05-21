@@ -22,6 +22,9 @@ std::ostream& operator<<(std::ostream& os, const Container& c)
 	return os;
 }
 
+/**
+ * @return true iff this.id == c.id
+ */
 bool Container::operator ==(const Container& c) {
     return this->getId() == c.id;
 }
@@ -30,7 +33,9 @@ bool Container::operator!=(const Container& c) {
 	return *this == c;
 }
 
-
+/**
+ * @return true iff this.(distance from destination) < c.(distance from destination)
+ */
 bool Container::operator<(const Container &c) {
     return distanceFromDest < c.distanceFromDest;
 }
