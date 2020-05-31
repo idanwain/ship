@@ -75,6 +75,7 @@ class SimulatorObj {
     int currPortNum = 0;
 
 public:
+    SimulatorObj(){}; // empty ctor TODO: for TaskProducer
     SimulatorObj(string mainTravelPath, string outputPath): mainOutputPath(outputPath), mainTravelPath(mainTravelPath){
         initListOfTravels(mainTravelPath);
     };
