@@ -31,15 +31,18 @@ std::optional<pair<int,int>> SimulatorValidation::validateAlgorithm(string &outp
             std::unique_ptr<Container> cont = createContainer(sim,rawDataFromPortFile,id,instruction,portName);
             if(instruction == "L") {
                 execute(instruction.at(0), cont, one, std::forward_as_tuple(-1, -1));
+                instructionsCount+=5;
             }
             else if(instruction == "U"){
                 execute(instruction.at(0), cont, one, std::forward_as_tuple(-1, -1));
+                instructionsCount+=5;
             }
             else if(instruction == "M"){
                 coordinate two = std::tuple<int,int>(coordinates[4],coordinates[5]);
                 execute(instruction.at(0), cont, one, two);
+                instructionsCount+=3;
+
             }
-            instructionsCount++;
             eraseFromRawData(line,id);
         }
         else{

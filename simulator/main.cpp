@@ -22,6 +22,7 @@
 #include "TaskProducer.h"
 #include <dlfcn.h>
 #include <memory>
+#include <Util.h>
 
 /*------------------------------Global Variables---------------------------*/
 
@@ -98,9 +99,11 @@ void getAlgSoFiles(vector<fs::path> &algPaths){
 
 int main(int argc, char** argv) {
     map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>> map;
+    vector<std::unique_ptr<Travel>> TravelsVec;
     vector<fs::path> algPaths;
+    list<string> generalErrors;
     initPaths(argc,argv);
-    SimulatorObj simulator(mainTravelPath,mainOutputPath);
+    initListOfTravels(mainTravelPath,generalErrors,TravelsVec);
     getAlgSoFiles(algPaths);
     auto& registrar = AlgorithmFactoryRegistrar::getRegistrar();
     registrar.dynamicLoadSoFiles(algPaths, map);
@@ -114,9 +117,12 @@ int main(int argc, char** argv) {
     executer.start();
     executer.wait_till_finish();
 
+    //producer --> travel3 x algVec , //thread --> travel4 x algVec //thread --> travel4 x algVec //thread --> travel5 x algVec
     /*Cartesian Loop*/
-    for (auto &travel : simulator.getTravels()) {
+    for (auto &travel : TravelsVec) { //thread --> travel3 x algVec , //thread --> travel4 x algVec
+                                                    //thread --> travel4 x algVec //thread --> travel5 x algVec
         vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec = initAlgorithmList(map);
+        SimulatorObj simulator(mainOutputPath);
         std::unique_ptr<Ship> mainShip = extractArgsForShip(travel, simulator);
         if(mainShip != nullptr){
             for (auto &alg : algVec) {
@@ -141,7 +147,8 @@ int main(int argc, char** argv) {
             travel->setErroneousTravel();
         simulator.prepareNextIteration();
     }
-    simulator.createResultsFile();
-    simulator.createErrorsFile();
+    //Join here
+    createResultsFile(mainOutputPath,TravelsVec);
+    createErrorsFile(mainOutputPath,TravelsVec,generalErrors);
     return (EXIT_SUCCESS);
 }

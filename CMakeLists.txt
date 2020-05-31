@@ -25,4 +25,7 @@ add_executable(
         simulator/AlgorithmFactoryRegistrar.cpp simulator/AlgorithmFactoryRegistrar.h
         simulator/SimulatorValidation.cpp       simulator/SimulatorValidation.h
         simulator/Travel.cpp                    simulator/Travel.h
-        simulator/ThreadPoolExecuter.cpp simulator/ThreadPoolExecuter.h simulator/TaskProducer.cpp simulator/TaskProducer.h)
+        simulator/ThreadPoolExecuter.cpp        simulator/ThreadPoolExecuter.h
+        simulator/TaskProducer.cpp              simulator/TaskProducer.h
+        simulator/Util.cpp                      simulator/Util.h
+)
