@@ -18,6 +18,8 @@
 #include "../common/Ship.h"
 #include "../common/Parser.h"
 #include "AlgorithmFactoryRegistrar.h"
+#include "ThreadPoolExecuter.h"
+#include "TaskProducer.h"
 #include <dlfcn.h>
 #include <memory>
 #include <Util.h>
@@ -105,6 +107,15 @@ int main(int argc, char** argv) {
     getAlgSoFiles(algPaths);
     auto& registrar = AlgorithmFactoryRegistrar::getRegistrar();
     registrar.dynamicLoadSoFiles(algPaths, map);
+    std::vector<std::pair<std::unique_ptr<Travel>, vector<pair<string,std::unique_ptr<AbstractAlgorithm>>>>> travelForAlgs; //TODO: init this vec
+
+
+    /************* MULTITHREADED TRAVEL X ALGORITHMS *************/
+    //this block of code would be putted after the initialization of "Travel X algVec" vector
+    //it will replace the for loop under this block
+    ThreadPoolExecuter executer {TaskProducer{travelForAlgs}, NumThreads{5} }; //TODO: get number of threads from agrv
+    executer.start();
+    executer.wait_till_finish();
 
 
     //producer --> travel3 x algVec , //thread --> travel4 x algVec //thread --> travel4 x algVec //thread --> travel5 x algVec

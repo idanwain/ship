@@ -73,6 +73,7 @@ class SimulatorObj {
     int currPortNum = 0;
 
 public:
+    SimulatorObj(){}; // empty ctor TODO: for TaskProducer
     SimulatorObj(string mainOutputPath):mainOutputPath(mainOutputPath){};
     void setShipAndCalculator(std::unique_ptr<Ship> &getShip,const string& file_path);
     void runAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> &alg, std::unique_ptr<Travel> &travel);
