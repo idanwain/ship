@@ -34,6 +34,8 @@ class Travel {
     fs::path planPath;
     list<string> generalErrors;
     map<string,vector<fs::path>> portPaths;
+    vector<std::tuple<string,int,int>> algorithmsResults2;
+    vector<pair<string,list<string>>> errors2;
     map<string,list<string>> errors;
     map<string,pair<int,int>> algorithmsResults; /*first int --> instructions count, second int --> errors count*/
     bool erroneousTravel = false;

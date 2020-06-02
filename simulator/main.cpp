@@ -106,6 +106,7 @@ int main(int argc, char** argv) {
     auto& registrar = AlgorithmFactoryRegistrar::getRegistrar();
     registrar.dynamicLoadSoFiles(algPaths, map);
 
+
     //producer --> travel3 x algVec , //thread --> travel4 x algVec //thread --> travel4 x algVec //thread --> travel5 x algVec
     /*Cartesian Loop*/
     for (auto &travel : TravelsVec) { //thread --> travel3 x algVec , //thread --> travel4 x algVec
