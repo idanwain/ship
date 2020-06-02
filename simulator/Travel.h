@@ -40,9 +40,10 @@ class Travel {
     bool erroneousTravel = false;
     std::unique_ptr<Ship> mainShip;
     bool initShip = false;
+    string mainOutputPath;
 
 public:
-    explicit Travel(const string travelName):name(travelName){};
+    Travel(const string travelName,const string mainOutpPath):name(travelName),mainOutputPath(mainOutpPath){};
     void setRoutePath(const fs::path& route);
     void setPlanPath(const fs::path& plan);
     void setNewGeneralError(const string& msg);
@@ -60,6 +61,7 @@ public:
     bool isShipInit();
     void setInitShip();
     std::unique_ptr<Ship>& getShip();
+    std::string& getOutputPath();
 };
 
 

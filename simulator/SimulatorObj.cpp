@@ -49,7 +49,7 @@ void SimulatorObj::runAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> 
     vector<std::shared_ptr<Port>> route = simShip->getRoute();
     res = checkIfFatalErrorOccurred("alg");
     if(res != -1) {
-        string algInstructionsFolder = SimulatorObj::createAlgorithmOutDirectory(alg.first, mainOutputPath,travel->getName());
+        string algInstructionsFolder = SimulatorObj::createAlgorithmOutDirectory(alg.first, travel->getOutputPath(),travel->getName());
         for (int portNum = 0; portNum < (int) route.size() && res != -1; portNum++) {
             string portName = route[portNum]->get_name();
             pPort = simShip->getPortByName(portName);

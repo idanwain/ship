@@ -108,7 +108,7 @@ int main(int argc, char** argv) {
     tasksContainer tasks;
     list<string> generalErrors;
     initPaths(argc,argv);
-    initListOfTravels(mainTravelPath,generalErrors,TravelsVec);
+    initListOfTravels(mainTravelPath,generalErrors,TravelsVec,mainOutputPath);
     getAlgSoFiles(algPaths);
     auto& registrar = AlgorithmFactoryRegistrar::getRegistrar();
     registrar.dynamicLoadSoFiles(algPaths, map);

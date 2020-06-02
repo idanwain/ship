@@ -3,7 +3,7 @@
 /**
  * This function initialize the list of travels from given -travel_path path
  */
-void initListOfTravels(string &path,list<string> &generalErrors,vector<std::shared_ptr<Travel>> &TravelsVec){
+void initListOfTravels(string &path,list<string> &generalErrors,vector<std::shared_ptr<Travel>> &TravelsVec,string  mainOpPath){
     string msg = " only sub folders allowed in main folder, file won't be included in the program";
     for(const auto &entry : fs::directory_iterator(path)){
         if(!entry.is_directory()){
@@ -15,7 +15,7 @@ void initListOfTravels(string &path,list<string> &generalErrors,vector<std::shar
             generalErrors.emplace_back(ERROR_TRAVEL_NAME(travelName));
             continue;
         }
-        std::unique_ptr<Travel> currTravel = std::make_unique<Travel>(travelName);
+        std::unique_ptr<Travel> currTravel = std::make_unique<Travel>(travelName,mainOpPath);
         map<string,vector<fs::path>> currPorts;
         for(const auto &deep_entry : fs::directory_iterator(entry.path())){
             string fileName = deep_entry.path().filename().string();
