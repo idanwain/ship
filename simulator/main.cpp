@@ -117,41 +117,40 @@ int main(int argc, char** argv) {
     /************* MULTITHREADED TRAVEL X ALGORITHMS *************/
     //this block of code would be putted after the initialization of "Travel X algVec" vector
     //it will replace the for loop under this block
-    ThreadPoolExecuter executer {TaskProducer(tasks), threadNum}; //TODO: get number of threads from agrv
-    executer.start();
-    executer.wait_till_finish();
+    if(threadNum > 1){
+        ThreadPoolExecuter executer {TaskProducer(tasks), threadNum}; //TODO: get number of threads from agrv
+        executer.start();
+        executer.wait_till_finish();
+    } else {
+        for(auto& travel : TravelsVec){
+            SimulatorObj simulator;
+            travel->getShip() = extractArgsForShip(travel, simulator);
+            vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec = initAlgorithmList(map);
+            if(travel->getShip() != nullptr){
+                for (auto &alg : algVec) {
+                    int errCode1 = 0, errCode2 = 0;
+                    WeightBalanceCalculator algCalc;
+                    try {
+                        errCode1 = alg.second->readShipPlan(travel->getPlanPath().string());
+                        errCode2 = alg.second->readShipRoute(travel->getRoutePath().string());
+                        errCode1 |= algCalc.readShipPlan(travel->getPlanPath().string());
+                    }
+                    catch(...) {
+                        travel->setAlgCrashError(alg.first);
+                        continue;
+                    }
+                    alg.second->setWeightBalanceCalculator(algCalc);
+                    simulator.updateErrorCodes(errCode1 + errCode2, "alg");
+                    simulator.setShipAndCalculator(travel->getShip(), travel->getPlanPath().string());
+                    simulator.runAlgorithm(alg, travel);
+                }
+            }
+            else
+                travel->setErroneousTravel();
+            simulator.prepareNextIteration();
+        }
+    }
 
-
-    //producer --> travel3 x algVec , //thread --> travel4 x algVec //thread --> travel4 x algVec //thread --> travel5 x algVec
-    /*Cartesian Loop*/
-//    for (auto &travel : TravelsVec) { //thread --> travel3 x algVec , //thread --> travel4 x algVec
-//                                                    //thread --> travel4 x algVec //thread --> travel5 x algVec
-//        SimulatorObj simulator(mainOutputPath);
-//        std::unique_ptr<Ship> mainShip = extractArgsForShip(travel, simulator);
-//        if(mainShip != nullptr){
-//            for (auto &alg : algVec) {
-//                int errCode1 = 0, errCode2 = 0;
-//                WeightBalanceCalculator algCalc;
-//                try {
-//                    errCode1 = alg.second->readShipPlan(travel->getPlanPath().string());
-//                    errCode2 = alg.second->readShipRoute(travel->getRoutePath().string());
-//                    errCode1 |= algCalc.readShipPlan(travel->getPlanPath().string());
-//                }
-//                catch(...) {
-//                    travel->setAlgCrashError(alg.first);
-//                    continue;
-//                }
-//                alg.second->setWeightBalanceCalculator(algCalc);
-//                simulator.updateErrorCodes(errCode1 + errCode2, "alg");
-//                simulator.setShipAndCalculator(mainShip, travel->getPlanPath().string());
-//                simulator.runAlgorithm(alg, travel);
-//            }
-//        }
-//        else
-//            travel->setErroneousTravel();
-//        simulator.prepareNextIteration();
-//    }
-    //Join here
     createResultsFile(mainOutputPath,TravelsVec);
     createErrorsFile(mainOutputPath,TravelsVec,generalErrors);
     return (EXIT_SUCCESS);
