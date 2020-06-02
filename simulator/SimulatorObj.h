@@ -76,9 +76,10 @@ public:
     SimulatorObj(){}; // empty ctor TODO: for TaskProducer
     SimulatorObj(string mainOutputPath):mainOutputPath(mainOutputPath){};
     void setShipAndCalculator(std::unique_ptr<Ship> &getShip,const string& file_path);
-    void runAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> &alg, std::unique_ptr<Travel> &travel);
-    int  runCurrentPort(string &portName,fs::path &portPath,pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,
-                                      list<string> &simCurrAlgErrors,string &algOutputFolder,int visitNumber,std::unique_ptr<Travel> &travel);
+    void runAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> &alg, std::shared_ptr<Travel> &travel);
+    int  runCurrentPort(string &portName, fs::path &portPath, pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,
+                        list<string> &simCurrAlgErrors, string &algOutputFolder, int visitNumber,
+                        std::shared_ptr<Travel> &travel);
     void updateErrorCodes(int num, string type);
     void prepareNextIteration();
     int  checkIfFatalErrorOccurred(string type);
@@ -91,9 +92,9 @@ public:
     std::shared_ptr<Port> getPort();
     /*----------------------static functions-------------------*/
     static string createAlgorithmOutDirectory(const string &algName,const string &outputDirectory,const string &travelName);
-    static fs::path getPathOfCurrentPort(std::unique_ptr<Travel> &travel,string& portName,int visitNumber);
+    static fs::path getPathOfCurrentPort(std::shared_ptr<Travel> &travel, string& portName, int visitNumber);
     static void sortAlgorithmsForResults(map<string,map<string,pair<int,int>>>&outputInfo, list<string> &algorithm);
-    static void compareRoutePortsVsCargoDataPorts(std::unique_ptr<Ship>& ship,std::unique_ptr<Travel> &travel);
+    static void compareRoutePortsVsCargoDataPorts(std::unique_ptr<Ship>& ship, std::shared_ptr<Travel> &travel);
 
 };
 

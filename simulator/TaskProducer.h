@@ -23,15 +23,15 @@ class NumTasks: public Named<int> {
 };
 
 class TaskProducer {
-    std::vector<std::pair<std::unique_ptr<Travel>, vector<pair<string,std::unique_ptr<AbstractAlgorithm>>>>> travelForAlgs;
-    const int numTasks = -1; //num of Travels
+    std::vector<std::tuple<std::shared_ptr<Travel>, std::pair<string,std::unique_ptr<AbstractAlgorithm>>>> travelForAlgs;
+    const int numTasks = -1; //travel X alg vec size
     std::atomic_int task_counter = 0;
     std::mutex m;
 
     std::optional<int> next_task_index();
 
 public:
-    TaskProducer(std::vector<std::pair<std::unique_ptr<Travel>, vector<pair<string,std::unique_ptr<AbstractAlgorithm>>>>>& _travelForAlgs) : travelForAlgs(_travelForAlgs), numTasks(_travelForAlgs.size()) {};
+    TaskProducer(std::vector<std::tuple<std::shared_ptr<Travel>, std::pair<string,std::unique_ptr<AbstractAlgorithm>>>>& _travelForAlgs) : travelForAlgs(_travelForAlgs), numTasks(_travelForAlgs.size()) {};
 
     TaskProducer(TaskProducer&& other)
             : travelForAlgs(other.travelForAlgs), numTasks(other.numTasks), task_counter(other.task_counter.load()) {};

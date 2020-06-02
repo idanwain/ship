@@ -69,4 +69,18 @@ void Travel::setAlgCrashError(string &algName){
     this->algorithmsResults.insert({algName, {0, -1}});
 }
 
+bool Travel::isShipInit() {
+    return initShip;
+}
+
+void Travel::setInitShip() {
+    initShip = true;
+}
+
+std::unique_ptr<Ship>& Travel::getShip() {
+    return mainShip;
+}
+
+
+
 

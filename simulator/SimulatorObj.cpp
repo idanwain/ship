@@ -15,7 +15,7 @@ void SimulatorObj::setShipAndCalculator(std::unique_ptr<Ship> &getShip,const str
  * also it compares the number of cargo files in this travel vs the route length and notify
  * if num of cargo files > route length.
  */
-void SimulatorObj::compareRoutePortsVsCargoDataPorts(std::unique_ptr<Ship> &ship,std::unique_ptr<Travel> &travel){
+void SimulatorObj::compareRoutePortsVsCargoDataPorts(std::unique_ptr<Ship> &ship, std::shared_ptr<Travel> &travel){
     auto vecPorts = ship->getRoute();
     int numOfCargoFiles = 0;
     map<string,vector<fs::path>> travelCargoDataFiles(travel->getMap());
@@ -42,7 +42,7 @@ std::unique_ptr<Ship>& SimulatorObj::getShip(){
 /**
  * This function runs the current algorithm on the current travel
  */
-void SimulatorObj::runAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> &alg, std::unique_ptr<Travel> &travel){
+void SimulatorObj::runAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> &alg, std::shared_ptr<Travel> &travel){
     list<string> simCurrAlgErrors;
     map<string,int> visitNumbersByPort;
     int res = 0;
@@ -70,7 +70,7 @@ void SimulatorObj::runAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> 
  * This function gets the full file path of the given port in the given travel at the X time we visit there
  * Note* some ports in the ship route might not have a files,then it creates an empty path for them.
  */
-fs::path SimulatorObj::getPathOfCurrentPort(std::unique_ptr<Travel> &travel,string& portName,int visitNumber){
+fs::path SimulatorObj::getPathOfCurrentPort(std::shared_ptr<Travel> &travel, string& portName, int visitNumber){
     auto &vec = travel->getMap()[portName];
     fs::path result;
     if(vec.empty()) {
@@ -130,8 +130,9 @@ void SimulatorObj::compareIgnoredAlgErrsVsSimErrs(string &portName,int visitNumb
 /**
  * This function runs the current algorithm over the current port at the travel route
  */
-int SimulatorObj::runCurrentPort(string &portName,fs::path &portPath,pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,
-                    list<string> &simCurrAlgErrors,string &algOutputFolder,int visitNumber,std::unique_ptr<Travel> &travel){
+int SimulatorObj::runCurrentPort(string &portName, fs::path &portPath, pair<string,std::unique_ptr<AbstractAlgorithm>> &alg,
+                                 list<string> &simCurrAlgErrors, string &algOutputFolder, int visitNumber,
+                                 std::shared_ptr<Travel> &travel){
 
     string inputPath,outputPath;
     int instructionsCount, errorsCount, algReturnValue;

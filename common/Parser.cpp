@@ -111,15 +111,15 @@ pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lin
 /**
  * This function parse line by line from the file, and initialized the block containers in the shipmap
  */
-int extractArgsForBlocks(std::unique_ptr<Ship>& ship,const string& filePath, std::unique_ptr<Travel>* travel){
+int extractArgsForBlocks(std::unique_ptr<Ship>& ship, const string& file_path, std::shared_ptr<Travel> *travel){
     string line;
     int lineNumber = 2, returnStatement = 0,num;
     std::ifstream inFile;
     pair<string,int> pair;
 
-    inFile.open(filePath);
+    inFile.open(file_path);
     if (inFile.fail()) {
-        ERROR_READ_PATH(filePath);
+        ERROR_READ_PATH(file_path);
         returnStatement = Plan_Fatal;
     }
     else {
@@ -177,7 +177,7 @@ int extractShipPlan(const std::string& filePath, std::unique_ptr<Ship>& ship){
  * This function parse the ship map and the ship route files and init a new ship object with
  * the information it parsed.
  */
-std::unique_ptr<Ship> extractArgsForShip(std::unique_ptr<Travel> &travel,SimulatorObj &simulator) {
+std::unique_ptr<Ship> extractArgsForShip(std::shared_ptr<Travel> &travel, SimulatorObj &simulator) {
     string file_path;
     vector<std::shared_ptr<Port>> travelRoute;
     std::unique_ptr<Ship> ship;
@@ -348,7 +348,7 @@ int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath)
 /**
  * This function extracting the travel route from a file and sets it to be the given ship travel's route
  */
-int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath,std::unique_ptr<Travel>* travel) {
+int extractTravelRoute(std::unique_ptr<Ship>& ship, const std::string& filePath, std::shared_ptr<Travel> *travel) {
     std::unique_ptr<std::vector<std::shared_ptr<Port>>> vec = std::make_unique<std::vector<std::shared_ptr<Port>>>();
     string line;
     std::ifstream inFile;

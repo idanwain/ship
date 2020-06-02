@@ -17,6 +17,7 @@
 #include <iostream>
 #include <fstream>
 #include "../interfaces/ErrorsInterface.h"
+#include "../common/Ship.h"
 
 using std::cout;
 using std::endl;
@@ -37,6 +38,8 @@ class Travel {
     map<string,list<string>> errors;
     map<string,pair<int,int>> algorithmsResults; /*first int --> instructions count, second int --> errors count*/
     bool erroneousTravel = false;
+    std::unique_ptr<Ship> mainShip;
+    bool initShip = false;
 
 public:
     explicit Travel(const string travelName):name(travelName){};
@@ -54,6 +57,9 @@ public:
     bool isErroneous();
     bool isErrorsExists();
     void setAlgCrashError(string &algName);
+    bool isShipInit();
+    void setInitShip();
+    std::unique_ptr<Ship>& getShip();
 };
 
 
