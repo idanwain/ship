@@ -20,7 +20,7 @@ class TaskProducer {
     std::optional<int> next_task_index();
 
 public:
-    TaskProducer(tasksContainer& _travelForAlgs) : travelForAlgs(std::move(_travelForAlgs)), numTasks(_travelForAlgs.size()) {};
+    TaskProducer(tasksContainer& _travelForAlgs) : travelForAlgs(std::move(_travelForAlgs)), numTasks(travelForAlgs.size()) {};
 
     TaskProducer(TaskProducer&& other)
             : travelForAlgs(std::move(other.travelForAlgs)), numTasks(other.numTasks), task_counter(other.task_counter.load()) {};

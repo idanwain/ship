@@ -81,6 +81,10 @@ std::unique_ptr<Ship>& Travel::getShip() {
     return mainShip;
 }
 
+std::string &Travel::getOutputPath() {
+    return this->mainOutputPath;
+}
+
 
 
 

@@ -32,7 +32,7 @@ namespace fs = std::filesystem;
 typedef std::vector<std::tuple<std::shared_ptr<Travel>,std::string,std::unique_ptr<AbstractAlgorithm>>> tasksContainer;
 
 void insertPortFile(std::unique_ptr<Travel> &currTravel,string &portName, int portNum, const fs::path &entry);
-void initListOfTravels(string &path, list<string> &generalErrors, vector<std::shared_ptr<Travel>> &TravelsVec);
+void initListOfTravels(string &path, list<string> &generalErrors, vector<std::shared_ptr<Travel>> &TravelsVec,string mainOpPath);
 void initOutputMap(map<string,map<string,pair<int,int>>>& outputMap,vector<std::shared_ptr<Travel>> &TravelsVec);
 void createResultsFile(string& mainOutputPath, vector<std::shared_ptr<Travel>> &TravelsVec);
 void createErrorsFile(string& mainOutputPath, vector<std::shared_ptr<Travel>> &TravelsVec, list<string> &generalErrors);

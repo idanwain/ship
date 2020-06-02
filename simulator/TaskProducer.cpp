@@ -18,6 +18,7 @@ std::optional<std::function<void(void)>> TaskProducer::getTask() {
     if(task_index) {
         return [task_index, this]{
             std::lock_guard g{m};
+            std::cout << std::this_thread::get_id() << std::endl;
             auto& tuple = travelForAlgs.at(task_index.value());
             auto& travel = std::get<0>(tuple);
             auto& algName = std::get<1>(tuple);
