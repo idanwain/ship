@@ -1,7 +1,6 @@
 #include "ThreadPoolExecuter.h"
 
-template<typename Producer>
-bool ThreadPoolExecuter<Producer>::start() {
+bool ThreadPoolExecuter::start() {
     bool running_status = false;
     if(!running.compare_exchange_strong(running_status, true)) {
         return false;
@@ -12,15 +11,13 @@ bool ThreadPoolExecuter<Producer>::start() {
     return true;
 }
 
-template<typename Producer>
-void ThreadPoolExecuter<Producer>::wait_till_finish() {
+void ThreadPoolExecuter::wait_till_finish() {
     for(auto& t : workers) {
         t.join();
     }
 }
 
-template<typename Producer>
-void ThreadPoolExecuter<Producer>::worker_function() {
+void ThreadPoolExecuter::worker_function() {
     while(!stopped) {
         auto task = producer.getTask();
         if(!task) break;

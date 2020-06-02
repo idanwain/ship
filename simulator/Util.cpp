@@ -3,7 +3,7 @@
 /**
  * This function initialize the list of travels from given -travel_path path
  */
-void initListOfTravels(string &path,list<string> &generalErrors,vector<std::unique_ptr<Travel>> &TravelsVec){
+void initListOfTravels(string &path,list<string> &generalErrors,vector<std::shared_ptr<Travel>> &TravelsVec){
     string msg = " only sub folders allowed in main folder, file won't be included in the program";
     for(const auto &entry : fs::directory_iterator(path)){
         if(!entry.is_directory()){
@@ -67,7 +67,7 @@ void insertPortFile(std::unique_ptr<Travel> &currTravel, string &portName, int p
 /**
  * This function creates a file that shows the result of the cartesian multiplication of the simulator
  */
-void createResultsFile(string& mainOutputPath,vector<std::unique_ptr<Travel>> &TravelsVec){
+void createResultsFile(string& mainOutputPath, vector<std::shared_ptr<Travel>> &TravelsVec){
     std::ofstream inFile;
     int sumInstructions = 0,sumErrors = 0;
     const char comma = ',';
@@ -125,7 +125,7 @@ void createResultsFile(string& mainOutputPath,vector<std::unique_ptr<Travel>> &T
  * errors list - container didn't arrived to it's destination, container didn't picked up as the destination of
  * it isn't doesn't exist in any following ports
  */
-void createErrorsFile(string& mainOutputPath,vector<std::unique_ptr<Travel>> &TravelsVec, list<string> &generalErrors) {
+void createErrorsFile(string& mainOutputPath, vector<std::shared_ptr<Travel>> &TravelsVec, list<string> &generalErrors) {
     const string spaces = "      ";//6spaces
     const string lineSep = "====================================================================================================";
     std::ofstream inFile;
@@ -175,7 +175,7 @@ void createErrorsFile(string& mainOutputPath,vector<std::unique_ptr<Travel>> &Tr
 /**
  * This function initialize the output result map
  */
-void initOutputMap(map<string,map<string,pair<int,int>>>& outputMap,vector<std::unique_ptr<Travel>> &TravelsVec){
+void initOutputMap(map<string,map<string,pair<int,int>>>& outputMap,vector<std::shared_ptr<Travel>> &TravelsVec){
     for(auto& travel : TravelsVec){
         if(!travel->isErroneous())
             outputMap.insert(make_pair(travel->getName(),travel->getAlgResultsMap()));
@@ -185,7 +185,7 @@ void initOutputMap(map<string,map<string,pair<int,int>>>& outputMap,vector<std::
 /**
  * This function checks if the results are empty --> if true simulation.results wont be created
  */
-bool isResultsEmpty(vector<std::unique_ptr<Travel>> &TravelsVec) {
+bool isResultsEmpty(vector<std::shared_ptr<Travel>> &TravelsVec) {
     for(auto& travel : TravelsVec)
         if(!travel->getAlgResultsMap().empty())
             return false;
@@ -196,7 +196,7 @@ bool isResultsEmpty(vector<std::unique_ptr<Travel>> &TravelsVec) {
 /**
  * This function checks if the errors list are empty --> if true simulation.errors wont be created
  */
-bool isErrorsEmpty(vector<std::unique_ptr<Travel>> &TravelsVec,list<string> &generalErrors){
+bool isErrorsEmpty(vector<std::shared_ptr<Travel>> &TravelsVec,list<string> &generalErrors){
     for(auto& travel: TravelsVec)
         if(!travel->getGeneralErrors().empty() || !travel->getErrorsMap().empty())
             return false;

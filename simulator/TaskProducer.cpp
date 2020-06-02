@@ -1,5 +1,4 @@
 #include "TaskProducer.h"
-#include "SimulatorObj.h"
 
 std::optional<int> TaskProducer::next_task_index() {
     if(task_counter < numTasks) {
@@ -21,7 +20,8 @@ std::optional<std::function<void(void)>> TaskProducer::getTask() {
             std::lock_guard g{m};
             auto& tuple = travelForAlgs.at(task_index.value());
             auto& travel = std::get<0>(tuple);
-            auto& alg = std::get<1>(tuple);
+            auto& algName = std::get<1>(tuple);
+            auto& alg = std::get<2>(tuple);
 
             SimulatorObj simulator{};
 
@@ -33,17 +33,18 @@ std::optional<std::function<void(void)>> TaskProducer::getTask() {
                 int errCode1 = 0, errCode2 = 0;
                     WeightBalanceCalculator algCalc;
                     try {
-                        errCode1 = alg.second->readShipPlan(travel->getPlanPath().string());
-                        errCode2 = alg.second->readShipRoute(travel->getRoutePath().string());
+                        errCode1 = alg->readShipPlan(travel->getPlanPath().string());
+                        errCode2 = alg->readShipRoute(travel->getRoutePath().string());
                         errCode1 |= algCalc.readShipPlan(travel->getPlanPath().string());
                     }
                     catch(...) {
-                        travel->setAlgCrashError(alg.first);
+                        travel->setAlgCrashError(algName);
                     }
-                    alg.second->setWeightBalanceCalculator(algCalc);
+                    alg->setWeightBalanceCalculator(algCalc);
                     simulator.updateErrorCodes(errCode1 + errCode2, "alg");
                     simulator.setShipAndCalculator(travel->getShip(), travel->getPlanPath().string());
-                    simulator.runAlgorithm(alg, travel);
+                    std::pair algPair = std::make_pair(algName, std::move(alg));
+                    simulator.runAlgorithm(algPair, travel);
                 }
             else
                 travel->setErroneousTravel();

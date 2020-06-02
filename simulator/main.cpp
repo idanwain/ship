@@ -22,13 +22,14 @@
 #include "TaskProducer.h"
 #include <dlfcn.h>
 #include <memory>
-#include <Util.h>
+#include "Util.h"
 
 /*------------------------------Global Variables---------------------------*/
 
 string mainTravelPath;
 string mainAlgorithmsPath;
 string mainOutputPath;
+int threadNum;
 
 /*-----------------------------Utility Functions-------------------------*/
 
@@ -62,6 +63,7 @@ void initPaths(int argc,char** argv){
     const string travelFlag = "-travel_path";
     const string outputFlag = "-output";
     const string algorithmFlag = "-algorithm_path";
+    const string threadFlag = "-num_threads";
 
     for(int i = 1; i+1 < argc; i++){
         if(argv[i] == travelFlag)
@@ -70,6 +72,8 @@ void initPaths(int argc,char** argv){
             mainOutputPath = argv[i+1];
         else if(argv[i] == algorithmFlag)
             mainAlgorithmsPath = argv[i+1];
+        else if(argv[i] == threadFlag)
+            threadNum = atoi(argv[i+1]);
     }
     if(mainOutputPath.empty() || !fs::exists(mainOutputPath))
         mainOutputPath = basePath;
@@ -99,7 +103,7 @@ void getAlgSoFiles(vector<fs::path> &algPaths){
 
 int main(int argc, char** argv) {
     map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>> map;
-    vector<std::unique_ptr<Travel>> TravelsVec;
+    vector<std::shared_ptr<Travel>> TravelsVec;
     vector<fs::path> algPaths;
     tasksContainer tasks;
     list<string> generalErrors;
@@ -110,46 +114,43 @@ int main(int argc, char** argv) {
     registrar.dynamicLoadSoFiles(algPaths, map);
     initTasksContainer(tasks,map,TravelsVec);
 
-    std::vector<std::pair<std::unique_ptr<Travel>, vector<pair<string,std::unique_ptr<AbstractAlgorithm>>>>> travelForAlgs; //TODO: init this vec
-
-
     /************* MULTITHREADED TRAVEL X ALGORITHMS *************/
     //this block of code would be putted after the initialization of "Travel X algVec" vector
     //it will replace the for loop under this block
-    ThreadPoolExecuter executer {TaskProducer{travelForAlgs}, NumThreads{5} }; //TODO: get number of threads from agrv
+    ThreadPoolExecuter executer {TaskProducer(tasks), threadNum}; //TODO: get number of threads from agrv
     executer.start();
     executer.wait_till_finish();
 
 
     //producer --> travel3 x algVec , //thread --> travel4 x algVec //thread --> travel4 x algVec //thread --> travel5 x algVec
     /*Cartesian Loop*/
-    for (auto &travel : TravelsVec) { //thread --> travel3 x algVec , //thread --> travel4 x algVec
-                                                    //thread --> travel4 x algVec //thread --> travel5 x algVec
-        SimulatorObj simulator(mainOutputPath);
-        std::unique_ptr<Ship> mainShip = extractArgsForShip(travel, simulator);
-        if(mainShip != nullptr){
-            for (auto &alg : algVec) {
-                int errCode1 = 0, errCode2 = 0;
-                WeightBalanceCalculator algCalc;
-                try {
-                    errCode1 = alg.second->readShipPlan(travel->getPlanPath().string());
-                    errCode2 = alg.second->readShipRoute(travel->getRoutePath().string());
-                    errCode1 |= algCalc.readShipPlan(travel->getPlanPath().string());
-                }
-                catch(...) {
-                    travel->setAlgCrashError(alg.first);
-                    continue;
-                }
-                alg.second->setWeightBalanceCalculator(algCalc);
-                simulator.updateErrorCodes(errCode1 + errCode2, "alg");
-                simulator.setShipAndCalculator(mainShip, travel->getPlanPath().string());
-                simulator.runAlgorithm(alg, travel);
-            }
-        }
-        else
-            travel->setErroneousTravel();
-        simulator.prepareNextIteration();
-    }
+//    for (auto &travel : TravelsVec) { //thread --> travel3 x algVec , //thread --> travel4 x algVec
+//                                                    //thread --> travel4 x algVec //thread --> travel5 x algVec
+//        SimulatorObj simulator(mainOutputPath);
+//        std::unique_ptr<Ship> mainShip = extractArgsForShip(travel, simulator);
+//        if(mainShip != nullptr){
+//            for (auto &alg : algVec) {
+//                int errCode1 = 0, errCode2 = 0;
+//                WeightBalanceCalculator algCalc;
+//                try {
+//                    errCode1 = alg.second->readShipPlan(travel->getPlanPath().string());
+//                    errCode2 = alg.second->readShipRoute(travel->getRoutePath().string());
+//                    errCode1 |= algCalc.readShipPlan(travel->getPlanPath().string());
+//                }
+//                catch(...) {
+//                    travel->setAlgCrashError(alg.first);
+//                    continue;
+//                }
+//                alg.second->setWeightBalanceCalculator(algCalc);
+//                simulator.updateErrorCodes(errCode1 + errCode2, "alg");
+//                simulator.setShipAndCalculator(mainShip, travel->getPlanPath().string());
+//                simulator.runAlgorithm(alg, travel);
+//            }
+//        }
+//        else
+//            travel->setErroneousTravel();
+//        simulator.prepareNextIteration();
+//    }
     //Join here
     createResultsFile(mainOutputPath,TravelsVec);
     createErrorsFile(mainOutputPath,TravelsVec,generalErrors);
