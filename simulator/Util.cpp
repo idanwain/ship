@@ -204,3 +204,21 @@ bool isErrorsEmpty(vector<std::unique_ptr<Travel>> &TravelsVec,list<string> &gen
         return false;
     return true;
 }
+
+void initTasksContainer(tasksContainer& tasks,map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>> &mapVec,vector<std::shared_ptr<Travel>>& TravelsVec){
+    int numTravels = TravelsVec.size();
+    int numAlgorithms = mapVec.size();
+    tasks.reserve(numTravels*numAlgorithms);
+    for(auto& travel : TravelsVec){
+        for(auto& alg : mapVec){
+            pair<string,std::unique_ptr<AbstractAlgorithm>> p(alg.first,alg.second());
+            std::unique_ptr<AbstractAlgorithm> newAlg = alg.second();
+            string algName = alg.first;
+            std::tuple<std::shared_ptr<Travel>,string,std::unique_ptr<AbstractAlgorithm>> tup(travel,algName,std::move(newAlg));
+            tasks.emplace_back(std::move(tup));
+        }
+    }
+}
+
+
+

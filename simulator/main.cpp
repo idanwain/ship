@@ -101,12 +101,15 @@ int main(int argc, char** argv) {
     map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>> map;
     vector<std::unique_ptr<Travel>> TravelsVec;
     vector<fs::path> algPaths;
+    tasksContainer tasks;
     list<string> generalErrors;
     initPaths(argc,argv);
     initListOfTravels(mainTravelPath,generalErrors,TravelsVec);
     getAlgSoFiles(algPaths);
     auto& registrar = AlgorithmFactoryRegistrar::getRegistrar();
     registrar.dynamicLoadSoFiles(algPaths, map);
+    initTasksContainer(tasks,map,TravelsVec);
+
     std::vector<std::pair<std::unique_ptr<Travel>, vector<pair<string,std::unique_ptr<AbstractAlgorithm>>>>> travelForAlgs; //TODO: init this vec
 
 
@@ -117,11 +120,11 @@ int main(int argc, char** argv) {
     executer.start();
     executer.wait_till_finish();
 
+
     //producer --> travel3 x algVec , //thread --> travel4 x algVec //thread --> travel4 x algVec //thread --> travel5 x algVec
     /*Cartesian Loop*/
     for (auto &travel : TravelsVec) { //thread --> travel3 x algVec , //thread --> travel4 x algVec
                                                     //thread --> travel4 x algVec //thread --> travel5 x algVec
-        vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algVec = initAlgorithmList(map);
         SimulatorObj simulator(mainOutputPath);
         std::unique_ptr<Ship> mainShip = extractArgsForShip(travel, simulator);
         if(mainShip != nullptr){
