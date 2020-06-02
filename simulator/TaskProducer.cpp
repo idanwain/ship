@@ -24,7 +24,6 @@ std::optional<std::function<void(void)>> TaskProducer::getTask() {
             auto& algVec = pair.second;
 
             SimulatorObj simulator{}; //TODO: implement empty ctor if needed
-
             std::unique_ptr<Ship> mainShip = extractArgsForShip(travel, simulator);
             if(mainShip != nullptr){
                 for (auto &alg : algVec) {
@@ -56,3 +55,4 @@ std::optional<std::function<void(void)>> TaskProducer::getTask() {
     }
     else return {};
 }
+

@@ -39,6 +39,7 @@ class Travel {
     map<string,list<string>> errors;
     map<string,pair<int,int>> algorithmsResults; /*first int --> instructions count, second int --> errors count*/
     bool erroneousTravel = false;
+    Ship* mainShip = nullptr;
 
 public:
     explicit Travel(const string travelName):name(travelName){};
