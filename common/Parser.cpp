@@ -272,7 +272,7 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
             if(lastPort) errorCodes.at(lastPortCont) = true;
             extractContainersData(line, id, weight, dest, ship);
 
-            if(dest != nullptr && !(*dest == *port) && dest->get_name() != "NOT_IN_ROUTE") {
+            if(dest != nullptr && !(*dest == *port) && dest->get_name() != "NOT_IN_ROUTE" && idSet.find(id) == idSet.end()) {
                 std::unique_ptr<Container> con = std::make_unique<Container>(id, weight,port, dest);
                 port->addContainer(*con, Type::LOAD);
             }
