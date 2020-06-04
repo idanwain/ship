@@ -204,8 +204,13 @@ bool Ship::isOnShip(Container &con) {
     if ( containersByPort.find(con.getDest()) == containersByPort.end() ) {
         return false;
     } else {
-        auto pos = std::find(containersByPort[con.getDest()].begin(),containersByPort[con.getDest()].end(), con);
-        return pos != containersByPort[con.getDest()].end();
+        for(auto& port : containersByPort){
+            auto pos = std::find(containersByPort[port.first].begin(),containersByPort[port.first].end(), con);
+            if(pos != containersByPort[port.first].end()){
+                return true;
+            }
+        }
+        return false;
     }
 }
 
