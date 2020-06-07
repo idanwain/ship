@@ -1,5 +1,8 @@
 #include "TaskProducer.h"
 
+/**
+ * This function grabs the task index
+ */
 std::optional<int> TaskProducer::next_task_index() {
     if(task_counter < numTasks) {
         int next_counter = ++task_counter;
@@ -13,12 +16,14 @@ std::optional<int> TaskProducer::next_task_index() {
     return {};
 }
 
+/**
+ * This function returns the actual task
+ */
 std::optional<std::function<void(void)>> TaskProducer::getTask() {
     auto task_index = next_task_index();
     if(task_index) {
         return [task_index, this]{
             std::lock_guard g{m};
-            std::cout << std::this_thread::get_id() << std::endl;
             auto& tuple = travelForAlgs.at(task_index.value());
             auto& travel = std::get<0>(tuple);
             auto& algName = std::get<1>(tuple);

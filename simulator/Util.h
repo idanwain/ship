@@ -18,6 +18,7 @@
 #include "../common/Common.h"
 #include <algorithm>
 #include "Travel.h"
+#include "../interfaces/AbstractAlgorithm.h"
 
 
 #if defined(WIN32) || defined(_WIN32)
@@ -27,12 +28,10 @@
 #endif
 
 /*------------------------------Global Variables---------------------------*/
-
 extern string mainTravelPath;
 extern string mainAlgorithmsPath;
 extern string mainOutputPath;
 extern int threadNum;
-
 
 using std::cout;
 using std::endl;

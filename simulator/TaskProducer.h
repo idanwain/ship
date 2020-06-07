@@ -1,6 +1,10 @@
 #ifndef WINDOWSSHIP_TASKPRODUCER_H
 #define WINDOWSSHIP_TASKPRODUCER_H
 
+/**
+* This header is a container which produces tasks , each task is (algorithm,travel) pair
+*
+*/
 #include <atomic>
 #include <mutex>
 #include <optional>

@@ -239,7 +239,7 @@ void getAlgSoFiles(vector<fs::path> &algPaths){
 }
 
 /**
- * This function gets the information from the falgs and assign them to relevant variables
+ * This function gets the information from the flags and assign them to relevant variables
  */
 void handleFlags(int argc, char** argv){
     string basePath = fs::current_path().string();

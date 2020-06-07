@@ -1,6 +1,10 @@
 #ifndef WINDOWSSHIP_THREADPOOLEXECUTER_H
 #define WINDOWSSHIP_THREADPOOLEXECUTER_H
 
+/**
+* This header is a container of the thread pool executer, that manages producer
+* and workers using the TaskProducer module
+*/
 #include "TaskProducer.h"
 #include <vector>
 #include <thread>

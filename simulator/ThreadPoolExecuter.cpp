@@ -1,5 +1,8 @@
 #include "ThreadPoolExecuter.h"
 
+/**
+ * This function runs multi-threaded program
+ */
 bool ThreadPoolExecuter::start() {
     bool running_status = false;
     if(!running.compare_exchange_strong(running_status, true)) {
@@ -17,6 +20,9 @@ void ThreadPoolExecuter::wait_till_finish() {
     }
 }
 
+/**
+ * This function executes the tasks by threads
+ */
 void ThreadPoolExecuter::worker_function() {
     while(!stopped) {
         auto task = producer.getTask();

@@ -24,6 +24,10 @@
 #include <memory>
 #include "Util.h"
 
+string mainTravelPath;
+string mainAlgorithmsPath;
+string mainOutputPath;
+int threadNum;
 
 int main(int argc, char** argv) {
     map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>> map;
@@ -40,8 +44,7 @@ int main(int argc, char** argv) {
     registrar.dynamicLoadSoFiles(algPaths, map);
     initTasksContainer(tasks,map,TravelsVec);
 
-
-
+    /*Case multi threaded*/
     if(threadNum > 1){
         ThreadPoolExecuter executer {TaskProducer(tasks), threadNum};
         executer.start();
