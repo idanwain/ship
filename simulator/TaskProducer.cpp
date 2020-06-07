@@ -14,7 +14,6 @@ std::optional<int> TaskProducer::next_task_index() {
 }
 
 std::optional<std::function<void(void)>> TaskProducer::getTask() {
-    std::cout << "TaskProducer::getTask: vector size = " << numTasks << std::endl;
     auto task_index = next_task_index();
     if(task_index) {
         return [task_index, this]{
@@ -24,9 +23,6 @@ std::optional<std::function<void(void)>> TaskProducer::getTask() {
             auto& travel = std::get<0>(tuple);
             auto& algName = std::get<1>(tuple);
             auto& alg = std::get<2>(tuple);
-
-            std::cout << "in task: travel name: " << travel->getName() << " alg: " << algName << std::endl;
-
             SimulatorObj simulator{};
 
             if(!travel->isShipInit()){

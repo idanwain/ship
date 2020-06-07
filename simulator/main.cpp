@@ -24,82 +24,6 @@
 #include <memory>
 #include "Util.h"
 
-/*------------------------------Global Variables---------------------------*/
-
-string mainTravelPath;
-string mainAlgorithmsPath;
-string mainOutputPath;
-int threadNum;
-
-/*-----------------------------Utility Functions-------------------------*/
-
-/**
- * This function creates a vector of algorithms that the simulator willing to test on
- * @param algList
- * @param ship
- */
-vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> initAlgorithmList(map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>>& map){
-    vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algList;
-    for(auto &entry: map){
-        algList.emplace_back(make_pair(entry.first,entry.second()));
-    }
-    return algList;
-}
-
-//vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> initAlgorithmList(){
-//    vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algList;
-//    algList.emplace_back(make_pair("_313263204_a",std::make_unique<_313263204_a>()));
-//    algList.emplace_back(make_pair("_313263204_b",std::make_unique<_313263204_b>()));
-//    return algList;
-//}
-
-/**
- * This function gets the paths or sets them to be the current working directory
- * @param argc
- * @param argv
- */
-void initPaths(int argc,char** argv){
-    string basePath = fs::current_path().string();
-    const string travelFlag = "-travel_path";
-    const string outputFlag = "-output";
-    const string algorithmFlag = "-algorithm_path";
-    const string threadFlag = "-num_threads";
-
-    for(int i = 1; i+1 < argc; i++){
-        if(argv[i] == travelFlag)
-            mainTravelPath = argv[i+1];
-        else if(argv[i] == outputFlag)
-            mainOutputPath = argv[i+1];
-        else if(argv[i] == algorithmFlag)
-            mainAlgorithmsPath = argv[i+1];
-        else if(argv[i] == threadFlag)
-            threadNum = atoi(argv[i+1]);
-    }
-    if(mainOutputPath.empty() || !fs::exists(mainOutputPath))
-        mainOutputPath = basePath;
-    if(mainAlgorithmsPath.empty() || !fs::exists(mainAlgorithmsPath))
-        mainAlgorithmsPath = basePath;
-
-    if(mainTravelPath.empty()) {
-        NO_TRAVEL_PATH;
-        exit(EXIT_FAILURE);
-    }
-}
-
-/**
- * This function gets the algorithms.so files from the mainAlgorithms path (if given or from current path)
- * and saves the paths in the given vector.
- */
-void getAlgSoFiles(vector<fs::path> &algPaths){
-    std::regex reg(".*\\.so");
-    for(const auto &entry : fs::directory_iterator(mainAlgorithmsPath)) {
-        if (!entry.is_directory()) {
-            if (std::regex_match(entry.path().filename().string(), reg)) {
-                algPaths.emplace_back(entry);
-            }
-        }
-    }
-}
 
 int main(int argc, char** argv) {
     map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>> map;
@@ -107,18 +31,19 @@ int main(int argc, char** argv) {
     vector<fs::path> algPaths;
     tasksContainer tasks;
     list<string> generalErrors;
-    initPaths(argc,argv);
+
+    handleFlags(argc,argv);
     initListOfTravels(mainTravelPath,generalErrors,TravelsVec,mainOutputPath);
     getAlgSoFiles(algPaths);
+
     auto& registrar = AlgorithmFactoryRegistrar::getRegistrar();
     registrar.dynamicLoadSoFiles(algPaths, map);
     initTasksContainer(tasks,map,TravelsVec);
 
-    /************* MULTITHREADED TRAVEL X ALGORITHMS *************/
-    //this block of code would be putted after the initialization of "Travel X algVec" vector
-    //it will replace the for loop under this block
+
+
     if(threadNum > 1){
-        ThreadPoolExecuter executer {TaskProducer(tasks), threadNum}; //TODO: get number of threads from agrv
+        ThreadPoolExecuter executer {TaskProducer(tasks), threadNum};
         executer.start();
         executer.wait_till_finish();
     } else {

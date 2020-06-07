@@ -1,4 +1,3 @@
-
 #ifndef SIMULATOROBJ_H
 #define SIMULATOROBJ_H
 
@@ -72,7 +71,7 @@ class SimulatorObj {
     int currPortNum = 0;
 
 public:
-    SimulatorObj(){}; // empty ctor TODO: for TaskProducer
+    SimulatorObj(){};
     SimulatorObj(string mainOutputPath):mainOutputPath(mainOutputPath){};
     void setShipAndCalculator(std::unique_ptr<Ship> &getShip,const string& file_path);
     void runAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> &alg, std::shared_ptr<Travel> &travel);

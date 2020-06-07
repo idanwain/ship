@@ -205,6 +205,9 @@ bool isErrorsEmpty(vector<std::shared_ptr<Travel>> &TravelsVec,list<string> &gen
     return true;
 }
 
+/**
+ * This function creates the algorithmXTravel tasks that the thread executer will get task from
+ */
 void initTasksContainer(tasksContainer& tasks,map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>> &mapVec,vector<std::shared_ptr<Travel>>& TravelsVec){
     int numTravels = TravelsVec.size();
     int numAlgorithms = mapVec.size();
@@ -218,6 +221,63 @@ void initTasksContainer(tasksContainer& tasks,map<string ,std::function<std::uni
             tasks.emplace_back(std::move(tup));
         }
     }
+}
+
+/**
+ * This function gets the algorithms.so files from the mainAlgorithms path (if given or from current path)
+ * and saves the paths in the given vector.
+ */
+void getAlgSoFiles(vector<fs::path> &algPaths){
+    std::regex reg(".*\\.so");
+    for(const auto &entry : fs::directory_iterator(mainAlgorithmsPath)) {
+        if (!entry.is_directory()) {
+            if (std::regex_match(entry.path().filename().string(), reg)) {
+                algPaths.emplace_back(entry);
+            }
+        }
+    }
+}
+
+/**
+ * This function gets the information from the falgs and assign them to relevant variables
+ */
+void handleFlags(int argc, char** argv){
+    string basePath = fs::current_path().string();
+    const string travelFlag = "-travel_path";
+    const string outputFlag = "-output";
+    const string algorithmFlag = "-algorithm_path";
+    const string threadFlag = "-num_threads";
+
+    for(int i = 1; i+1 < argc; i++){
+        if(argv[i] == travelFlag)
+            mainTravelPath = argv[i+1];
+        else if(argv[i] == outputFlag)
+            mainOutputPath = argv[i+1];
+        else if(argv[i] == algorithmFlag)
+            mainAlgorithmsPath = argv[i+1];
+        else if(argv[i] == threadFlag)
+            threadNum = atoi(argv[i+1]);
+    }
+    if(mainOutputPath.empty() || !fs::exists(mainOutputPath))
+        mainOutputPath = basePath;
+    if(mainAlgorithmsPath.empty() || !fs::exists(mainAlgorithmsPath))
+        mainAlgorithmsPath = basePath;
+
+    if(mainTravelPath.empty()) {
+        NO_TRAVEL_PATH;
+        exit(EXIT_FAILURE);
+    }
+}
+
+/**
+ * This function creates a vector of algorithms that the simulator willing to test on
+ */
+vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> initAlgorithmList(map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>>& map){
+    vector<pair<string,std::unique_ptr<AbstractAlgorithm>>> algList;
+    for(auto &entry: map){
+        algList.emplace_back(make_pair(entry.first,entry.second()));
+    }
+    return algList;
 }
 
 

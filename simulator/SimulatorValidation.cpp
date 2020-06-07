@@ -371,6 +371,7 @@ void SimulatorValidation::initLoadedListAndRejected() {
                 extractContainersData(info, id, weight, dest, shipMap);
                 Container con(id, weight, currPort, dest);
                 currPort->addContainer(con, Type::LOAD);
+                alreadyFound = true;
             }
             else{
                 reason = VALIDATION::DuplicatedIdOnPort;
@@ -448,7 +449,7 @@ void SimulatorValidation::initPriorityRejected(){
                 while ((*currPortLoadVec->at(i).getDest()).get_name() != suffixPort) {
                     i++;
                 }
-                while ((*currPortLoadVec->at(i).getDest()).get_name() == suffixPort) {
+                while (i != (int)currPortLoadVec->size() && (*currPortLoadVec->at(i).getDest()).get_name() == suffixPort) {
                     string id = currPortLoadVec->at(i).getId();
                     possiblePriorityReject.insert({id, currPortLoadVec->at(i)});
                     if (priorityRejected.find(id) != priorityRejected.end()) {
@@ -541,7 +542,7 @@ int SimulatorValidation::checkPrioritizedHandledProperly(list<string> &currAlgEr
                 }
             }
         }
-        if(loadCapacity > 0){
+        if(sim->getShip()->getFreeSpace() > 0 && loadCapacity > 0){
             currAlgErrors.emplace_back(ERROR_LEFT_PRIORITY_ONPORT);
             err = -1;
         }
