@@ -61,6 +61,10 @@ void SimulatorObj::runAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> 
             compareIgnoredAlgErrsVsSimErrs(portName, visitNumber, simCurrAlgErrors);
         }
     }
+    /*Case there's a fatal error indicated by the algorithm and not by the simulator*/
+    else{
+        std::get<1>(travel->getAlgResultsMap()[alg.first]) = -1;
+    }
     compareFatalAlgErrsVsSimErrs(simCurrAlgErrors);
     travel->getErrorsMap().insert(make_pair(alg.first,simCurrAlgErrors));
     prepareNextIteration();
