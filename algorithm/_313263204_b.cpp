@@ -79,11 +79,18 @@ void _313263204_b::handleColumn(coordinate coor, std::vector<Container>* column,
 void _313263204_b::loadContainers(Type list_category, std::ofstream& output){
     std::vector<Container>* load = pPort->getContainerVec(list_category);
     if(load == nullptr) return;
+    initContainersDistance(*load);
+    std::sort(load->begin(), load->end());
+    /*for exercise 3*/
+    while(pShip->getFreeSpace() < (int)load->size()){
+        writeToOutput(output, AbstractAlgorithm::Action::REJECT, load->back().getId());
+        load->pop_back();
+    }
     for(auto con = load->end() - 1; !load->empty() && con >= load->begin();--con){
         bool found = false;
         coordinate coor;
         int weight = con->getWeight();
-        pShip->findColumnToLoad(coor, found, weight, calc);
+        pShip->findLowestColumnToLoad(coor, found, weight, calc);
 
         bool validID = isValidId(con->getId());
         auto route = pShip->getRoute();
@@ -114,6 +121,25 @@ void _313263204_b::unloadSingleContainer(std::ofstream &output, Container& con, 
 
 int _313263204_b::getPortNum() {
     return portNum;
+}
+
+/**
+ * initialize for each container, which needs to be loaded to ship,
+ * their distance from their destination.
+ */
+void _313263204_b::initContainersDistance(std::vector<Container> &vector) {
+    auto route = this->pShip->getRoute();
+    for(auto port = route.rbegin(); port != route.rend(); ++port){
+        int distance = std::distance(port, route.rend() - portNum);
+        if(distance <= 0){
+            break;
+        }
+        for(auto& con : vector){
+            if((*(*port)) == *(con.getDest())){
+                con.setDistance(distance);
+            }
+        }
+    }
 }
 
 int _313263204_b::readShipPlan(const std::string& full_path_and_file_name){

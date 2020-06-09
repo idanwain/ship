@@ -100,12 +100,12 @@ public:
     void getContainersToUnload(std::shared_ptr<Port>& port, std::vector<Container>** unload);
     bool findColumnToMoveTo(coordinate old_coor, coordinate& new_coor, std::vector<Container>& containersToUnload, int weight, WeightBalanceCalculator& calc);
     void findColumnToLoad(coordinate &coor, bool &found, int kg, WeightBalanceCalculator& calc);
+    void findLowestColumnToLoad(coordinate &coor, bool &found, int kg, WeightBalanceCalculator &calc);
     void addContainer(Container& container, std::tuple<int,int> coordinate);
     void removeContainer(coordinate coor);
     void moveContainer(coordinate origin, coordinate dest);
     void updateFreeSpace(int num);
     bool isOnShip(Container &con);
-
 };
 
 #endif

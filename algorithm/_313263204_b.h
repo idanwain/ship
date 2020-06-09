@@ -43,6 +43,7 @@ public:
     void unloadContainers(std::ofstream &output);
     void handleColumn(coordinate coor, vector<Container> *column, int lowest_floor, vector<Container> *containersToUnload, std::ofstream &output);
     void unloadSingleContainer(std::ofstream &output, Container &con, Type vecType, coordinate coor);
+    void initContainersDistance(vector<Container> &vector);
     void loadContainers(Type list_category, std::ofstream &output);
     int getPortNum();
     int resetAndReturn();

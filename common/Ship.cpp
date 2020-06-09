@@ -163,6 +163,7 @@ int Ship::getTopFloor(coordinate coor) {
     return shipMap[std::get<0>(coor)][std::get<1>(coor)].size();
 }
 
+/** init coor to be the first coordinate (lexicography) with free space and init found to be true if found one*/
 void Ship::findColumnToLoad(coordinate &coor, bool &found, int kg, WeightBalanceCalculator& calc) {
     int x = 0; int y = 0;
     for(auto& coor_x : shipMap){
@@ -179,6 +180,26 @@ void Ship::findColumnToLoad(coordinate &coor, bool &found, int kg, WeightBalance
         }
         if(found){
             break;
+        }
+        ++x;
+        y = 0;
+    }
+}
+
+/** init coor to be the lowest floor coordinate with free space and init found to be true if found one*/
+void Ship::findLowestColumnToLoad(coordinate &coor, bool &found, int kg, WeightBalanceCalculator& calc) {
+    int x = 0; int y = 0; int minFloor = z;
+    for(auto& coor_x : shipMap){
+        for(auto& coor_y : coor_x){
+            if(coor_y.empty()){}
+            int size = shipMap[x][y].size(); int capacity = shipMap[x][y].capacity();
+            if(size < capacity &&
+               calc.tryOperation('L', kg, x, y) == APPROVED && size < minFloor){
+                minFloor = size;
+                coor = std::make_tuple(x,y);
+                found = true;
+            }
+            ++y;
         }
         ++x;
         y = 0;
