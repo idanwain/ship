@@ -258,8 +258,10 @@ bool isCommentLine(const string& line){
  * @return true iff it's in the right format
  */
 bool isValidTravelName(const string& travelName){
-    std::regex reg("Travel.*");
-    return std::regex_match(travelName, reg);
+    string copy = travelName;
+    transform(copy.begin(), copy.end(), copy.begin(), ::tolower);
+    std::regex reg("travel");
+    return std::regex_search(copy,reg);
 }
 
 /**

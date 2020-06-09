@@ -197,9 +197,13 @@ bool isResultsEmpty(vector<std::shared_ptr<Travel>> &TravelsVec) {
  * This function checks if the errors list are empty --> if true simulation.errors wont be created
  */
 bool isErrorsEmpty(vector<std::shared_ptr<Travel>> &TravelsVec,list<string> &generalErrors){
-    for(auto& travel: TravelsVec)
-        if(!travel->getGeneralErrors().empty() || !travel->getErrorsMap().empty())
+    for(auto& travel: TravelsVec) {
+        if (!travel->getGeneralErrors().empty())
             return false;
+        for (auto &p : travel->getErrorsMap())
+            if(!p.second.empty())
+                return false;
+    }
     if(!generalErrors.empty())
         return false;
     return true;
