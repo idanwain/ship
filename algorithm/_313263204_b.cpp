@@ -167,6 +167,8 @@ int _313263204_b::getInstructionsForCargo(const std::string& input_full_path_and
 
     unloadContainers(output);
     loadContainers(Type::PRIORITY,output);
+    if(pPort->getContainerVec(Type::LOAD) != nullptr)
+        if(static_cast<int>(pPort->getContainerVec(Type::LOAD)->size()) > pShip->getFreeSpace()) errorCodes.at(exceedsCap) = true;
     loadContainers(Type::LOAD,output);
 
     output.close();

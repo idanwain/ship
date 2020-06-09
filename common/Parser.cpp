@@ -288,7 +288,6 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
         if(idSet.find(id) != idSet.end()) errorCodes.at(duplicateId) = true;
         idSet.insert(id);
     }
-    if(static_cast<int>(port->getContainerVec(Type::LOAD)->size()) > ship->getFreeSpace()) errorCodes.at(exceedsCap) = true;
     input.close();
     return true;
 }
