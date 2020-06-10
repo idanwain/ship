@@ -146,7 +146,7 @@ void _313263204_a::initContainersDistance(std::vector<Container> &vector) {
 }
 
 int _313263204_a::readShipPlan(const std::string& full_path_and_file_name){
-    return extractShipPlan(full_path_and_file_name, this->pShip) ||
+    return extractShipPlan(full_path_and_file_name, this->pShip) |
         extractArgsForBlocks(this->pShip, full_path_and_file_name);
 }
 
@@ -163,7 +163,7 @@ int _313263204_a::getInstructionsForCargo(const std::string& input_full_path_and
     if(portNum > static_cast<int>(pShip->getRoute().size())) portNum = 0;
     this->pPort = pShip->getRoute().at(portNum);
     std::ofstream output(output_full_path_and_file_name);
-    bool lastPort = portNum == static_cast<int>(pShip->getRoute().size());
+    bool lastPort = portNum == static_cast<int>(pShip->getRoute().size()-1);
 
     parseDataToPort(input_full_path_and_file_name, output, pShip, pPort, idSet, errorCodes, lastPort);
 

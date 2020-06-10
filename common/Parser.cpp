@@ -74,10 +74,10 @@ pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lin
     /*Case exceeding dimensions of (x,y) of ship map*/
     if(dim[0] >= ship->getAxis("x") || dim[1] >= ship->getAxis("y") || dim[2] >= ship->getAxis("z")){
         if(dim[0] >= ship->getAxis("x") || dim[1] >= ship->getAxis("y")){
-            std::get<1>(pair) = Plan_XYError;
+            std::get<1>(pair) |= Plan_XYError;
         }
         if(dim[2] >= ship->getAxis("z"))
-            std::get<1>(pair) = Plan_ZError;
+            std::get<1>(pair) |= Plan_ZError;
 
         std::get<0>(pair) = ERROR_XYZ_DIM(lineNumber);
         return pair;
@@ -262,7 +262,6 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
         errorCodes.at(fileCantRead) = true;
         return true;
     }
-
     while(getline(input,line)){
         if(isCommentLine(line)) continue; //comment symbol
         std::string id; int weight;
@@ -286,6 +285,7 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
             }
         }
         if(idSet.find(id) != idSet.end()) errorCodes.at(duplicateId) = true;
+        if(lastPort) errorCodes.at(lastPortCont) = true;
         idSet.insert(id);
     }
     input.close();

@@ -11,10 +11,6 @@ void initListOfTravels(string &path,list<string> &generalErrors,vector<std::shar
             continue;
         }
         string travelName = entry.path().filename().string();
-        if(!isValidTravelName(travelName)) {
-            generalErrors.emplace_back(ERROR_TRAVEL_NAME(travelName));
-            continue;
-        }
         std::unique_ptr<Travel> currTravel = std::make_unique<Travel>(travelName,mainOpPath);
         map<string,vector<fs::path>> currPorts;
         for(const auto &deep_entry : fs::directory_iterator(entry.path())){
@@ -101,7 +97,7 @@ void createResultsFile(string &mainOutputPath, vector<std::shared_ptr<Travel>> &
     inFile << "RESULTS" << comma;
     for(string &travel_name : travels)
         inFile << travel_name << comma;
-    inFile << "Sum" << comma << "Errors" <<  '\n';
+    inFile << "Sum" << comma << "Num Errors" <<  '\n';
 
     for(auto& algName : algorithmNames){
         inFile << algName << comma;
@@ -267,8 +263,7 @@ void handleFlags(int argc, char** argv){
         mainOutputPath = basePath;
     if(mainAlgorithmsPath.empty() || !fs::exists(mainAlgorithmsPath))
         mainAlgorithmsPath = basePath;
-
-    if(mainTravelPath.empty()) {
+    if(mainTravelPath.empty() || !fs::exists(mainTravelPath)) {
         NO_TRAVEL_PATH;
         exit(EXIT_FAILURE);
     }
