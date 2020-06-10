@@ -286,6 +286,7 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
         }
         if(idSet.find(id) != idSet.end()) errorCodes.at(duplicateId) = true;
         if(lastPort) errorCodes.at(lastPortCont) = true;
+        if(dest != nullptr && ((*dest == *port))) errorCodes.at(portIssue) = true;
         idSet.insert(id);
     }
     input.close();
