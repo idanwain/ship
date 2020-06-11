@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
         }
     }
 
-    createResultsFile(mainOutputPath,TravelsVec);
+    createResultsFile(mainOutputPath, TravelsVec,map);
     createErrorsFile(mainOutputPath,TravelsVec,generalErrors);
     return (EXIT_SUCCESS);
 }

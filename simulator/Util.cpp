@@ -67,7 +67,8 @@ void insertPortFile(std::unique_ptr<Travel> &currTravel, string &portName, int p
 /**
  * This function creates a file that shows the result of the cartesian multiplication of the simulator
  */
-void createResultsFile(string& mainOutputPath, vector<std::shared_ptr<Travel>> &TravelsVec){
+void createResultsFile(string &mainOutputPath, vector<std::shared_ptr<Travel>> &TravelsVec,
+                       map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>> &algMap) {
     std::ofstream inFile;
     int sumInstructions = 0,sumErrors = 0;
     const char comma = ',';
@@ -92,7 +93,7 @@ void createResultsFile(string& mainOutputPath, vector<std::shared_ptr<Travel>> &
         if(!travel->isErroneous())
             travels.emplace_back(travel->getName());
     }
-    for(auto &algName : TravelsVec.front()->getAlgResultsMap())//Get algorithm names
+    for(auto &algName : algMap)//Get algorithm names
         algorithmNames.emplace_back(algName.first);
 
     SimulatorObj::sortAlgorithmsForResults(output_map, algorithmNames);
