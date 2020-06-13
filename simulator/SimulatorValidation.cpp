@@ -15,7 +15,6 @@ std::optional<pair<int,int>> SimulatorValidation::validateAlgorithm(string &outp
 
     instructionsFile.open(outputPath);
     if(instructionsFile.fail()) {
-        ERROR_READ_PATH(outputPath);
         return std::nullopt;
     }
     while(getline(instructionsFile, line)){

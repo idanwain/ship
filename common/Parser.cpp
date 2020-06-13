@@ -262,7 +262,6 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
         errorCodes.at(fileCantRead) = true;
         return true;
     }
-
     while(getline(input,line)){
         if(isCommentLine(line)) continue; //comment symbol
         std::string id; int weight;
@@ -286,6 +285,8 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
             }
         }
         if(idSet.find(id) != idSet.end()) errorCodes.at(duplicateId) = true;
+        if(lastPort) errorCodes.at(lastPortCont) = true;
+        if(dest != nullptr && ((*dest == *port))) errorCodes.at(portIssue) = true;
         idSet.insert(id);
     }
     input.close();

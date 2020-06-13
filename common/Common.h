@@ -75,7 +75,6 @@ enum class VALIDATION {InvalidID, InvalidWeight, ExistID, InvalidPort,Valid,Inva
 bool isValidPortFileName(const string& fileName);
 bool isValidShipMapFileName(const string& fileName);
 bool isValidShipRouteFileName(const string& fileName);
-bool isValidTravelName(const string& travelName);
 bool isValidPortName(const string& portName);
 bool isValidInteger(const string& str);
 bool isCommentLine(const string& line);

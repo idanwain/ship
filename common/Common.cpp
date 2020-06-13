@@ -253,18 +253,6 @@ bool isCommentLine(const string& line){
 }
 
 /**
- * This function checks if the travel name folder is in the right format aka "Travel" followed by any valid numbers
- * @param travelName
- * @return true iff it's in the right format
- */
-bool isValidTravelName(const string& travelName){
-    string copy = travelName;
-    transform(copy.begin(), copy.end(), copy.begin(), ::tolower);
-    std::regex reg("travel");
-    return std::regex_search(copy,reg);
-}
-
-/**
  * This function gets the array of 19 available errors, and the number that returned from the algorithm run
  * over the current port and transform this number into bit number, if bit at index i is 1 then there's an error
  * and array at index length() - i will get the value true as there's an error.

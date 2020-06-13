@@ -66,6 +66,7 @@ void SimulatorObj::runAlgorithm(pair<string,std::unique_ptr<AbstractAlgorithm>> 
         std::get<1>(travel->getAlgResultsMap()[alg.first]) = -1;
     }
     compareFatalAlgErrsVsSimErrs(simCurrAlgErrors);
+    addAlgErrCodes(simCurrAlgErrors);
     travel->getErrorsMap().insert(make_pair(alg.first,simCurrAlgErrors));
     prepareNextIteration();
 }
@@ -155,10 +156,14 @@ int SimulatorObj::runCurrentPort(string &portName, fs::path &portPath, pair<stri
     }
     updateErrorCodes(algReturnValue, "alg");
     result = validator.validateAlgorithm(outputPath,inputPath,simCurrAlgErrors,portName,visitNumber);
-    if(!result) return -1; //case there was an error in validateAlgorithm
+    if(!result) {
+        simCurrAlgErrors.emplace_back(ERROR_INSTRUCTIONS_FILE(outputPath));
+        intAndError = std::make_pair(0,-1); //case there was an error in validateAlgorithm
+    }
+    else
+        intAndError = result.value();
 
     /*Incrementing the instructions count and errors count*/
-    intAndError = result.value();
     instructionsCount = std::get<0>(intAndError);
     errorsCount = std::get<1>(intAndError);
     if(travel->getAlgResultsMap().find(alg.first) == travel->getAlgResultsMap().end())
@@ -286,4 +291,26 @@ void SimulatorObj::sortContainersByPriority(vector<Container>* &priorityVec){
 
 int SimulatorObj::getPortNum(){
     return this->currPortNum;
+}
+
+void SimulatorObj::addAlgErrCodes(list<string>& simCurrAlgErrors){
+    string msg = "algorithm reports error code 2^";
+    if(this->algErrorCodes[10])
+        simCurrAlgErrors.emplace_back(msg + std::to_string(10));
+    if(this->algErrorCodes[11])
+        simCurrAlgErrors.emplace_back(msg + std::to_string(11));
+    if(this->algErrorCodes[12])
+        simCurrAlgErrors.emplace_back(msg + std::to_string(12));
+    if(this->algErrorCodes[13])
+        simCurrAlgErrors.emplace_back(msg + std::to_string(13));
+    if(this->algErrorCodes[14])
+        simCurrAlgErrors.emplace_back(msg + std::to_string(14));
+    if(this->algErrorCodes[15])
+        simCurrAlgErrors.emplace_back(msg + std::to_string(15));
+    if(this->algErrorCodes[16])
+        simCurrAlgErrors.emplace_back(msg + std::to_string(16));
+    if(this->algErrorCodes[17])
+        simCurrAlgErrors.emplace_back(msg + std::to_string(17));
+    if(this->algErrorCodes[18])
+        simCurrAlgErrors.emplace_back(msg + std::to_string(18));
 }

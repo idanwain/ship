@@ -29,7 +29,7 @@
 #define ERROR_READ_PATH(x)                      std::cerr << "Failed to read from this file path " << x << std::endl;
 #define NO_RESULT_FILE                          std::cout << "No results found, simulation.results file won't be created" << std::endl;
 #define NO_ERROR_FILE                           std::cout << "No errors found, simulation.errors file won't be created" << std::endl;
-#define NO_TRAVEL_PATH                          std::cerr << "Error: No travel path received, exiting program..." << endl;
+#define NO_TRAVEL_PATH                          std::cerr << "Error: failed to read travel path, exiting program..." << endl;
 #define ERROR_ERRORS_FILE                       std::cerr << "Error: failed to create errors file" << std::endl;
 #define ERROR_RESULTS_FILE                      std::cerr << "Error: failed to create results file" << std::endl;
 
@@ -49,7 +49,7 @@
 #define ERROR_CONT_LEFT_ONPORT(x,y,z)           "Error: container " + x + " left at port " + y + " while ship has space"
 #define ERROR_LEFT_PRIORITY_ONPORT              "Error: There is at least 1 prioritized container that left on port but supposed to be loaded"
 #define ERROR_CONT_LEFT_LAST_PORT(x)            "Error: container " + x + " left on ship at the end of the travel"
-
+#define ERROR_INSTRUCTIONS_FILE(x)               "Error: simulator couldn't read all together instructions file at : " + x
 /*----------------------Simulator Errors-------------------*/
 #define ERROR_NOT_DIRECTORY(x,y)                "Error: " + x.path().filename().string() + y
 #define ERROR_TRAVEL_NAME(x)                    "Error: " + x + " is not a valid travel name,ignoring"

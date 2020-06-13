@@ -84,6 +84,7 @@ public:
     void compareFatalAlgErrsVsSimErrs(list<string> &simCurrAlgErrors);
     void compareIgnoredAlgErrsVsSimErrs(string &portName, int visitNumber, list<string> &simCurrAlgErrors);
     void sortContainersByPriority(vector<Container>* &priorityVec);
+    void addAlgErrCodes(list<string>& simCurrAlgErrors);
     int getPortNum();
     WeightBalanceCalculator getCalc();
     std::unique_ptr<Ship>& getShip();
