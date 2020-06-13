@@ -143,7 +143,7 @@ void _313263204_b::initContainersDistance(std::vector<Container> &vector) {
 }
 
 int _313263204_b::readShipPlan(const std::string& full_path_and_file_name){
-    return extractShipPlan(full_path_and_file_name, this->pShip) ||
+    return extractShipPlan(full_path_and_file_name, this->pShip) |
            extractArgsForBlocks(this->pShip, full_path_and_file_name);
 }
 

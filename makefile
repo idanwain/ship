@@ -1,4 +1,4 @@
-COMP = g++-8.3.0
+COMP = g++-9.3.0
 OBJS = simulator.o ship.o container.o port.o common.o Parser.o outputHandler.o stowage_algorithm.o lifo_algorithm.o Unsorted_Lifo_Algorithm.o WeightBalanceCalculator.o erroneous_algorithm.o
 EXEC = ex1
 CPP_COMP_FLAG = -std=c++2a -Wall -Wextra -Werror -pedantic-errors -DNDEBUG

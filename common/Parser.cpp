@@ -74,10 +74,10 @@ pair<string,int> setBlocksByLine(string &str,std::unique_ptr<Ship>& ship,int lin
     /*Case exceeding dimensions of (x,y) of ship map*/
     if(dim[0] >= ship->getAxis("x") || dim[1] >= ship->getAxis("y") || dim[2] >= ship->getAxis("z")){
         if(dim[0] >= ship->getAxis("x") || dim[1] >= ship->getAxis("y")){
-            std::get<1>(pair) = Plan_XYError;
+            std::get<1>(pair) |= Plan_XYError;
         }
         if(dim[2] >= ship->getAxis("z"))
-            std::get<1>(pair) = Plan_ZError;
+            std::get<1>(pair) |= Plan_ZError;
 
         std::get<0>(pair) = ERROR_XYZ_DIM(lineNumber);
         return pair;
