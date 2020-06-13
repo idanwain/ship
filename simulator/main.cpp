@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
     getAlgSoFiles(algPaths);
 
     auto& registrar = AlgorithmFactoryRegistrar::getRegistrar();
-    registrar.dynamicLoadSoFiles(algPaths, map);
+    registrar.dynamicLoadSoFiles(algPaths, map,generalErrors);
     initTasksContainer(tasks,map,TravelsVec);
 
     /*Case multi threaded*/
