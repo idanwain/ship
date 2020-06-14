@@ -123,7 +123,11 @@ int extractArgsForBlocks(std::unique_ptr<Ship>& ship, const string& file_path, s
         returnStatement = Plan_Fatal;
     }
     else {
-        getline(inFile,line); /*first line is ship dimensions we already got them*/
+        while(getline(inFile,line)) {
+            if(!isCommentLine(line)){
+                break;
+            }
+        } /*first line is ship dimensions we already got them*/
         while (getline(inFile, line)){
             trimSpaces(line);
             if(!line.empty() && line.at(0) != '#') {/*if not commented line*/
@@ -276,6 +280,8 @@ bool parseDataToPort(const std::string& inputFullPathAndFileName, std::ofstream 
                 port->addContainer(*con, Type::LOAD);
             }
             else {
+                if(dest != nullptr && dest->get_name() == "NOT_IN_ROUTE")
+                    errorCodes.at(portIssue) = true;
                 writeToOutput(output,AbstractAlgorithm::Action::REJECT, id);
             }
         }

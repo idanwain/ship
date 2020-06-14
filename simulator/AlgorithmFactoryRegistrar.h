@@ -35,7 +35,7 @@ public:
     std::vector<std::function<std::unique_ptr<AbstractAlgorithm>()>>& getFuncVec();
     bool setName(const std::string& algName);
     static AlgorithmFactoryRegistrar& getRegistrar();
-    void dynamicLoadSoFiles(vector<fs::path>& algPaths, map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>>& map);
+    void dynamicLoadSoFiles(vector<fs::path>& algPaths, map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>>& map,list<string> &generalErrors);
 };
 
 

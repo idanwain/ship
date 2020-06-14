@@ -46,7 +46,7 @@ AlgorithmFactoryRegistrar::~AlgorithmFactoryRegistrar() {
  * @param map - data structures that holds pairs of (name, algorithm functors).
  */
 void AlgorithmFactoryRegistrar::dynamicLoadSoFiles(vector<fs::path>& algPaths,
-                                                   map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>>& map){
+                                                   map<string ,std::function<std::unique_ptr<AbstractAlgorithm>()>>& map,list<string> &generalErrors){
     for(auto& path : algPaths){
         std::unique_ptr<void, DlCloser> soAlg(dlopen(path.c_str(), RTLD_LAZY));
         if(!soAlg){
@@ -59,7 +59,7 @@ void AlgorithmFactoryRegistrar::dynamicLoadSoFiles(vector<fs::path>& algPaths,
                 std::function<std::unique_ptr<AbstractAlgorithm>()>& algorithmFactory = this->getFuncVec().at(pos);
                 map.insert({algName, algorithmFactory});
             } else {
-                P_ALGNOTREGISTER(algName);
+                generalErrors.emplace_back(ERROR_ALG_NOT_REG(algName));
             }
         }
     }

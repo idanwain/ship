@@ -14,7 +14,6 @@
 #define ERROR_FATA_LPLAN                    "ship plan: Fatal error occurred, ignoring this travel"
 #define ERROR_PLAN_MANY_FILES(x)            "ship plan: There is already plan file, ignoring " + x
 
-
 /*----------------------ERRORS IN ROUTE FILE-------------------*/
 #define ERROR_LACK_ROUTE                    "route: Lack of route file, ignoring this travel"
 #define ERROR_FATAL_ROUTE                   "route: Fatal error occurred, ignoring this travel"
@@ -34,8 +33,6 @@
 #define ERROR_RESULTS_FILE                      std::cerr << "Error: failed to create results file" << std::endl;
 
 
-
-
 /*----------------------Validation Errors-------------------*/
 #define ERROR_CONT_LINE_INSTRUCTION(x,y,z,w)    "Error: algorithm instructed invalid instruction at port " + x + " visit number " + toString(z) + " instruction: " + w + " container id " + y
 #define ERROR_PLAN_FATAL                        "Error: algorithm indicated there's a fatal error in plan file --> simulator rejects"
@@ -50,11 +47,12 @@
 #define ERROR_LEFT_PRIORITY_ONPORT              "Error: There is at least 1 prioritized container that left on port but supposed to be loaded"
 #define ERROR_CONT_LEFT_LAST_PORT(x)            "Error: container " + x + " left on ship at the end of the travel"
 #define ERROR_INSTRUCTIONS_FILE(x)               "Error: simulator couldn't read all together instructions file at : " + x
+
+
 /*----------------------Simulator Errors-------------------*/
 #define ERROR_NOT_DIRECTORY(x,y)                "Error: " + x.path().filename().string() + y
-#define ERROR_TRAVEL_NAME(x)                    "Error: " + x + " is not a valid travel name,ignoring"
 #define ERROR_INVALID_FILE(x)                   "Error: " + x + " is not a valid route/port/ship plan file, ignoring"
-#define P_ALGNOTREGISTER(x)                     std::cerr << "Error: algorithm: " + x + " didn't register, ignoring this algorithm" << std::endl;
+#define ERROR_ALG_NOT_REG(x)                    "Error: algorithm: " + x + " didn't register, ignoring this algorithm"
 #define ERROR_ALG_PLAN                          "Error: Algorithm crashed in read plan/route or calculator initialize"
 #define ERROR_ALG_FAILED                        "Error: Algorithm Failed in get instructions for cargo"
 
