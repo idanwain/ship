@@ -141,8 +141,8 @@ bool Ship::findColumnToMoveTo(coordinate old_coor, coordinate& new_coor,
             int capacity = this->shipMap[x][y].capacity();
             if(!std::count(coordinates_to_check.begin(), coordinates_to_check.end(), std::make_tuple(x,y)) &&
                 size < capacity &&
-                calc.tryOperation('U', weight, std::get<0>(old_coor), std::get<1>(old_coor)) == APPROVED &&
-                calc.tryOperation('L', weight, x, y) == APPROVED){
+                calc.tryOperation('U', weight, std::get<0>(old_coor), std::get<1>(old_coor)) == WeightBalanceCalculator::APPROVED &&
+                calc.tryOperation('L', weight, x, y) == WeightBalanceCalculator::APPROVED){
                     new_coor = std::make_tuple(x,y);
                     return true;
             }
@@ -171,7 +171,7 @@ void Ship::findColumnToLoad(coordinate &coor, bool &found, int kg, WeightBalance
             if(coor_y.empty()){}
             int size = shipMap[x][y].size(); int capacity = shipMap[x][y].capacity();
             if(size < capacity &&
-                    calc.tryOperation('L', kg, x, y) == APPROVED && !found){
+                    calc.tryOperation('L', kg, x, y) == WeightBalanceCalculator::APPROVED && !found){
                 coor = std::make_tuple(x,y);
                 found = true;
                 break;
@@ -194,7 +194,7 @@ void Ship::findLowestColumnToLoad(coordinate &coor, bool &found, int kg, WeightB
             if(coor_y.empty()){}
             int size = shipMap[x][y].size(); int capacity = shipMap[x][y].capacity();
             if(size < capacity &&
-               calc.tryOperation('L', kg, x, y) == APPROVED && size < minFloor){
+               calc.tryOperation('L', kg, x, y) == WeightBalanceCalculator::APPROVED && size < minFloor){
                 minFloor = size;
                 coor = std::make_tuple(x,y);
                 found = true;
