@@ -133,7 +133,7 @@ bool SimulatorValidation::validateLoadInstruction(vector<int> &coordinates,int k
     if(mustRejected.find(id) != mustRejected.end() && !isIdAwaitAtPort(id))
         return false;
     /*Check if the weight balance is approved*/
-    return sim->getCalc().tryOperation('L', kg, x, y) == APPROVED;
+    return sim->getCalc().tryOperation('L', kg, x, y) == WeightBalanceCalculator::APPROVED;
 }
 
 /**
@@ -155,7 +155,7 @@ bool SimulatorValidation::validateUnloadInstruction(vector<int> &coordinates){
         /*Check if weight balance is approved*/
     else {
         int kg = map.at(x).at(y).at(z).getWeight();
-        return sim->getCalc().tryOperation('U', kg, x, y) == APPROVED;
+        return sim->getCalc().tryOperation('U', kg, x, y) == WeightBalanceCalculator::APPROVED;
     }
 }
 
@@ -180,7 +180,7 @@ bool SimulatorValidation::validateMoveInstruction(vector<int> &coordinates){
         return false;
     /*Check if weight balance approved for unload && for load*/
     kg = map.at(x1).at(y1).at(z1).getWeight();
-    return sim->getCalc().tryOperation('U', kg, x1, y1) == APPROVED && sim->getCalc().tryOperation('L', kg, x2, y2) == APPROVED;
+    return sim->getCalc().tryOperation('U', kg, x1, y1) == WeightBalanceCalculator::APPROVED && sim->getCalc().tryOperation('L', kg, x2, y2) == WeightBalanceCalculator::APPROVED;
 }
 
 /**
@@ -190,13 +190,13 @@ bool SimulatorValidation::validateMoveInstruction(vector<int> &coordinates){
  */
 bool SimulatorValidation::checkIfBalanceWeightIssue(SimulatorObj* sim, int kg,std::tuple<int,int,int> &coordinates){
     if(std::get<0>(coordinates) >= 0){
-        return sim->getCalc().tryOperation('U',kg,std::get<0>(coordinates),std::get<1>(coordinates)) != BalanceStatus::APPROVED;
+        return sim->getCalc().tryOperation('U',kg,std::get<0>(coordinates),std::get<1>(coordinates)) != WeightBalanceCalculator::APPROVED;
     }
     else{
         for(int i = 0; i < sim->getShip()->getAxis("x"); i++){
             for(int j = 0; j < sim->getShip()->getAxis("y"); j++){
                 if((int)sim->getShip()->getMap()[i][j].size() < sim->getShip()->getAxis("z"))
-                    if(sim->getCalc().tryOperation('L',kg,i,j) == BalanceStatus::APPROVED)
+                    if(sim->getCalc().tryOperation('L',kg,i,j) == WeightBalanceCalculator::APPROVED)
                         /*Found a position that the container can be loaded at*/
                         return false;
             }

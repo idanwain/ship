@@ -37,7 +37,7 @@ void _313263204_a::handleColumn(coordinate coor, std::vector<Container>* column,
     for(auto con_iterator = column->end() - 1; !column->empty() && con_iterator >= column->begin();){
         if(con_iterator - column->begin() == lowest_floor - 1) break;
         if(*(con_iterator->getDest()) == *pPort){
-            if(calc.tryOperation('U', con_iterator->getWeight(), X, Y) == APPROVED){
+            if(calc.tryOperation('U', con_iterator->getWeight(), X, Y) == WeightBalanceCalculator::APPROVED){
                 unloadSingleContainer(output, *con_iterator, Type::ARRIVED, coor);
                 --con_iterator;
             }
@@ -50,7 +50,7 @@ void _313263204_a::handleColumn(coordinate coor, std::vector<Container>* column,
             coordinate new_spot;
             bool found = pShip->findColumnToMoveTo(coor, new_spot, *containersToUnload, con_iterator->getWeight(), calc);
             if(!found){
-                if(calc.tryOperation('U', con_iterator->getWeight(), X, Y) == APPROVED){
+                if(calc.tryOperation('U', con_iterator->getWeight(), X, Y) == WeightBalanceCalculator::APPROVED){
                     unloadSingleContainer(output, *con_iterator, Type::PRIORITY, coor);
                     --con_iterator;
                 }
