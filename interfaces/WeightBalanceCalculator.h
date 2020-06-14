@@ -1,5 +1,4 @@
-#ifndef SHIP1_WEIGHTBALANCECALCULATOR_H
-#define SHIP1_WEIGHTBALANCECALCULATOR_H
+#pragma once
 
 #include <string>
 
@@ -24,17 +23,16 @@ It shall have the following methods:
       First the “unload” has to be approved, then the “load”.
 */
 
-enum BalanceStatus {APPROVED, X_IMBALANCED, Y_IMBALANCED, X_Y_IMBALANCED, FAILED};
-
 class WeightBalanceCalculator {
-    //ex.3
-//    std::vector<std::vector<std::vector<Container>>> shipMap;
 public:
-    int readShipPlan(const std::string& full_path_and_file_name);
-    BalanceStatus  tryOperation(char loadUnload, int kg, int X, int Y);
-    //ex.3
-//    void checkLoad(std::tuple<bool, bool> &x_y_imbalance, int kg, std::vector<Container> &column);
-//    void checkUnload(std::tuple<bool, bool> &x_y_imbalance, int kg, std::vector<Container> &column);
-};
 
-#endif
+    enum BalanceStatus {
+        APPROVED, X_IMBALANCED, Y_IMBALANCED, X_Y_IMBALANCED
+    };
+
+// EDIT, 05-05-2020: the method below is required in ex2
+// but you may implement it just as: return 0;
+    int readShipPlan(const std::string& full_path_and_file_name);
+
+    BalanceStatus tryOperation(char loadUnload, int kg, int x, int y);
+};
